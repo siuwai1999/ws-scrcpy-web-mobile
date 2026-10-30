@@ -328,6 +328,10 @@ export class StreamClientScrcpy
     };
 
     public onAudioFrame = (data: Uint8Array, pts: bigint, isConfig: boolean): void => {
+        // A backgrounded page cannot play audio (iOS suspends the context), so
+        // queueing it only builds the latency we would hear on return. Config
+        // packets are still needed to (re)configure the decoder.
+        if (document.hidden && !isConfig) return;
         this.audioPlayer?.pushFrame(data, pts, isConfig);
     };
 
@@ -386,6 +390,47 @@ export class StreamClientScrcpy
 
     private isRefreshing = false;
     private isStopping = false;
+    private reconnectOnVisible = false;
+    private hiddenAt = 0;
+    private visibleAt = 0;
+    private static readonly BACKGROUND_RESYNC_MS = 1500;
+    private static readonly BACKGROUND_GRACE_MS = 5000;
+
+    private wasRecentlyBackgrounded(): boolean {
+        return document.hidden || performance.now() - this.visibleAt < StreamClientScrcpy.BACKGROUND_GRACE_MS;
+    }
+
+    /** Re-arm audio: a fresh AudioContext needs a user gesture on iOS. */
+    private armAudioResume(): void {
+        const resume = () => {
+            this.audioPlayer?.resume();
+            for (const t of ['click', 'keydown', 'touchend', 'pointerup']) document.removeEventListener(t, resume, true);
+        };
+        for (const t of ['click', 'keydown', 'touchend', 'pointerup']) document.addEventListener(t, resume, true);
+    }
+
+    private resumeAfterBackground(): void {
+        this.reconnectOnVisible = false;
+        if (this.isStopping) return;
+        this.refreshStream();
+        this.armAudioResume();
+    }
+
+    private onVisibilityChange = (): void => {
+        if (this.isStopping) return;
+        const now = performance.now();
+        if (document.hidden) {
+            this.hiddenAt = now;
+            return;
+        }
+        this.visibleAt = now;
+        const hiddenFor = now - this.hiddenAt;
+        // Socket died while away, or we were away long enough that buffered
+        // audio/video would play back stale: reconnect for a clean resync.
+        if (this.reconnectOnVisible || (this.hiddenAt > 0 && hiddenFor > StreamClientScrcpy.BACKGROUND_RESYNC_MS)) {
+            this.resumeAfterBackground();
+        }
+    };
 
     public onDisconnected = (ev?: CloseEvent): void => {
         // Decide failure-vs-normal FIRST, before any callback runs. The
@@ -393,7 +438,14 @@ export class StreamClientScrcpy
         // the stream, and stopping sets isStopping — so a check made after it
         // always read "the user stopped it" and no failure was ever reported
         // (smoke row 8.27). A user-initiated stop is never a failure.
-        const failure = this.isStopping ? undefined : streamFailureFromClose(ev);
+        let failure = this.isStopping ? undefined : streamFailureFromClose(ev);
+        // iOS/iPadOS kills sockets of backgrounded pages (close code 1006). That
+        // is not a stream failure: reconnect when the page is visible again.
+        if (failure && !this.isRefreshing && this.wasRecentlyBackgrounded()) {
+            failure = undefined;
+            this.reconnectOnVisible = true;
+            if (!document.hidden) this.resumeAfterBackground();
+        }
         this.audioPlayer?.stop();
         // Drop the reference the way refreshStream does. The session is over,
         // every remaining use site is optional-chained, and a live reference
@@ -404,7 +456,7 @@ export class StreamClientScrcpy
         this.uhidManager?.stop();
         // Don't destroy touch handler during refresh — refreshStream manages it,
         // and a refresh is not the end of the session, so report nothing.
-        if (this.isRefreshing) return;
+        if (this.isRefreshing || this.reconnectOnVisible) return;
         this.touchHandler?.release();
         this.touchHandler = undefined;
         // Exactly one of the two. Without an error hook the end still has to be
@@ -480,6 +532,7 @@ export class StreamClientScrcpy
             this.setHandleKeyboardEvents(false);
             document.removeEventListener('click', resumeAudio);
             document.removeEventListener('keydown', resumeAudio);
+            document.removeEventListener('visibilitychange', this.onVisibilityChange);
             this.demuxer?.close();
             this.audioPlayer?.stop();
             this.audioPlayer = undefined;
@@ -530,6 +583,8 @@ export class StreamClientScrcpy
         };
         document.addEventListener('click', resumeAudio, { once: true });
         document.addEventListener('keydown', resumeAudio, { once: true });
+        this.visibleAt = performance.now();
+        document.addEventListener('visibilitychange', this.onVisibilityChange);
 
         if (this.params.videoCodec) {
             // Caller supplied a codec — verify the browser can actually decode it

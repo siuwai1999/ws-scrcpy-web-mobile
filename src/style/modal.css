@@ -1342,3 +1342,14 @@ dialog.service-operation-modal .modal-body {
         transform: rotate(360deg);
     }
 }
+
+/* Stop the page behind the stream dialog from scrolling/rubber-banding on iPad. */
+dialog.connect-modal {
+    overscroll-behavior: none;
+}
+
+html:has(dialog.connect-modal[open]),
+body:has(dialog.connect-modal[open]) {
+    overflow: hidden;
+    overscroll-behavior: none;
+}

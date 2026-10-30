@@ -100,6 +100,9 @@
  * has to do the sizing.) Modal context overrides these with narrower caps. */
 .video-layer {
     grid-area: 1 / 1;
+    /* Touches must reach the .touch-layer stacked on top; iPadOS WebKit hit-tests
+       the video canvas instead, so the handler saw the wrong target. */
+    pointer-events: none;
     max-width: calc(100vw - 3.715rem);
     max-height: 100vh;
 }
@@ -208,8 +211,16 @@
 
 .touch-layer {
     grid-area: 1 / 1;
+    position: relative;
+    z-index: 1;
     max-width: calc(100vw - 3.715rem);
     max-height: 100vh;
+    /* iOS/iPadOS Safari & Chrome: without this a finger drag scrolls the page
+       instead of reaching the touch handlers as device input. */
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .control-buttons-list {
