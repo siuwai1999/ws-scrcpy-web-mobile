@@ -543,6 +543,110 @@ dialog.connect-modal .touch-layer {
     max-height: calc(90vh - 2.5rem);
 }
 
+/* ── Connect modal, phone layout ──
+ * Full screen: a slim title bar, the picture, and a bottom bar with back, home,
+ * overview and a "more" menu that holds every other control. Sizes are explicit
+ * (header 2.75rem, bar 3.5rem + the home-indicator inset) so the canvas caps
+ * below stay in step with them. */
+dialog.connect-modal.connect-modal--mobile {
+    width: 100vw;
+    height: 100dvh;
+    max-width: 100vw;
+    max-height: 100dvh;
+}
+
+/* biome-ignore lint/style/noDescendingSpecificity: no background here; the earlier higher-specificity rule sets background only — disjoint properties, see the audit note at the top */
+dialog.connect-modal--mobile .modal-frame {
+    width: 100vw;
+    height: 100dvh;
+    max-width: 100vw;
+    max-height: 100dvh;
+    border: none;
+    border-radius: 0;
+    /* Full screen has nothing to show through to: the glass would let the page behind bleed in. */
+    background: rgb(42, 42, 42);
+}
+
+/* biome-ignore lint/style/noDescendingSpecificity: the nested-modal override above only matters for a second dialog stacked on this one; this one is full screen and never has one over it */
+[data-theme="light"] dialog.connect-modal--mobile .modal-frame {
+    background: rgb(245, 248, 252);
+}
+
+dialog.connect-modal--mobile .modal-header {
+    box-sizing: border-box;
+    height: 2.75rem;
+    padding: 0 0.75rem;
+}
+
+/* The theme toggle is the first header control; only the close button stays. */
+dialog.connect-modal--mobile .modal-header-controls > :first-child {
+    display: none;
+}
+
+/* biome-ignore lint/style/noDescendingSpecificity: dialog.connect-modal--mobile and dialog.modal.shell-modal are mutually exclusive — no element matches both */
+dialog.connect-modal--mobile .modal-body {
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
+}
+
+dialog.connect-modal--mobile .device-view {
+    flex: 1;
+    flex-direction: column;
+}
+
+dialog.connect-modal--mobile .video {
+    flex: 1;
+}
+
+dialog.connect-modal--mobile .video-layer,
+dialog.connect-modal--mobile .touch-layer {
+    max-width: 100vw;
+    max-height: calc(100dvh - 2.75rem - 3.5rem - env(safe-area-inset-bottom, 0px));
+}
+
+dialog.connect-modal--mobile .control-buttons-list {
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    height: calc(3.5rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    touch-action: manipulation;
+}
+
+dialog.connect-modal--mobile .control-button {
+    width: 2.75rem;
+    height: 2.75rem;
+    margin: 0;
+}
+
+/* The "more" menu opens upward from the bar, as a grid of the other controls. */
+dialog.connect-modal--mobile .control-more-menu {
+    position: absolute;
+    right: 0.5rem;
+    bottom: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 2.75rem);
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border-radius: 12px 12px 0 0;
+    background: var(--control-buttons-bg-color);
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.35);
+    z-index: 3;
+}
+
+dialog.connect-modal--mobile .control-more-menu[hidden] {
+    display: none;
+}
+
+dialog.connect-modal--mobile .control-more-menu > label.control-button {
+    margin: 0;
+}
+
 /* ── List files modal overrides ── */
 /* biome-ignore lint/style/noDescendingSpecificity: no background here; the earlier higher-specificity rule sets background only — disjoint properties, see the audit note at the top */
 dialog.list-files-modal .modal-frame {

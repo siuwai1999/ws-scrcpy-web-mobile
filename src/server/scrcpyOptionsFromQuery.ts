@@ -63,5 +63,12 @@ export function scrcpyOptionsFromQuery(params: URLSearchParams, scid: string): S
         options.videoCodecOptions = videoCodecOptions;
     }
 
+    // Serialized into the same `app_process ...` string, so it is matched
+    // against scrcpy's grammar rather than passed through.
+    const captureOrientation = params.get('captureOrientation');
+    if (captureOrientation && /^@?(flip)?(0|90|180|270)$/.test(captureOrientation)) {
+        options.captureOrientation = captureOrientation;
+    }
+
     return options;
 }

@@ -2,6 +2,7 @@ import type { ParamsStreamScrcpy } from '../../../types/ParamsStreamScrcpy';
 import type { BasePlayer } from '../../player/BasePlayer';
 import { startStream } from '../../public/startStream';
 import type { StartStreamOptions, StreamHandle } from '../../public/types';
+import { isMobileLayout } from '../../ui/layoutMode';
 import { Modal } from '../../ui/Modal';
 import type VideoSettings from '../../VideoSettings';
 
@@ -18,6 +19,8 @@ export class ConnectModal extends Modal {
     ) {
         super({ title: deviceLabel });
         this.dialog.classList.add('connect-modal');
+        // Phones get the stream full screen with a bottom bar; tablets and desktops keep the dialog.
+        if (isMobileLayout()) this.dialog.classList.add('connect-modal--mobile');
 
         const bounds = videoSettings.bounds;
         const maxDim = bounds ? Math.max(bounds.width, bounds.height) : 0;

@@ -5,6 +5,8 @@ export interface StreamParamsInput {
     audioEnabled?: boolean | undefined;
     audioSource?: 'playback' | 'output' | 'mic' | undefined;
     encoderName?: string | undefined;
+    /** scrcpy `capture_orientation`, e.g. `@0` to keep the stream upright whatever the device does. */
+    captureOrientation?: string | undefined;
 }
 
 export interface VideoSettingsInput {
@@ -120,5 +122,9 @@ export function applyStreamParams(url: URL, params: StreamParamsInput, videoSett
 
     if (params.encoderName) {
         url.searchParams.set('videoEncoder', params.encoderName);
+    }
+
+    if (params.captureOrientation) {
+        url.searchParams.set('captureOrientation', params.captureOrientation);
     }
 }

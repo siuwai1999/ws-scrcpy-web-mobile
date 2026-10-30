@@ -23,6 +23,7 @@ import { ScrcpyDemuxer, type SessionMetadata } from '../../ScrcpyDemuxer';
 import Size from '../../Size';
 import Util from '../../Util';
 import { html } from '../../ui/HtmlTag';
+import { isMobileLayout } from '../../ui/layoutMode';
 import VideoSettings from '../../VideoSettings';
 import DeviceMessage from '../DeviceMessage';
 import { type KeyEventListener, KeyInputHandler } from '../KeyInputHandler';
@@ -273,6 +274,10 @@ export class StreamClientScrcpy
                 audioEnabled: this.params.audioEnabled,
                 audioSource: this.params.audioSource,
                 encoderName: this.params.encoderName,
+                // A phone held upright keeps the stream upright: landscape
+                // content lies on its side but fills the width, and there is no
+                // rotation lock to undo on the device.
+                captureOrientation: isMobileLayout() ? '@0' : undefined,
             },
             vs
                 ? {
@@ -761,7 +766,12 @@ export class StreamClientScrcpy
         // and would return 0. Viewport is stable and serves as the upper-bound
         // hint the encoder needs. CSS layout inside .video handles the
         // container-accurate display sizing.
-        const width = (window.innerWidth - this.controlButtons.clientWidth) & ~15;
+        const { clientWidth, clientHeight } = this.controlButtons;
+        // Phone layout: the toolbar is a bar under the picture, not a column beside it.
+        if (clientWidth > clientHeight) {
+            return new Size(window.innerWidth & ~15, (window.innerHeight - clientHeight) & ~15);
+        }
+        const width = (window.innerWidth - clientWidth) & ~15;
         const height = window.innerHeight & ~15;
         return new Size(width, height);
     }

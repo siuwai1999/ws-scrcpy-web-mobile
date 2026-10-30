@@ -23,9 +23,16 @@ export interface ScrcpyOptions {
      * keyframe interval, so it travels here.
      */
     videoCodecOptions?: string;
+    /**
+     * scrcpy's `capture_orientation`: `[@][flip]0|90|180|270`. The `@` locks the
+     * capture to that orientation, so the stream does not turn when the device
+     * does (`@0` keeps a phone upright and landscape content lies on its side).
+     * Unset follows the device.
+     */
+    captureOrientation?: string;
 }
 
-const DEFAULTS: Omit<Required<ScrcpyOptions>, 'scid' | 'videoEncoder' | 'videoCodecOptions'> = {
+const DEFAULTS: Omit<Required<ScrcpyOptions>, 'scid' | 'videoEncoder' | 'videoCodecOptions' | 'captureOrientation'> = {
     videoCodec: 'h264',
     audioCodec: 'opus',
     audioSource: 'output',
@@ -73,6 +80,9 @@ export function describeEffectiveOptions(options: ScrcpyOptions): string {
     // two are the ones a black-screen report turns on.
     parts.push(`video_encoder=${options.videoEncoder ?? '(device default)'}${options.videoEncoder ? '*' : ''}`);
     parts.push(`video_codec_options=${options.videoCodecOptions ?? '(none)'}${options.videoCodecOptions ? '*' : ''}`);
+    parts.push(
+        `capture_orientation=${options.captureOrientation ?? '(follows device)'}${options.captureOrientation ? '*' : ''}`,
+    );
     return parts.join(' ');
 }
 
@@ -91,6 +101,9 @@ export function serializeOptions(options: ScrcpyOptions): string[] {
     }
     if (options.videoCodecOptions) {
         args.push(`video_codec_options=${options.videoCodecOptions}`);
+    }
+    if (options.captureOrientation) {
+        args.push(`capture_orientation=${options.captureOrientation}`);
     }
     return args;
 }

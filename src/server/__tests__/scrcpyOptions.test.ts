@@ -98,3 +98,10 @@ describe('describeEffectiveOptions', () => {
         expect(line.split(' ').length).toBeGreaterThan(10);
     });
 });
+
+describe('capture_orientation', () => {
+    it('is emitted when set and absent otherwise', () => {
+        expect(serializeOptions({ scid: 'abc', captureOrientation: '@0' })).toContain('capture_orientation=@0');
+        expect(serializeOptions({ scid: 'abc' }).some((a) => a.startsWith('capture_orientation'))).toBe(false);
+    });
+});

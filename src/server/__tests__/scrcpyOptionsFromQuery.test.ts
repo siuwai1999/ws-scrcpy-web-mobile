@@ -97,3 +97,19 @@ describe('scrcpyOptionsFromQuery — other params carry over', () => {
         expect(opts.videoEncoder).toBe('c2.qti.hevc.encoder');
     });
 });
+
+describe('scrcpyOptionsFromQuery captureOrientation', () => {
+    it('accepts scrcpy orientation syntax', () => {
+        for (const v of ['@0', '90', '@flip270']) {
+            const o = scrcpyOptionsFromQuery(new URLSearchParams({ captureOrientation: v }), 'abc');
+            expect(o.captureOrientation).toBe(v);
+        }
+    });
+
+    it('drops anything else, since it reaches the device shell command', () => {
+        for (const v of ['@0;reboot', '45', '@', '$(id)']) {
+            const o = scrcpyOptionsFromQuery(new URLSearchParams({ captureOrientation: v }), 'abc');
+            expect(o.captureOrientation).toBeUndefined();
+        }
+    });
+});

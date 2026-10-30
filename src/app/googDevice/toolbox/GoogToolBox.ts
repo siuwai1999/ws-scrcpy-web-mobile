@@ -5,6 +5,7 @@ import { ToolBox } from '../../toolbox/ToolBox';
 import { ToolBoxButton } from '../../toolbox/ToolBoxButton';
 import { ToolBoxCheckbox } from '../../toolbox/ToolBoxCheckbox';
 import type { ToolBoxElement } from '../../toolbox/ToolBoxElement';
+import { isMobileLayout } from '../../ui/layoutMode';
 import SvgImage from '../../ui/SvgImage';
 import KeyEvent from '../android/KeyEvent';
 import type { StreamClientScrcpy } from '../client/StreamClientScrcpy';
@@ -42,9 +43,47 @@ const BUTTONS = [
     },
 ];
 
+// Phone layout keeps only these on the bar; everything else moves into the
+// "more" menu.
+const MOBILE_BAR_CODES: ReadonlySet<number> = new Set([
+    KeyEvent.KEYCODE_BACK,
+    KeyEvent.KEYCODE_HOME,
+    KeyEvent.KEYCODE_APP_SWITCH,
+]);
+
 export class GoogToolBox extends ToolBox {
-    protected constructor(list: ToolBoxElement<any>[]) {
+    protected constructor(list: ToolBoxElement<any>[], overflow: ToolBoxElement<any>[] = []) {
         super(list);
+        if (overflow.length) this.addMoreMenu(overflow);
+    }
+
+    private addMoreMenu(overflow: ToolBoxElement<any>[]): void {
+        const holder = this.getHolderElement();
+        // control-wrapper keeps the checkbox/label styling, which is keyed to
+        // that class's direct children.
+        const menu = document.createElement('div');
+        menu.classList.add('control-more-menu', 'control-wrapper');
+        menu.hidden = true;
+        overflow.forEach((item) => {
+            item.getAllElements().forEach((el) => {
+                menu.appendChild(el);
+            });
+        });
+
+        const more = new ToolBoxButton('More', SvgImage.Icon.MORE);
+        const outsideTap = (ev: Event): void => {
+            const target = ev.target as Node | null;
+            if (target && (menu.contains(target) || more.getElement().contains(target))) return;
+            setOpen(false);
+        };
+        const setOpen = (open: boolean): void => {
+            menu.hidden = !open;
+            if (open) document.addEventListener('pointerdown', outsideTap, true);
+            else document.removeEventListener('pointerdown', outsideTap, true);
+        };
+        more.addEventListener('click', () => setOpen(menu.hidden === true));
+        holder.appendChild(more.getElement());
+        holder.appendChild(menu);
     }
 
     public static createToolBox(
@@ -52,6 +91,7 @@ export class GoogToolBox extends ToolBox {
         player: BasePlayer,
         client: StreamClientScrcpy,
         deviceKind?: 'phone' | 'tablet' | 'tv',
+        mobile: boolean = isMobileLayout(),
     ): GoogToolBox {
         const playerName = player.getName();
         const list = BUTTONS.slice();
@@ -184,6 +224,13 @@ export class GoogToolBox extends ToolBox {
         });
         elements.push(clipSet);
 
+        if (mobile) {
+            const onBar = (el: ToolBoxElement<any>): boolean => MOBILE_BAR_CODES.has(el.optional?.['code']);
+            return new GoogToolBox(
+                elements.filter(onBar),
+                elements.filter((el) => !onBar(el)),
+            );
+        }
         return new GoogToolBox(elements);
     }
 }
