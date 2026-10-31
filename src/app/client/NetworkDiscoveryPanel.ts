@@ -448,7 +448,7 @@ export function renderPairingSection(deps: PairingSectionDeps): HTMLElement {
         // a cancel that arrives during it.
         //
         // Without `sessionIsLive`'s cancelled half, a cancel during `res.json()`
-        // lets `render` overwrite the "Pairing canceled." copy and `schedulePoll`
+        // lets `render` overwrite the cleared status and `schedulePoll`
         // re-arm a session the user stopped — which then goes on to announce
         // "Paired and connected." with the Cancel button already hidden. Same
         // hazard the stale tick had against `PairingService` in Task 4.
@@ -492,7 +492,9 @@ export function renderPairingSection(deps: PairingSectionDeps): HTMLElement {
             return;
         }
         session.cancelled = true;
-        setStatus('Pairing canceled.');
+        // Cancelling is the user's own act: the QR code and button vanish, and
+        // there is nothing to announce.
+        setStatus('');
         void deps
             .fetchFn('/api/devices/pair/cancel', {
                 method: 'POST',

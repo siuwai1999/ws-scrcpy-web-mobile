@@ -52,11 +52,6 @@
     margin-left: 0.35rem;
 }
 
-.dep-update:hover:not(:disabled) {
-    background-color: #1f451f;
-    opacity: 1;
-}
-
 /* Status badges */
 .dep-badge {
     display: inline-block;
@@ -103,27 +98,16 @@
     gap: 1rem;
     padding: 0.6rem 0.75rem;
     margin-bottom: 0.75rem;
-    background: #3a3a1a;
-    border: 1px solid #5a5a1a;
-    border-radius: 4px;
-    color: #fbbf24;
+    background: color-mix(in srgb, var(--warning-color) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--warning-color) 40%, transparent);
+    border-radius: var(--radius-md);
+    color: var(--warning-color);
     font-size: 1rem;
 }
 
 .dep-restart-prompt p {
     margin: 0;
     flex: 1;
-}
-
-.dep-restart-btn {
-    border-color: #7a5a00;
-    color: #fbbf24;
-    background-color: #4a3a00;
-}
-
-.dep-restart-btn:hover:not(:disabled) {
-    background-color: #5a4800;
-    opacity: 1;
 }
 
 /* Restarting overlay */

@@ -126,6 +126,8 @@ dialog.modal .modal-settings button:disabled,
 .settings-btn.settings-btn-primary,
 .dep-btn.discovery-quick-scan-btn,
 .dep-btn.discovery-connect-btn,
+.dep-btn.dep-update,
+.dep-btn.dep-restart-btn,
 .connect-btn,
 .btn.btn-primary {
     border-color: var(--accent);
@@ -137,6 +139,8 @@ dialog.modal .modal-settings button:disabled,
 .settings-btn.settings-btn-primary:hover:not(:disabled),
 .dep-btn.discovery-quick-scan-btn:hover:not(:disabled),
 .dep-btn.discovery-connect-btn:hover:not(:disabled),
+.dep-btn.dep-update:hover:not(:disabled),
+.dep-btn.dep-restart-btn:hover:not(:disabled),
 .connect-btn:hover:not(:disabled),
 .btn.btn-primary:hover:not(:disabled) {
     border-color: var(--accent-strong);
@@ -162,10 +166,8 @@ dialog.modal .modal-settings button:disabled,
     background: var(--danger-hover-bg);
 }
 
-/* ── Success: apply an update, check for updates ── */
+/* ── Success: apply an update ── */
 .settings-btn.settings-btn-ready,
-.dep-btn.dep-check-all,
-.dep-btn.dep-update,
 .btn.btn-success {
     border-color: rgba(var(--success-rgb), 0.5);
     background: transparent;
@@ -173,8 +175,6 @@ dialog.modal .modal-settings button:disabled,
 }
 
 .settings-btn.settings-btn-ready:hover:not(:disabled),
-.dep-btn.dep-check-all:hover:not(:disabled),
-.dep-btn.dep-update:hover:not(:disabled),
 .btn.btn-success:hover:not(:disabled) {
     background: var(--success-hover-bg);
 }
