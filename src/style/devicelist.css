@@ -478,8 +478,19 @@ body.list #device_list_menu {
     bottom: calc(var(--space-4) - var(--space-2));
 }
 
-#devices .device-list div.device:has(.device-secondary .stream) .device-name-text + .device-name-edit-btn {
+/* One icon button in the row (stream settings OR disconnect): sit left of it. */
+#devices .device-list div.device:has(.device-secondary .stream) .device-name-text + .device-name-edit-btn,
+#devices .device-list div.device:has(.device-secondary .disconnect-btn) .device-name-text + .device-name-edit-btn {
     right: calc(var(--space-4) - var(--space-2) + var(--icon-btn) + var(--space-1));
+}
+
+/* Both (a wireless device: disconnect + stream settings): sit left of the pair. */
+#devices
+    .device-list
+    div.device:has(.device-secondary .stream):has(.device-secondary .disconnect-btn)
+    .device-name-text
+    + .device-name-edit-btn {
+    right: calc(var(--space-4) - var(--space-2) + (var(--icon-btn) + var(--space-1)) * 2);
 }
 
 /* Edit mode: save button sits inline after the input. */
