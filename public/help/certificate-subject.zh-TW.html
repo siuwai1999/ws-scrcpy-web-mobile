@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="../favicon.png">
+<title>TLS 憑證:「主體名稱」簡單說明 — ws-scrcpy-web</title>
+<script>
+// Apply the theme before paint to avoid a flash. The app keeps its theme in
+// the server's settings, out of this static page's reach, so its links here
+// pass the theme it is showing as ?theme=light|dark (src/app/client/helpLink.ts).
+// Opened any other way, the page follows the OS setting.
+(function() {
+    try {
+        var q = new URLSearchParams(location.search).get('theme');
+        var t = q === 'light' || q === 'dark' ? q : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+    }
+})();
+</script>
+<style>
+:root {
+    --mono: ui-monospace, Consolas, "SF Mono", "Liberation Mono", monospace;
+}
+:root, [data-theme="dark"] {
+    --bg: #2a2a2a;
+    --panel: #1f1f1f;
+    --text: #e0e0e0;
+    --muted: #a8a8a8;
+    --accent: hsl(218, 63%, 70%);
+    --border: #444444;
+}
+[data-theme="light"] {
+    --bg: #ffffff;
+    --panel: #f6f8fa;
+    --text: #212529;
+    --muted: #495057;
+    --accent: #0969da;
+    --border: #d0d7de;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 15px; line-height: 1.6; }
+main { max-width: 780px; margin: 0 auto; padding: 32px 24px 64px; }
+h1 { font-size: 28px; margin: 0 0 8px; }
+h2 { font-size: 20px; margin: 40px 0 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+h3 { font-size: 17px; margin: 28px 0 8px; }
+h4 { font-size: 15px; margin: 20px 0 8px; }
+p { margin: 0 0 12px; }
+a { color: var(--accent); }
+li { margin: 0 0 6px; }
+code, .mono { font-family: var(--mono); font-size: 0.95em; background: var(--panel); padding: 2px 6px; border-radius: 4px; }
+pre { background: var(--panel); padding: 12px 16px; border-radius: 6px; overflow-x: auto; font-family: var(--mono); font-size: 13px; }
+/* A code block's own panel is the background; the inline-code chip inside it would double up. */
+pre code { background: none; padding: 0; font-size: inherit; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-family: var(--mono); font-size: 13px; }
+/* The analogy table is prose, not numbers: the body font reads better. */
+table.prose { font-family: inherit; font-size: 14px; }
+th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; }
+blockquote { margin: 0 0 12px; padding: 4px 16px; border-left: 3px solid var(--border); color: var(--muted); }
+blockquote p { margin: 0 0 4px; }
+.muted { color: var(--muted); }
+.back { display: inline-block; margin-top: 32px; color: var(--accent); text-decoration: none; }
+.back:hover { text-decoration: underline; }
+.footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<main>
+<h1>認識 TLS 憑證:用簡單的方式解釋「主體名稱」</h1>
+<p>如果你曾在瀏覽器網址旁看過那個小小的鎖頭圖示,你就看過 <strong>TLS 憑證</strong>在運作。</p>
+<p>TLS 憑證就像網路或私有網路上伺服器的數位身分證或護照。它確保兩件事:</p>
+<ol>
+<li><strong>隱私:</strong>你的電腦與伺服器之間的對話會被加密(內容被打亂,竊聽者無法讀取)。</li>
+<li><strong>身分驗證:</strong>你確實連到了你想連的那台電腦,而不是冒牌貨。</li>
+</ol>
+
+<h2 id="1-what-is-the-subject-name">1. 什麼是「主體名稱」?</h2>
+<p>把 TLS 憑證想成政府核發的護照:</p>
+<ul>
+<li>護照上列有你的<strong>法定姓名</strong>,用來證明你是誰。</li>
+<li>TLS 憑證列有<strong>主體名稱</strong>(或<strong>主體別名 / SAN</strong>),用來證明它屬於哪個伺服器位址。</li>
+</ul>
+<p>當你的電腦連線到伺服器時,伺服器會出示它的憑證。你的電腦會檢查憑證上的<strong>主體名稱</strong>,並問:</p>
+<blockquote><p><em>「我在瀏覽器網址列輸入的名稱或位址,和這張身分證上正式蓋印的名稱相符嗎?」</em></p></blockquote>
+<ul>
+<li><strong>如果相符:</strong>連線會安全地進行(綠色鎖頭 / 安全標章)。<strong><em>前提是瀏覽器信任該憑證。請參閱下方的<a href="#4-installing-a-certificate-establishing-trust">安裝憑證(建立信任)</a>一節。</em></strong></li>
+<li><strong>如果不相符:</strong>瀏覽器會顯示警告,例如<em>「你的連線不是私人連線」</em>或<em>「憑證名稱不符」</em>。</li>
+</ul>
+
+<h2 id="2-addresses-vs-names-the-real-world-analogy">2. 位址與名稱:現實世界的類比</h2>
+<p>想像寄信,就能理解連線如何運作:</p>
+<table class="prose">
+<thead><tr><th>概念</th><th>現實世界類比</th><th>電腦範例</th></tr></thead>
+<tbody>
+<tr><td><strong>IP 位址</strong></td><td>精確的 GPS 座標(北緯 37.7749°,西經 122.4194°)</td><td><code>192.168.1.50</code> 或 <code>142.250.190.46</code></td></tr>
+<tr><td><strong>主機名稱</strong></td><td>建築物的暱稱(例如「總部」)</td><td><code>mailserver</code> 或 <code>fileshare</code></td></tr>
+<tr><td><strong>FQDN(完整名稱)</strong></td><td>完整且唯一的郵寄地址(例如「美國德州奧斯汀主街 100 號」)</td><td><code>mail.company.com</code></td></tr>
+<tr><td><strong>DNS(名稱解析)</strong></td><td>電話簿或手機通訊錄</td><td>將 <code>google.com</code> 轉換為 <code>142.250.190.46</code></td></tr>
+</tbody>
+</table>
+
+<h2 id="3-how-the-connection-works-step-by-step">3. 連線如何運作(逐步說明)</h2>
+
+<h3 id="scenario-a-connecting-using-a-domain-name-fqdn">情境 A:使用網域名稱(FQDN)連線</h3>
+<p>這是你造訪 <code>https://bank.example.com</code> 時發生的事。</p>
+<ol>
+<li><strong>你輸入名稱:</strong>你在網址列輸入 <code>bank.example.com</code>。</li>
+<li><strong>名稱解析(DNS):</strong>你的電腦不知道 <code>bank.example.com</code> 實際位在網路上的哪裡,所以向 DNS 伺服器(網際網路的通訊錄)詢問:
+<blockquote><p><em>「bank.example.com 的 IP 位址是什麼?」</em></p><p>DNS 回覆:<em>「在 <code>203.0.113.10</code>。」</em></p></blockquote></li>
+<li><strong>連到伺服器:</strong>你的電腦聯絡位於 <code>203.0.113.10</code> 的電腦。</li>
+<li><strong>出示身分證:</strong>伺服器交出它的 TLS 憑證。</li>
+<li><strong>驗證檢查:</strong>你的電腦查看憑證的<strong>主體名稱</strong>。
+<ul>
+<li>它看到:<code>Subject: bank.example.com</code>。</li>
+<li>你的電腦說:<em>「我要的是 <code>bank.example.com</code>,而這張憑證寫的也是 <code>bank.example.com</code>。沒問題!」</em></li>
+<li>安全連線建立。</li>
+</ul></li>
+</ol>
+
+<h3 id="scenario-b-connecting-using-a-short-hostname-internal-network">情境 B:使用簡短主機名稱連線(內部網路)</h3>
+<p>在辦公室或家用網路中,人們常用簡短的暱稱取代完整網域名稱(例如連到名為 <code>backup-server</code> 的印表機或內部伺服器)。</p>
+<ol>
+<li><strong>你輸入暱稱:</strong>你前往 <code>https://backup-server</code>。</li>
+<li><strong>本機名稱解析:</strong>你的辦公室路由器或本機目錄查詢名稱 <code>backup-server</code>,找到它的區域網路位址(例如 <code>10.0.0.15</code>)。</li>
+<li><strong>憑證檢查:</strong>
+<ul>
+<li>如果憑證的主體名稱明確列出 <code>backup-server</code>,連線就會成功。</li>
+<li><strong>常見問題:</strong>如果憑證只列出完整名稱(<code>backup-server.local</code> 或 <code>backup-server.company.com</code>),你的電腦會報錯,因為你輸入的簡短暱稱與憑證上印的內容不符。</li>
+</ul></li>
+</ol>
+
+<h3 id="scenario-c-connecting-directly-to-an-ip-address">情境 C:直接連到 IP 位址</h3>
+<p>有時技術管理員會直接連到 IP 位址(例如輸入 <code>https://192.168.1.1</code> 來開啟家用路由器的設定)。</p>
+<ol>
+<li><strong>不需查詢:</strong>因為你提供了精確的數字座標,你的電腦完全略過通訊錄(DNS),直接前往 <code>192.168.1.1</code>。</li>
+<li><strong>憑證檢查:</strong>伺服器交出憑證,你的電腦會在憑證的主體別名中尋找 <strong>IP 位址項目</strong>。</li>
+<li><strong>結果:</strong>
+<ul>
+<li><strong>如果憑證內嵌了 <code>IP: 192.168.1.1</code>:</strong>檢查通過。</li>
+<li><strong>如果憑證只有網域名稱(例如 <code>router.lan</code>):</strong>你的電腦會警告不符,因為你輸入的是數字(<code>192.168.1.1</code>),但身分證只宣稱了文字名稱(<code>router.lan</code>)。</li>
+</ul></li>
+</ol>
+
+<h2 id="4-installing-a-certificate-establishing-trust">4. 安裝憑證(建立信任)</h2>
+<p>網址列中的名稱相符,只是身分檢查的一半。你的作業系統與瀏覽器還必須<strong>信任核發這張身分證的單位</strong>。</p>
+<ul>
+<li><strong>公開憑證:</strong>當你造訪 Google 或銀行等網站時,它們的憑證是由知名、全球公認的憑證授權單位(CA)簽發。作業系統與瀏覽器已預先內建這些受信任的簽發者。</li>
+<li><strong>私有 / 內部憑證:</strong>對於本機的家用實驗室、內部網路伺服器或私有設備,你會建立自己的憑證授權單位。由於你的裝置預設不認得這個新的授權單位,你必須在每台要連線的電腦上安裝一次根憑證。</li>
+</ul>
+<p>ws-scrcpy-web 下載的憑證(設定 → Local HTTPS → <strong>下載 CA 憑證</strong>)檔名為 <code>ws-scrcpy-web-local-ca.crt</code>。</p>
+<p>請依照下列適用於你作業系統或瀏覽器的說明操作:</p>
+<p class="muted">快速跳轉:<a href="#windows">Windows</a> · <a href="#macos">macOS</a> · <a href="#linux">Linux</a> · <a href="#android">Android</a> · <a href="#ios-ipados">iOS / iPadOS</a> · <a href="#firefox">Firefox</a></p>
+
+<h3 id="windows">Windows</h3>
+<ol>
+<li>按兩下下載的憑證檔(<code>.crt</code>)。</li>
+<li>按一下<strong>安裝憑證...</strong>。</li>
+<li>在<strong>存放位置</strong>下,選擇:
+<ul>
+<li><strong>本機電腦</strong><em>(建議)</em>:讓這台電腦上的所有帳號都信任此憑證(需要管理員確認)。</li>
+<li><strong>目前使用者</strong>:只讓你目前登入的帳號信任此憑證。</li>
+</ul></li>
+<li>按一下<strong>下一步</strong>,選擇<strong>將所有憑證放入以下的存放區</strong>,再按一下<strong>瀏覽...</strong>。</li>
+<li>選擇<strong>受信任的根憑證授權單位</strong>,然後按一下<strong>確定</strong>。</li>
+<li>按一下<strong>下一步</strong>,再按<strong>完成</strong>。如果出現安全性確認警告,請按<strong>是</strong>。</li>
+<li>重新啟動你的瀏覽器。</li>
+</ol>
+
+<h3 id="macos">macOS</h3>
+<ol>
+<li>開啟<strong>鑰匙圈存取</strong>(按 <code>Cmd + Space</code>,輸入 <em>Keychain Access</em>,再按 <code>Enter</code>)。</li>
+<li>在左側欄中,選擇<strong>系統</strong>鑰匙圈。</li>
+<li>將下載的憑證檔直接拖放到清單中。</li>
+<li>按兩下新加入的憑證,開啟它的設定視窗。</li>
+<li>展開<strong>信任</strong>區段。</li>
+<li>將<strong>使用此憑證時</strong>設為<strong>永遠信任</strong>。</li>
+<li>關閉視窗,並在提示時以管理員密碼或 Touch ID 驗證。</li>
+<li>重新啟動 Safari 或你的瀏覽器。</li>
+</ol>
+
+<h3 id="linux">Linux</h3>
+<p>Linux 透過背景的命令列工具管理系統憑證。<strong>GNOME</strong> 與 <strong>KDE</strong> 桌面環境,對於 Chromium 系瀏覽器、cURL 與系統工具,都依賴這些底層的系統憑證庫。</p>
+
+<h4 id="ubuntu-debian">Ubuntu / Debian 系列(Ubuntu Desktop、Pop!_OS、Linux Mint)</h4>
+<ol>
+<li>ws-scrcpy-web 下載的檔案已經以 <code>.crt</code> 結尾,正是這個資料夾所需要的。(從其他地方取得、以 <code>.pem</code> 或 <code>.cer</code> 結尾的憑證,必須先改名為 <code>.crt</code> 結尾。)</li>
+<li>將檔案複製到系統 CA 資料夾:
+<pre><code>sudo cp ws-scrcpy-web-local-ca.crt /usr/local/share/ca-certificates/</code></pre></li>
+<li>更新系統信任資料庫:
+<pre><code>sudo update-ca-certificates</code></pre></li>
+</ol>
+
+<h4 id="fedora-rhel">Fedora / RHEL 系列(Fedora Workstation、CentOS Stream、Rocky Linux)</h4>
+<ol>
+<li>將憑證檔複製到來源錨點資料夾:
+<pre><code>sudo cp ws-scrcpy-web-local-ca.crt /etc/pki/ca-trust/source/anchors/</code></pre></li>
+<li>更新系統信任資料庫:
+<pre><code>sudo update-ca-trust</code></pre></li>
+</ol>
+<p><em>(給 GNOME 與 KDE 桌面使用者的說明:雖然 GNOME 的「密碼與金鑰」或 KDE 的「Kleopatra」等工具會顯示金鑰,但執行上述指令能確保所有系統軟體與桌面瀏覽器立即採用信任。)</em></p>
+
+<h3 id="android">Android</h3>
+<ol>
+<li>將憑證檔下載到裝置上(或透過 USB / 區域網路分享傳輸)。</li>
+<li>開啟<strong>設定</strong> → <strong>安全性與隱私權</strong>(或<strong>安全性</strong>)。</li>
+<li>點選<strong>更多安全性設定</strong> → <strong>加密與憑證</strong>(或<strong>憑證</strong>)。</li>
+<li>點選<strong>安裝憑證</strong> → <strong>CA 憑證</strong>。</li>
+<li>閱讀警告提示後點選<strong>仍要安裝</strong>,再以 PIN、指紋或圖形驗證你的身分。</li>
+<li>在檔案選取器中選擇你下載的憑證檔。</li>
+</ol>
+
+<h3 id="ios-ipados">iOS / iPadOS</h3>
+<p>Apple 要求必須完成兩個步驟:安裝與信任。</p>
+<ol>
+<li><strong>步驟 1:安裝描述檔</strong>
+<ul>
+<li>在 Safari 中下載憑證,或透過 AirDrop 傳到你的裝置。</li>
+<li>出現下載設定描述檔的提示時,點選<strong>允許</strong>。</li>
+<li>開啟<strong>設定</strong>,畫面上方附近會出現<strong>已下載描述檔</strong>的提示(或前往<strong>設定</strong> → <strong>一般</strong> → <strong>VPN 與裝置管理</strong>)。</li>
+<li>點選下載的描述檔,點選右上角的<strong>安裝</strong>,輸入裝置密碼並確認。</li>
+</ul></li>
+<li><strong>步驟 2:開啟完全信任</strong>
+<ul>
+<li>前往<strong>設定</strong> → <strong>一般</strong> → <strong>關於本機</strong>。</li>
+<li>捲動到最底部,點選<strong>憑證信任設定</strong>。</li>
+<li>在<strong>針對根憑證啟用完全信任</strong>下,找到你的憑證,並將開關切換為<strong>開啟</strong>。</li>
+<li>點選<strong>繼續</strong>以確認提示。</li>
+</ul></li>
+</ol>
+
+<h3 id="firefox">使用 Mozilla Firefox?</h3>
+<p>與 Chrome、Edge 和 Safari(它們直接讀取 Windows、macOS 或 Linux 的系統憑證庫)不同,<strong>Mozilla Firefox</strong> 使用自己獨立的憑證資料庫:</p>
+<ol>
+<li>開啟 Firefox 並前往<strong>設定</strong>(或在網址列輸入 <code>about:preferences#privacy</code>)。</li>
+<li>點選左側欄的<strong>隱私權與安全性</strong>。</li>
+<li>捲動到<strong>憑證</strong>區段,點選<strong>檢視憑證...</strong>。</li>
+<li>在憑證管理員彈出視窗中,選擇<strong>憑證授權單位</strong>分頁。</li>
+<li>點選底部的<strong>匯入...</strong>。</li>
+<li>選擇你下載的憑證檔。</li>
+<li>在開啟的提示中,勾選<strong>信任這個 CA 來識別網站</strong>。</li>
+<li>點選<strong>確定</strong>,關閉設定,並重新整理你的目標網站。</li>
+</ol>
+
+<h2 id="5-key-takeaways">5. 重點整理</h2>
+<ol>
+<li><strong>相符原則:</strong>你在網址列輸入的任何內容,都必須出現在憑證的主體別名(SAN)清單中。</li>
+<li><strong>DNS 找出位置;憑證證明身分:</strong>DNS 把好記的名稱轉換成 IP 位址,讓你的電腦能連到那台機器。憑證則證明該位址上的機器確實被授權代表那個名稱。</li>
+<li><strong>信任 + 相符 = 安全:</strong>兩個條件都必須滿足:位址必須與身分證上印的相符,且簽發它的根授權單位必須安裝在你裝置的信任庫中。</li>
+<li><strong>IP 位址更難取得憑證:</strong>公開憑證授權單位很少為公開的 IP 位址簽發憑證,也從不為私有區域網路 IP(例如 <code>192.168.x.x</code>)簽發。私有 IP 的環境需要自行簽發憑證,並依<a href="#4-installing-a-certificate-establishing-trust">第 4 節</a>的步驟匯入。</li>
+</ol>
+
+<a class="back" href="../">&larr; 關閉分頁</a>
+
+<div class="footer">
+為 ws-scrcpy-web 撰寫。不含第三方內容。
+</div>
+</main>
+<script>
+// Attach the close-tab handler instead of an inline onclick attribute (avoids
+// the inline event-handler CSP smell; the page already uses an inline script),
+// as subnets.html does (#107).
+//
+// A browser ignores window.close() for a tab it does not consider closable by
+// script: one opened directly, or one that has navigated (following any of
+// this page's own section links can be enough). So the link's own navigation
+// is canceled only for as long as the close might still happen: if the tab
+// is still open shortly afterwards, go where the link points instead.
+document.querySelector('.back')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    const fallback = e.currentTarget.getAttribute('href');
+    window.close();
+    window.setTimeout(() => {
+        if (!window.closed) window.location.href = fallback;
+    }, 100);
+});
+</script>
+</body>
+</html>

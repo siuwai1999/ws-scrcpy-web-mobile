@@ -285,7 +285,7 @@ export class WelcomeModal extends Modal {
         }
 
         if (!statusResp) {
-            this.setStatus("couldn't reach server. try again?", true);
+            this.setStatus(t('welcome.reachRetry'), true);
             this.setBusy(false);
             return;
         }
@@ -298,7 +298,7 @@ export class WelcomeModal extends Modal {
             if (this.dontShowCheckbox.checked) patch['firstRunComplete'] = true;
             const ok = await this.patchConfig(patch);
             if (!ok) {
-                this.setStatus("couldn't save preference. try again?", true);
+                this.setStatus(t('welcome.saveRetry'), true);
                 this.setBusy(false);
                 return;
             }
@@ -377,7 +377,7 @@ export class WelcomeModal extends Modal {
             });
             handedOff = true;
         } catch {
-            this.setStatus("couldn't reach server. try again?", true);
+            this.setStatus(t('welcome.reachRetry'), true);
             this.setBusy(false);
         } finally {
             if (!handedOff) modal.close();
@@ -396,7 +396,7 @@ export class WelcomeModal extends Modal {
                 firstRunComplete: true,
             });
             if (!configOk) {
-                this.setStatus("couldn't save preference. try again?", true);
+                this.setStatus(t('welcome.saveRetry'), true);
                 this.setBusy(false);
                 return;
             }

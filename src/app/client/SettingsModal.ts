@@ -471,7 +471,7 @@ export class SettingsDirtyCloseModal extends Modal {
         // this copy is constant and reads no instance field.
         const message = document.createElement('p');
         message.style.cssText = 'margin: 0 0 8px;';
-        message.textContent = 'you have changes that have not been saved yet.';
+        message.textContent = t('settings.unsaved');
         container.appendChild(message);
     }
 
@@ -1015,7 +1015,7 @@ export class SettingsModal extends Modal {
         // version beside it.
         save.style.marginLeft = 'auto';
         save.className = 'settings-btn settings-btn-primary settings-save';
-        save.textContent = 'save';
+        save.textContent = t('common.save');
         // Starts disabled: a freshly opened dialog has staged nothing, and the
         // tabs' baselines are not even known yet (the ports and the update
         // settings arrive on the refreshes the constructor drives).

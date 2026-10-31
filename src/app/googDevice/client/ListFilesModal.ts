@@ -323,7 +323,7 @@ export class ListFilesModal extends Modal implements DragAndPushListener {
         const hasSavedPref = typeof saved === 'number' && saved > 0;
         saveCheck.checked = hasSavedPref;
         saveLabel.appendChild(saveCheck);
-        saveLabel.appendChild(document.createTextNode(' save preference (skip this dialog next time)'));
+        saveLabel.appendChild(document.createTextNode(t('files.savePref')));
         controls.appendChild(saveLabel);
 
         const note = document.createElement('div');

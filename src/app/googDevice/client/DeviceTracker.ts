@@ -494,8 +494,8 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
             secondary.appendChild(disconnect);
         }
         if (config) {
-            config.querySelector('button')?.setAttribute('aria-label', 'Stream settings');
-            config.querySelector('button')?.setAttribute('title', 'Stream settings');
+            config.querySelector('button')?.setAttribute('aria-label', t('device.streamSettings'));
+            config.querySelector('button')?.setAttribute('title', t('device.streamSettings'));
             secondary.appendChild(config);
         }
         (disconnect ?? config)?.classList.add('icon-first');

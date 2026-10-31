@@ -107,7 +107,7 @@ export class ConfigureScrcpy extends Modal {
     }
 
     private async runProbe(): Promise<void> {
-        this.setStatus('Probing...');
+        this.setStatus(t('cfg.probing'));
         try {
             const result = await DeviceProbeClient.probe(this.udid, {
                 hostname: this.params.hostname || window.location.hostname,
@@ -116,7 +116,7 @@ export class ConfigureScrcpy extends Modal {
             });
             this.onProbeResult(result);
         } catch (err) {
-            this.setStatus(`Probe failed: ${(err as Error).message}`);
+            this.setStatus(t('cfg.probeFailed', { error: (err as Error).message }));
         }
     }
 
@@ -171,7 +171,10 @@ export class ConfigureScrcpy extends Modal {
             const displayId = DisplayInfo.DEFAULT_DISPLAY;
             const optionElement = document.createElement('option');
             optionElement.setAttribute('value', displayId.toString());
-            optionElement.textContent = `ID: ${displayId}; ${result.width}x${result.height}`;
+            optionElement.textContent = t('cfg.displayOption', {
+                id: displayId,
+                size: `${result.width}x${result.height}`,
+            });
             this.displayIdSelectElement.appendChild(optionElement);
             this.displayInfo = new DisplayInfo(displayId, new Size(result.width, result.height), 0, 0, 0);
         }
@@ -694,7 +697,7 @@ export class ConfigureScrcpy extends Modal {
 
         // Set up the advanced toggle button (already in DOM from buildBody)
         const advancedToggle = this.bodyEl.querySelector('.modal-advanced-toggle') as HTMLButtonElement;
-        const advancedText = document.createTextNode('advanced ');
+        const advancedText = document.createTextNode(t('cfg.advanced'));
         advancedToggle.appendChild(advancedText);
         const advancedChevron = (this.advancedChevron = document.createElement('span'));
         advancedChevron.classList.add('chevron');

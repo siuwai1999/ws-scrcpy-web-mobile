@@ -1,3 +1,4 @@
+import { getLocale } from '../i18n';
 import { getTheme, type Theme } from '../public/themeEmbed';
 
 /**
@@ -26,7 +27,9 @@ export function withHelpTheme(href: string, theme: Theme = getTheme()): string {
     const path = queryAt === -1 ? beforeHash : beforeHash.slice(0, queryAt);
     const params = new URLSearchParams(queryAt === -1 ? '' : beforeHash.slice(queryAt + 1));
     params.set('theme', theme);
-    return `${path}?${params.toString()}${hash}`;
+    // Guides are static files; a translated one sits beside it as `<name>.<locale>.html`.
+    const localized = getLocale() === 'en' ? path : path.replace(/\.html$/, `.${getLocale()}.html`);
+    return `${localized}?${params.toString()}${hash}`;
 }
 
 /**

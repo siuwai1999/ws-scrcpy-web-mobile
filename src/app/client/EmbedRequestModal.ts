@@ -116,7 +116,9 @@ export class EmbedRequestModal extends Modal {
         const minutes = Math.floor(totalSeconds / 60);
         const seconds = totalSeconds % 60;
         if (this.countdownEl) {
-            this.countdownEl.textContent = `This request expires in ${minutes}:${String(seconds).padStart(2, '0')}.`;
+            this.countdownEl.textContent = t('embedReq.expires', {
+                time: `${minutes}:${String(seconds).padStart(2, '0')}`,
+            });
         }
     }
 

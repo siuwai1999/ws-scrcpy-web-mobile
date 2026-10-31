@@ -63,3 +63,15 @@ describe('t()', () => {
         expect(getLocale()).toBe('en');
     });
 });
+
+describe('translateServerMessage', () => {
+    it('maps known server strings and patterns, leaves unknown text alone', async () => {
+        const { translateServerMessage } = await import('../serverMessages');
+        setLocale('zh-TW');
+        expect(translateServerMessage('no such pairing session')).toBe('沒有這個配對工作階段');
+        expect(translateServerMessage('Connected Devices [homelab]')).toBe('已連線的裝置 [homelab]');
+        expect(translateServerMessage('something new')).toBe('something new');
+        setLocale('en');
+        expect(translateServerMessage('Connected Devices [homelab]')).toBe('Connected Devices [homelab]');
+    });
+});

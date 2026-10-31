@@ -7,6 +7,7 @@ import type { DeviceTrackerEventList } from '../../types/DeviceTrackerEventList'
 import type { Message } from '../../types/Message';
 import type { ParamsDeviceTracker } from '../../types/ParamsDeviceTracker';
 import { t } from '../i18n';
+import { translateServerMessage } from '../i18n/serverMessages';
 import Util from '../Util';
 import { html } from '../ui/HtmlTag';
 import { isInstallHandoffInProgress } from './installHandoffPoll';
@@ -300,7 +301,7 @@ export abstract class BaseDeviceTracker<DD extends BaseDeviceDescriptor, TE exte
             nameEl.id = nameBlockId;
             nameEl.className = 'tracker-name';
         }
-        nameEl.textContent = name;
+        nameEl.textContent = translateServerMessage(name);
         parent.insertBefore(nameEl, parent.firstChild);
     }
 

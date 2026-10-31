@@ -1,3 +1,4 @@
+import { translateServerMessage } from '../i18n/serverMessages';
 // src/app/client/NetworkDiscoveryPanel.ts
 
 import type { PairingState, PairingStatus } from '../../common/PairingStatus';
@@ -520,7 +521,7 @@ export function renderPairingSection(deps: PairingSectionDeps): HTMLElement {
         try {
             res = await deps.fetchFn('/api/devices/pair/qr', { method: 'POST' });
         } catch {
-            if (gen === generation) setStatus('Could not reach the server to start pairing.', 'error');
+            if (gen === generation) setStatus(t('net.pair.unreachable'), 'error');
             return;
         }
         if (gen !== generation) {
@@ -600,7 +601,7 @@ export function renderPairingSection(deps: PairingSectionDeps): HTMLElement {
             });
         } catch {
             if (gen === generation) {
-                setStatus('Could not reach the server to start pairing.', 'error');
+                setStatus(t('net.pair.unreachable'), 'error');
                 syncSubmit();
             }
             return;
@@ -1157,7 +1158,10 @@ export class NetworkDiscoveryPanel {
                 this.showManualResult(t('net.connectedToNoDot', { address }), 'success');
                 setTimeout(() => this.toggleManualForm(false), 2000);
             } else {
-                this.showManualResult(result.message || t('net.failedConnect', { address }), 'error');
+                this.showManualResult(
+                    translateServerMessage(result.message || '') || t('net.failedConnect', { address }),
+                    'error',
+                );
             }
         } catch (err: any) {
             this.showManualResult(err?.message || t('net.requestFailed'), 'error');
@@ -1186,7 +1190,11 @@ export class NetworkDiscoveryPanel {
                 setTimeout(() => card.remove(), 1500);
             } else {
                 btn.disabled = false;
-                this.showCardResult(resultEl, result.message || t('net.failedConnect', { address }), 'error');
+                this.showCardResult(
+                    resultEl,
+                    translateServerMessage(result.message || '') || t('net.failedConnect', { address }),
+                    'error',
+                );
             }
         } catch (err: any) {
             btn.disabled = false;

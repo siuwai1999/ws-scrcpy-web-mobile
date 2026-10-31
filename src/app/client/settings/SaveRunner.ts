@@ -1,3 +1,4 @@
+import { translateServerMessage } from '../../i18n/serverMessages';
 import type { Change } from './StagedSettingsStore';
 
 export interface BatchResult {
@@ -44,7 +45,10 @@ export async function runSave(changes: Change[]): Promise<BatchResult> {
             return {
                 ok: false,
                 applied: body.applied ?? [],
-                failed: body.failed ?? { id: '', error: body.error ?? `server refused the batch (${res.status})` },
+                failed: body.failed ?? {
+                    id: '',
+                    error: body.error ? translateServerMessage(body.error) : `server refused the batch (${res.status})`,
+                },
             };
         }
         return body as BatchResult;

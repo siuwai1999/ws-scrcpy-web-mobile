@@ -1,6 +1,7 @@
 import { type DependencyInfo, DependencyStatus, type UpdateResult } from '../../common/DependencyTypes';
 import { escapeHtml } from '../htmlEscape';
 import { t } from '../i18n';
+import { translateServerMessage } from '../i18n/serverMessages';
 import { onAdminAccessLost } from './adminAccess';
 import { ADMIN_UNREACHABLE_NOTE } from './adminGate';
 import type { TabAlert } from './settings/settingsLayout';
@@ -189,7 +190,9 @@ export class DependencyPanel {
             } else {
                 this.alert.show(
                     'error',
-                    t(install ? 'dep.installFailed' : 'dep.updateFailed', { error: result.errorMessage ?? '' }),
+                    t(install ? 'dep.installFailed' : 'dep.updateFailed', {
+                        error: translateServerMessage(result.errorMessage ?? ''),
+                    }),
                 );
                 await this.load();
             }

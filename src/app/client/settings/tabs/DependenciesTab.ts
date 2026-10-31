@@ -1,3 +1,4 @@
+import { t } from '../../../i18n';
 import { DependencyPanel } from '../../DependencyPanel';
 import type { StagedSettingsStore } from '../StagedSettingsStore';
 import { buildTabAlert } from '../settingsLayout';
@@ -68,7 +69,7 @@ export function buildDependenciesTab(_ctx: TabContext, _store: StagedSettingsSto
     const placeholder = document.createElement('p');
     placeholder.className = 'settings-status';
     placeholder.style.gridColumn = '1 / -1';
-    placeholder.textContent = 'loading dependencies…';
+    placeholder.textContent = t('dep.loading');
     body.appendChild(placeholder);
     section.appendChild(body);
     // The tab's one status line, below the panel: a failed install or update.

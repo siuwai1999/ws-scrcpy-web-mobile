@@ -784,7 +784,7 @@ export function buildUpdatesTab(ctx: TabContext, store: StagedSettingsStore): HT
             applyActionButtonState(s);
         } catch {
             if (lastStatus) applyStatusText(lastStatus);
-            tabAlert.show('error', "couldn't reach server");
+            tabAlert.show('error', t('server.couldntReach'));
             btn.textContent = t('upd.checkNow');
         }
     }

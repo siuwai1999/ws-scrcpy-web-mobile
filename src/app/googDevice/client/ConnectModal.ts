@@ -1,4 +1,5 @@
 import type { ParamsStreamScrcpy } from '../../../types/ParamsStreamScrcpy';
+import { t } from '../../i18n';
 import type { BasePlayer } from '../../player/BasePlayer';
 import { startStream } from '../../public/startStream';
 import type { StartStreamOptions, StreamHandle } from '../../public/types';
@@ -55,7 +56,7 @@ export class ConnectModal extends Modal {
                 // Show the error inline for a few seconds so the user sees why the stream failed
                 const errorEl = document.createElement('div');
                 errorEl.className = 'connect-modal-error';
-                errorEl.textContent = `stream failed: ${err.message}`;
+                errorEl.textContent = t('connect.streamFailed', { error: err.message });
                 errorEl.style.cssText =
                     'padding: 24px; color: #f06c75; font-family: monospace; font-size: 14px; text-align: center;';
                 this.bodyEl.innerHTML = '';

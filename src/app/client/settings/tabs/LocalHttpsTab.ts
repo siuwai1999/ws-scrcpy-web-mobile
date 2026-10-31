@@ -4,6 +4,7 @@ import { isPublicSuffix } from '../../../../common/publicSuffix';
 import { refusedSubjectMessage } from '../../../../common/refusedSubject';
 import type { ServiceStatusResponse } from '../../../../common/ServiceEvents';
 import { getLocale, t } from '../../../i18n';
+import { translateServerMessage } from '../../../i18n/serverMessages';
 import { type AdminRefusal, adminRefusal } from '../../adminGate';
 import { ConfirmModal } from '../../ConfirmModal';
 import { themeHelpLink } from '../../helpLink';
@@ -563,7 +564,7 @@ export async function buildLocalHttpsPanel(deps: LocalHttpsPanelDeps): Promise<H
     hostRadio.name = 'tls-subject-kind';
     hostRadio.value = 'hostname';
     hostLabel.appendChild(hostRadio);
-    hostLabel.appendChild(document.createTextNode('hostname'));
+    hostLabel.appendChild(document.createTextNode(t('tls.hostname')));
 
     const initialCandidateIps = candidateIpsFor(initialState);
     const initialKind: 'ip' | 'hostname' = initialState.kind === 'hostname' ? 'hostname' : 'ip';
@@ -938,7 +939,12 @@ export async function buildLocalHttpsPanel(deps: LocalHttpsPanelDeps): Promise<H
                     // The server's own reason, which names a name or an address
                     // by `kind`; when it gave none, the very copy it sends for a
                     // refused subject (src/common/refusedSubject.ts).
-                    showTransientAlert('error', data?.error ?? refusedSubjectMessage(kind));
+                    showTransientAlert(
+                        'error',
+                        data?.error
+                            ? translateServerMessage(data.error)
+                            : translateServerMessage(refusedSubjectMessage(kind)),
+                    );
                     return;
                 }
                 // NF-3: MERGE, don't replace. `POST /api/tls/generate`'s
@@ -1034,7 +1040,11 @@ export async function buildLocalHttpsPanel(deps: LocalHttpsPanelDeps): Promise<H
                     // mode is refused by requireOperator (item 153), and "(403)"
                     // alone reads as a bug rather than as "not from here".
                     const data = (await res.json().catch(() => null)) as { error?: string } | null;
-                    showTransientAlert('error', data?.error ?? t('tls.revokeFailed', { status: res.status }));
+                    showTransientAlert(
+                        'error',
+                        (data?.error ? translateServerMessage(data.error) : undefined) ??
+                            t('tls.revokeFailed', { status: res.status }),
+                    );
                     revokeBtn.disabled = false;
                     return;
                 }
@@ -1074,7 +1084,11 @@ export async function buildLocalHttpsPanel(deps: LocalHttpsPanelDeps): Promise<H
                     // `{ error }` -- TlsApi.ts is the source of truth for the
                     // shape, read here rather than assumed.
                     const data = (await res.json().catch(() => null)) as { error?: string } | null;
-                    showTransientAlert('error', data?.error ?? t('tls.downloadFailed', { status: res.status }));
+                    showTransientAlert(
+                        'error',
+                        (data?.error ? translateServerMessage(data.error) : undefined) ??
+                            t('tls.downloadFailed', { status: res.status }),
+                    );
                     return;
                 }
                 // I7: matches this repo's own precedent exactly
@@ -1240,7 +1254,11 @@ export async function buildLocalHttpsPanel(deps: LocalHttpsPanelDeps): Promise<H
                         return;
                     }
                     const data = (await res.json().catch(() => null)) as { error?: string } | null;
-                    showTransientAlert('error', data?.error ?? t('tls.exposureFailed', { status: res.status }));
+                    showTransientAlert(
+                        'error',
+                        (data?.error ? translateServerMessage(data.error) : undefined) ??
+                            t('tls.exposureFailed', { status: res.status }),
+                    );
                     return;
                 }
                 showTransientAlert('success', t('tls.exposureUpdated'));

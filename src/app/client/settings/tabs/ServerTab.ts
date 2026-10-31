@@ -575,7 +575,7 @@ async function onRestartServer(
     if (!confirmed) return;
 
     btn.disabled = true;
-    btn.textContent = 'restarting…';
+    btn.textContent = t('update.restarting');
     let accepted = false;
     try {
         accepted = (await fetch('/api/server/restart', { method: 'POST' })).ok;
@@ -750,7 +750,7 @@ export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTM
         curEye.type = 'button';
         curEye.className = 'modal-button';
         curEye.textContent = '👁';
-        curEye.title = 'show/hide';
+        curEye.title = t('server.showHide');
         curEye.addEventListener('click', () => {
             curInput.type = curInput.type === 'password' ? 'text' : 'password';
         });
@@ -770,7 +770,7 @@ export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTM
         newEye.type = 'button';
         newEye.className = 'modal-button';
         newEye.textContent = '👁';
-        newEye.title = 'show/hide';
+        newEye.title = t('server.showHide');
         newEye.addEventListener('click', () => {
             newInput.type = newInput.type === 'password' ? 'text' : 'password';
         });
@@ -784,7 +784,7 @@ export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTM
         const saveBtn = document.createElement('button');
         saveBtn.type = 'button';
         saveBtn.className = 'modal-button';
-        saveBtn.textContent = 'save';
+        saveBtn.textContent = t('common.save');
         saveBtn.addEventListener('click', () => {
             void (async () => {
                 if (!curInput.value || !newInput.value) {
@@ -794,7 +794,7 @@ export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTM
                 }
                 cpStatus.hidden = true;
                 saveBtn.disabled = true;
-                tabAlert.show('busy', 'saving…');
+                tabAlert.show('busy', t('welcome.saving'));
                 try {
                     const ok = await authClient.changePassword(curInput.value, newInput.value);
                     if (ok) {
@@ -815,7 +815,7 @@ export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTM
         const cancelBtn = document.createElement('button');
         cancelBtn.type = 'button';
         cancelBtn.className = 'modal-button';
-        cancelBtn.textContent = 'cancel';
+        cancelBtn.textContent = t('common.cancel');
         cancelBtn.addEventListener('click', () => {
             cpForm.style.display = 'none';
             cpBtn.style.display = '';
