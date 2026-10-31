@@ -4,10 +4,24 @@
 
 ## What this fork changes
 
-- **iPad touch control works.** On iPadOS (Safari and Chrome) dragging on the phone screen used to scroll the whole web page and the device never received the touch. The touch layer now sits above the video layer (`touch-action: none`), and the page behind the stream dialog no longer scrolls.
-- **Survives going to the Home screen.** iOS/iPadOS suspends a backgrounded page and drops its WebSocket (close code `1006`). Returning to the page now reconnects automatically instead of showing `stream failed`, and drops audio queued while away, so sound no longer lags far behind the picture. Tap the screen once after returning to re-enable audio (iOS requires a gesture).
+**A redesigned, mobile-friendly interface**
+
+- **Modern flat UI** built on a design-token system (colour, type, spacing, radius, motion) with matching dark and light themes.
+- **Site header** with a Devices / Network tab switch (Devices is the default) and the update, settings and theme controls.
+- **Device cards** with a clear action hierarchy: a large **connect** button next to **turn on/off**, quiet shell / file links, and small icon buttons for rename, disconnect and stream settings.
+- **One button system** across the whole app (primary, secondary, danger, icon) and consistent form fields and dropdowns in every dialog.
+- **Network tab** reorganised: quick scan, scan QR code and pairing code sit together (QR code centred, cancel beneath it); *scan network* and *manually add* are tucked behind a `...` menu.
+- **Phone-sized dialogs**: Settings, the file browser and the others fit a phone screen; the file browser gives the file name the room.
+
+**iPhone / iPad fixes**
+
+- **Touch control works on iPad.** Dragging on the phone screen used to scroll the whole page and never reached the device. The touch layer now sits above the video layer (`touch-action: none`) and the page behind the stream dialog no longer scrolls.
+- **File browser no longer hangs on "loading...".** iOS/iPadOS Safari has no `Symbol.dispose`, which the client's `using` declarations need; a small polyfill fixes it (this also repaired the turn on/off and update buttons there).
+- **Survives going to the Home screen.** iOS suspends a backgrounded page and drops its WebSocket (close code `1006`). Returning now reconnects automatically instead of showing `stream failed`, and audio queued while away is dropped so sound does not lag behind the picture. Tap the screen once after returning to re-enable audio (iOS requires a gesture).
 
 > A web page cannot keep streaming while it is in the background on iOS; this fork makes coming back seamless instead.
+
+**Debugging on a phone:** add `?debug` to the page URL to mirror the console on screen (for devices with no dev tools).
 
 ## Docker
 
