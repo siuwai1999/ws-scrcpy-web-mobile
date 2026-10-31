@@ -30,9 +30,15 @@ describe('matchLocale / detectLocale', () => {
     it('splits Chinese by script and maps bare zh to Simplified', () => {
         for (const tag of ['zh', 'zh-CN', 'zh_cn', 'zh-Hans', 'zh-SG']) expect(matchLocale(tag), tag).toBe('zh-CN');
     });
+    it('maps the other shipped languages by their primary subtag', () => {
+        expect(matchLocale('ja-JP')).toBe('ja');
+        expect(matchLocale('ko-KR')).toBe('ko');
+        expect(matchLocale('es-MX')).toBe('es');
+    });
     it('maps English regions to en and rejects unsupported', () => {
         expect(matchLocale('en-GB')).toBe('en');
         expect(matchLocale('fr-FR')).toBeNull();
+        expect(matchLocale('de')).toBeNull();
     });
     it('stored choice beats the browser; browser beats the default', () => {
         expect(detectLocale('en', ['zh-TW'])).toBe('en');
