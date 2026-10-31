@@ -80,12 +80,12 @@ body.list #device_list_menu {
     border-color: var(--border-strong);
 }
 
-/* Status dot, top right. */
+/* Status dot: in the card padding, right of the name row, so it never meets the rename pencil. */
 #devices .device-list div.device::before {
     content: "";
     position: absolute;
-    top: var(--space-4);
-    right: var(--space-4);
+    top: calc(var(--space-4) + 0.4rem);
+    right: 5px;
     width: 8px;
     height: 8px;
     border-radius: 50%;

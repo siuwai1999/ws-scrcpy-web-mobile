@@ -412,40 +412,6 @@ dialog.modal .modal-settings {
     border-top: 1px solid var(--modal-divider);
 }
 
-dialog.modal .modal-settings button {
-    border: 0.5px solid var(--text-color, #ddd);
-    border-radius: 6px;
-    background: transparent;
-    color: var(--accent-color);
-    padding: 6px 16px;
-    cursor: pointer;
-    white-space: nowrap;
-}
-
-dialog.modal .modal-settings button:hover {
-    background: var(--device-list-hover-color, hsl(218, 17%, 18%));
-}
-
-/* Shared confirm-dialog button (ConfirmModal, AdminConfirmModal,
-   ShellCloseConfirmModal, ResetConfirmModal; smoke row 4.5). Matches the welcome
-   modal's outline buttons — white outline + white text, transparent, mono font —
-   replacing the browser-default look (the class previously had no CSS). The
-   bookmark / service-first-run reminders that also used it are a non-modal card
-   since item 113 (bookmark-reminder.css). */
-.modal-button {
-    border: 0.5px solid var(--text-color, #ddd);
-    border-radius: 6px;
-    background: transparent;
-    color: var(--text-color, #ddd);
-    padding: 8px 16px;
-    cursor: pointer;
-    font: inherit;
-}
-
-.modal-button:hover {
-    background: var(--device-list-hover-color, hsl(218, 17%, 18%));
-}
-
 /* ── Status text (footer) ── */
 dialog.modal .status-text {
     font-size: 13px;
@@ -461,26 +427,6 @@ dialog.modal .status-text.status-ready {
 
 dialog.modal .status-text.status-error {
     color: var(--danger-color);
-}
-
-/* ── Connect button (footer) ── */
-dialog.modal .connect-btn {
-    border: 0.5px solid var(--text-color, #ddd);
-    border-radius: 6px;
-    background: transparent;
-    color: var(--accent-color);
-    padding: 6px 20px;
-    cursor: pointer;
-    white-space: nowrap;
-}
-
-dialog.modal .connect-btn:hover:not(:disabled) {
-    background: var(--device-list-hover-color, hsl(218, 17%, 18%));
-}
-
-dialog.modal .connect-btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
 }
 
 /* ── Shell modal overrides ── */
@@ -964,21 +910,6 @@ dialog.settings-modal .settings-control .settings-radio-label.settings-radio-loc
     pointer-events: none;
 }
 
-/*
- * Apply-update button styling — green outline + green text — mirroring
- * the home-page UpdateButton chip's "ready" state. Higher specificity
- * than .settings-btn-primary so it overrides when both classes are
- * present (used in the Updates section's dual-purpose button).
- */
-dialog.modal .settings-btn.settings-btn-ready {
-    color: var(--success-color);
-    border-color: var(--success-color);
-}
-
-dialog.modal .settings-btn.settings-btn-ready:hover {
-    background: rgba(var(--success-rgb), 0.08);
-}
-
 dialog.settings-modal .settings-input {
     box-sizing: border-box;
     background: var(--stream-bg-color, #1a1a2e);
@@ -1010,37 +941,6 @@ dialog.settings-modal .settings-input:focus {
 dialog.settings-modal .settings-input:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-}
-
-dialog.modal .settings-btn {
-    border: 0.5px solid var(--text-color, #ddd);
-    border-radius: 6px;
-    background: transparent;
-    color: var(--text-color, #ddd);
-    padding: 6px 14px;
-    cursor: pointer;
-    font: inherit;
-}
-
-dialog.modal .settings-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-dialog.modal .settings-btn-primary {
-    color: var(--accent-color);
-    border-color: var(--accent-color);
-}
-
-dialog.modal .settings-btn-danger {
-    color: var(--danger-color);
-    border-color: var(--danger-color);
-}
-
-dialog.modal .settings-btn-danger-outline {
-    color: var(--danger-color);
-    border-color: var(--danger-color);
-    background: transparent;
 }
 
 dialog.settings-modal .settings-status {

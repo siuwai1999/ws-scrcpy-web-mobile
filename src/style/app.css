@@ -1,4 +1,6 @@
 @import url("./ws-scrcpy.css");
+@import url("./buttons.css");
+@import url("./header.css");
 
 :root {
     --font-size: 14px;

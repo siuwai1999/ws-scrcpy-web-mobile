@@ -1,51 +1,31 @@
 /* src/style/home.css */
 
-/* Theme toggle */
-.theme-toggle {
-    position: fixed;
-    top: 12px;
-    right: 12px;
-    z-index: 100;
-    background: var(--device-list-default-color);
-    border: 1px solid var(--device-border-color);
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: var(--text-color);
-    transition: background-color 0.15s;
-}
-
-.theme-toggle:hover {
-    background: var(--device-list-hover-color);
-}
-
-/* Settings (gear) header button — sits to the LEFT of the theme toggle.
-   Mirrors .theme-toggle dimensions/glassmorphism for visual consistency. */
+/* Header icon buttons (theme toggle, settings gear). They live in .site-header
+   (header.css), so no fixed positioning here. */
+.theme-toggle,
 .settings-header {
-    position: fixed;
-    top: 12px;
-    right: 56px; /* 12px (theme-toggle right) + 36px (theme-toggle width) + 8px gap */
-    z-index: 100;
-    background: var(--device-list-default-color);
-    border: 1px solid var(--device-border-color);
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    display: flex;
+    flex: none;
+    box-sizing: border-box;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--fg-2);
     cursor: pointer;
-    color: var(--text-color);
-    transition: background-color 0.15s;
-    padding: 0;
+    transition:
+        background-color var(--duration-fast) var(--ease),
+        color var(--duration-fast) var(--ease);
 }
 
+.theme-toggle:hover,
 .settings-header:hover {
-    background: var(--device-list-hover-color);
+    background: var(--surface-2);
+    color: var(--fg-1);
 }
 
 /* Page container — fills the window at every width, inside the gutter.
@@ -56,16 +36,18 @@
    them. The side padding is the page's gutter, so the sections' borders
    never sit flush against the window edge. */
 .page-container {
-    padding: 56px 24px 0;
+    padding: var(--space-5) var(--space-5) 0;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
 /* Page sections */
 .home-section {
     padding: 20px;
     margin-bottom: 35px;
-    font-family: var(--font-mono);
-    border: 1.5px solid var(--section-border-color, #5a5a5a);
-    border-radius: 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface-0);
 }
 
 .home-section h2 {
@@ -322,15 +304,6 @@
     gap: 8px;
 }
 
-/* .dep-btn's base ALREADY paints border and text in --accent-color, so recolouring
-   them here would leave the selected mode looking exactly like the unselected one.
-   The selected state has to be a fill. It is a tint of the accent rather than
-   --device-list-hover-color, which .dep-btn:hover already uses — otherwise
-   "selected" and "the pointer is over it" would be the same thing. */
-.dep-btn[data-pair-mode][aria-pressed="true"] {
-    background: rgba(var(--accent-rgb), 0.15);
-}
-
 /* The real payload encodes as a version-4 symbol: 33 modules, 41 across with the
    quiet zone. At 288px that is ~7px a module, which a phone reads at arm's
    length; sizing this for a smaller symbol makes the code a struggle to scan.
@@ -416,30 +389,6 @@
     color: var(--success-color);
 }
 
-/* Discovery action buttons recolor the .dep-btn base (blue) to success-green /
-   danger-red. Qualified with the base class so they win by specificity rather
-   than !important. (The unreferenced .dep-ok-btn rule that lived here was dead
-   CSS and was removed.) */
-.dep-btn.discovery-connect-btn {
-    border-color: var(--success-color);
-    color: var(--success-color);
-    background: transparent;
-}
-
-.dep-btn.discovery-connect-btn:hover:not(:disabled) {
-    background: var(--success-hover-bg);
-}
-
-.dep-btn.discovery-dismiss-btn {
-    border-color: var(--danger-color);
-    color: var(--danger-color);
-    background: transparent;
-}
-
-.dep-btn.discovery-dismiss-btn:hover:not(:disabled) {
-    background: var(--danger-hover-bg);
-}
-
 /* ── Top-bar indicators (the two CONDITIONAL controls) ──
    Layout: [dependency-badge][update-button] ← [settings-header] ← [theme-toggle] ← right edge.
 
@@ -455,13 +404,9 @@
    appears and collapses the 8px gap when either hides, so there is no
    arrangement of the two that leaves a hole. */
 .top-bar-indicators {
-    position: fixed;
-    top: 12px;
-    right: 100px;
-    z-index: 100;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--space-2);
 }
 
 /* ── Dependency-update badge ──
@@ -485,11 +430,11 @@
 }
 
 .dependency-alert-open {
-    background: var(--device-list-default-color);
+    background: transparent;
     border: 1px solid var(--warning-color);
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
+    border-radius: var(--radius-md);
+    width: 2.25rem;
+    height: 2.25rem;
     display: flex;
     align-items: center;
     justify-content: center;

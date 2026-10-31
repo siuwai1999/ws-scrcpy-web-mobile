@@ -301,34 +301,6 @@
     gap: 6px;
 }
 
-.list-files-footer-btn {
-    border: 0.5px solid var(--text-color, #ddd);
-    border-radius: 4px;
-    background: transparent;
-    color: var(--accent-color);
-    padding: 4px 12px;
-    cursor: pointer;
-    font-family: var(--font-mono);
-    font-size: 12px;
-}
-
-.list-files-footer-btn:hover:not(:disabled) {
-    background: rgba(var(--accent-rgb), 0.1);
-}
-
-.list-files-footer-btn:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-}
-
-.list-files-footer-btn.delete {
-    color: var(--danger-color);
-}
-
-.list-files-footer-btn.delete:hover:not(:disabled) {
-    background: rgba(var(--danger-rgb), 0.1);
-}
-
 .list-files-footer-info {
     margin-left: auto;
     opacity: 0.5;

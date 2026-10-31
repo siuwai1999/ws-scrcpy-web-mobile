@@ -1,0 +1,163 @@
+/* Shared button system.
+ *
+ * One look for every text button in the app, matching the device card's
+ * Connect / turn on-off buttons: secondary by default, `primary` is the filled
+ * accent, `danger` and `success` tint the secondary look. The legacy class
+ * names (.modal-button, .settings-btn, .dep-btn, ...) are kept so no markup had
+ * to change; this file is the single place they are styled.
+ *
+ * Specificity is kept at one class for the base and two for variants so the
+ * result does not depend on stylesheet order.
+ */
+
+/* ── Base (secondary) ── */
+.modal-button,
+.settings-btn,
+.dep-btn,
+.list-files-footer-btn,
+.connect-btn,
+dialog.modal .modal-settings button,
+.btn {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: var(--control-height);
+    padding: 0 var(--space-4);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--surface-2);
+    color: var(--fg-1);
+    font-family: inherit;
+    font-size: var(--text-md);
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+        background-color var(--duration-fast) var(--ease),
+        border-color var(--duration-fast) var(--ease),
+        color var(--duration-fast) var(--ease),
+        transform var(--duration-fast) var(--ease);
+}
+
+.modal-button:hover:not(:disabled),
+.settings-btn:hover:not(:disabled),
+.dep-btn:hover:not(:disabled),
+.list-files-footer-btn:hover:not(:disabled),
+.connect-btn:hover:not(:disabled),
+dialog.modal .modal-settings button:hover:not(:disabled),
+.btn:hover:not(:disabled) {
+    background: var(--surface-3);
+}
+
+.modal-button:active:not(:disabled),
+.settings-btn:active:not(:disabled),
+.dep-btn:active:not(:disabled),
+.list-files-footer-btn:active:not(:disabled),
+.connect-btn:active:not(:disabled),
+dialog.modal .modal-settings button:active:not(:disabled),
+.btn:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.modal-button:disabled,
+.settings-btn:disabled,
+.dep-btn:disabled,
+.list-files-footer-btn:disabled,
+.connect-btn:disabled,
+dialog.modal .modal-settings button:disabled,
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Compact: file-manager footer sits in a tight bar. */
+.list-files-footer-btn {
+    min-height: 2rem;
+    padding: 0 var(--space-3);
+    font-size: var(--text-sm);
+}
+
+/* ── Primary: the one action the surface is about ── */
+.modal-button.modal-button-primary,
+.settings-btn.settings-btn-primary,
+.dep-btn.discovery-scan-btn,
+.dep-btn.discovery-connect-btn,
+.connect-btn,
+.btn.btn-primary {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--accent-on);
+}
+
+.modal-button.modal-button-primary:hover:not(:disabled),
+.settings-btn.settings-btn-primary:hover:not(:disabled),
+.dep-btn.discovery-scan-btn:hover:not(:disabled),
+.dep-btn.discovery-connect-btn:hover:not(:disabled),
+.connect-btn:hover:not(:disabled),
+.btn.btn-primary:hover:not(:disabled) {
+    border-color: var(--accent-strong);
+    background: var(--accent-strong);
+}
+
+/* ── Danger ── */
+.settings-btn.settings-btn-danger,
+.settings-btn.settings-btn-danger-outline,
+.dep-btn.discovery-dismiss-btn,
+.list-files-footer-btn.delete,
+.btn.btn-danger {
+    border-color: rgba(var(--danger-rgb), 0.5);
+    background: transparent;
+    color: var(--danger-color);
+}
+
+.settings-btn.settings-btn-danger:hover:not(:disabled),
+.settings-btn.settings-btn-danger-outline:hover:not(:disabled),
+.dep-btn.discovery-dismiss-btn:hover:not(:disabled),
+.list-files-footer-btn.delete:hover:not(:disabled),
+.btn.btn-danger:hover:not(:disabled) {
+    background: var(--danger-hover-bg);
+}
+
+/* ── Success: apply an update, check for updates ── */
+.settings-btn.settings-btn-ready,
+.dep-btn.dep-check-all,
+.dep-btn.dep-update,
+.btn.btn-success {
+    border-color: rgba(var(--success-rgb), 0.5);
+    background: transparent;
+    color: var(--success-color);
+}
+
+.settings-btn.settings-btn-ready:hover:not(:disabled),
+.dep-btn.dep-check-all:hover:not(:disabled),
+.dep-btn.dep-update:hover:not(:disabled),
+.btn.btn-success:hover:not(:disabled) {
+    background: var(--success-hover-bg);
+}
+
+/* ── Toggle: pairing mode picker (scan QR code / pairing code) ── */
+.dep-btn[data-pair-mode][aria-pressed="true"] {
+    border-color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.15);
+    color: var(--accent);
+}
+
+/* The footer button of a dialog is the dialog's primary action. */
+dialog.modal .connect-btn {
+    padding: 0 var(--space-5);
+}
+
+/* Touch devices: comfortable hit areas. */
+@media (pointer: coarse) {
+    .modal-button,
+    .settings-btn,
+    .dep-btn,
+    .connect-btn,
+    dialog.modal .modal-settings button,
+    .btn {
+        min-height: var(--touch-target);
+    }
+}

@@ -17,6 +17,7 @@ import { FirstRunBanner } from './client/FirstRunBanner';
 import { HostTracker } from './client/HostTracker';
 import { NetworkDiscoveryPanel } from './client/NetworkDiscoveryPanel';
 import { createSettingsHeader } from './client/SettingsHeader';
+import { createSiteHeader } from './client/SiteHeader';
 import { isElevationDeclined, reasonToUserMessage } from './client/serviceFailureMessage';
 import { showStatusBanner } from './client/statusBanner';
 import { applyStoredTheme, createThemeToggle, initTheme } from './client/ThemeToggle';
@@ -271,9 +272,6 @@ window.onload = async (): Promise<void> => {
         });
     }
 
-    document.body.appendChild(createSettingsHeader());
-    document.body.appendChild(createThemeToggle());
-
     // The two CONDITIONAL top-bar controls share one right-anchored flex row:
     // the app-update pill, and the dependency badge appended below once its
     // gate has been evaluated. The gear and theme toggle above keep their own
@@ -282,7 +280,10 @@ window.onload = async (): Promise<void> => {
     // `.top-bar-indicators` in home.css.
     const topBarIndicators = document.createElement('div');
     topBarIndicators.className = 'top-bar-indicators';
-    document.body.appendChild(topBarIndicators);
+
+    // The header lays out the controls built above; it comes before the page
+    // container so it sits at the top of the page and stays there (sticky).
+    document.body.appendChild(createSiteHeader([topBarIndicators, createSettingsHeader(), createThemeToggle()]));
 
     const pageContainer = document.createElement('div');
     pageContainer.className = 'page-container';
@@ -337,7 +338,9 @@ window.onload = async (): Promise<void> => {
     pageContainer.appendChild(devicesDiv);
 
     const discoveryPanel = new NetworkDiscoveryPanel();
-    pageContainer.appendChild(discoveryPanel.getElement());
+    const discoveryEl = discoveryPanel.getElement();
+    discoveryEl.id = 'network';
+    pageContainer.appendChild(discoveryEl);
 
     // The panel itself now lives in Settings → Dependencies; what stays here is
     // an alert that appears only when something needs updating. All three of its
