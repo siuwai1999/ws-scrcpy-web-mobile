@@ -191,6 +191,51 @@
     gap: 8px;
 }
 
+/* Advanced options menu (scan network, manually add) behind a "..." button. */
+.discovery-more {
+    position: relative;
+}
+
+.discovery-more-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    min-width: 12rem;
+    padding: var(--space-1);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--surface-1);
+    box-shadow: var(--shadow-2);
+}
+
+.discovery-more-menu[hidden] {
+    display: none;
+}
+
+.discovery-menu-item {
+    padding: var(--space-2) var(--space-3);
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--fg-1);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.discovery-menu-item:hover {
+    background: var(--surface-3);
+}
+
+@media (pointer: coarse) {
+    .discovery-menu-item {
+        min-height: var(--touch-target);
+    }
+}
+
 .discovery-manual-form {
     display: flex;
     flex-wrap: wrap;
@@ -274,13 +319,13 @@
 .discovery-pairing {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+    align-items: stretch;
+    gap: 12px;
     margin-bottom: 12px;
-    padding: 12px;
-    border: 1px solid var(--device-border-color);
-    border-radius: 8px;
-    background: var(--device-list-default-color);
+    padding: var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface-1);
 }
 
 .discovery-pairing-header {
@@ -313,8 +358,9 @@
 .discovery-pairing-qr {
     width: 288px;
     max-width: 100%;
+    margin: 0 auto;
     padding: 8px;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     background: #fff;
 }
 
@@ -332,7 +378,20 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    justify-content: center;
     gap: 8px;
+}
+
+/* Cancel (and the follow-up action) sit centred under the QR code / code form. */
+.discovery-pairing-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+.discovery-pairing-footer:not(:has(> :not([hidden]))) {
+    display: none;
 }
 
 .discovery-pairing-code[hidden] {
@@ -371,6 +430,7 @@
 .discovery-pairing-status {
     font-size: 13px;
     color: var(--text-color);
+    text-align: center;
     overflow-wrap: anywhere;
 }
 
@@ -557,4 +617,46 @@
 .update-button-container.state-error {
     color: var(--danger-color);
     border-color: var(--danger-color);
+}
+
+/* ── Scan progress chip (Scanning network … / complete / canceled) ── */
+.scan-progress-chip {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 2.5rem;
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid rgba(var(--accent-rgb), 0.4);
+    border-radius: var(--radius-md);
+    background: rgba(var(--accent-rgb), 0.1);
+    color: var(--text-color);
+    font-size: var(--text-sm);
+}
+
+.scan-progress-chip-cancel,
+.scan-progress-chip-dismiss {
+    margin-left: auto;
+}
+
+/* ── Scan Network dialog: subnet rows ── */
+.subnet-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: var(--space-1) 0;
+    border-bottom: 1px solid var(--modal-divider);
+}
+
+.subnet-row:last-child {
+    border-bottom: none;
+}
+
+.subnet-row-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    flex: none;
 }

@@ -90,10 +90,41 @@ dialog.modal .modal-settings button:disabled,
     font-size: var(--text-sm);
 }
 
+/* ── Sizes ── */
+.btn.btn-sm {
+    min-height: 2rem;
+    padding: 0 var(--space-3);
+    font-size: var(--text-sm);
+}
+
+/* Icon-only: a square, quiet button (edit, remove, dismiss, menu). */
+.btn.btn-icon {
+    min-height: 2rem;
+    width: 2rem;
+    padding: 0;
+    border-color: transparent;
+    background: transparent;
+    color: var(--fg-2);
+}
+
+.btn.btn-icon:hover:not(:disabled) {
+    background: var(--surface-3);
+    color: var(--fg-1);
+}
+
+.btn.btn-icon.btn-icon-danger {
+    color: var(--danger-color);
+}
+
+.btn.btn-icon.btn-icon-danger:hover:not(:disabled) {
+    background: var(--danger-hover-bg);
+    color: var(--danger-color);
+}
+
 /* ── Primary: the one action the surface is about ── */
 .modal-button.modal-button-primary,
 .settings-btn.settings-btn-primary,
-.dep-btn.discovery-scan-btn,
+.dep-btn.discovery-quick-scan-btn,
 .dep-btn.discovery-connect-btn,
 .connect-btn,
 .btn.btn-primary {
@@ -104,7 +135,7 @@ dialog.modal .modal-settings button:disabled,
 
 .modal-button.modal-button-primary:hover:not(:disabled),
 .settings-btn.settings-btn-primary:hover:not(:disabled),
-.dep-btn.discovery-scan-btn:hover:not(:disabled),
+.dep-btn.discovery-quick-scan-btn:hover:not(:disabled),
 .dep-btn.discovery-connect-btn:hover:not(:disabled),
 .connect-btn:hover:not(:disabled),
 .btn.btn-primary:hover:not(:disabled) {
@@ -167,7 +198,13 @@ dialog.modal .connect-btn {
     .dep-btn,
     .connect-btn,
     dialog.modal .modal-settings button,
-    .btn {
+    .btn,
+    .btn.btn-icon,
+    .btn.btn-sm {
         min-height: var(--touch-target);
+    }
+
+    .btn.btn-icon {
+        width: var(--touch-target);
     }
 }

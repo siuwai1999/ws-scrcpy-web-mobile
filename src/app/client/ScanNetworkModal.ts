@@ -38,6 +38,11 @@ export const CONTAINER_SCAN_NOTE =
     '(for example 192.168.1.0/24): the port-5555 probe reaches your LAN through docker. ' +
     "Finding devices over mDNS needs the container on the host's network (network_mode: host).";
 
+const SVG_ATTRS =
+    'width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"';
+const ICON_EDIT = `<svg ${SVG_ATTRS}><path d="M17 3a2.85 2.85 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>`;
+const ICON_REMOVE = `<svg ${SVG_ATTRS}><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>`;
+
 export class ScanNetworkModal extends Modal {
     private readonly opts: ScanNetworkModalOptions;
     private rows: SubnetRow[] = [];
@@ -113,6 +118,7 @@ export class ScanNetworkModal extends Modal {
 
         const addBtn = document.createElement('button');
         addBtn.textContent = 'add subnet';
+        addBtn.className = 'btn';
         addBtn.style.cssText = 'margin: 4px 0 12px;';
         addBtn.addEventListener('click', () => this.openAddSubnet());
         container.appendChild(addBtn);
@@ -140,9 +146,11 @@ export class ScanNetworkModal extends Modal {
     private fillFooter(footer: HTMLElement): void {
         const cancel = document.createElement('button');
         cancel.textContent = 'cancel';
+        cancel.className = 'btn';
         cancel.addEventListener('click', () => this.close());
         this.startBtn = document.createElement('button');
         this.startBtn.textContent = 'start scan';
+        this.startBtn.className = 'btn btn-primary';
         this.startBtn.disabled = true;
         this.startBtn.addEventListener('click', () => this.onStartClick());
         footer.appendChild(cancel);
@@ -234,27 +242,28 @@ export class ScanNetworkModal extends Modal {
         this.emptyNotice.style.display = hasAny ? 'none' : '';
         for (const row of this.rows) {
             const li = document.createElement('li');
-            li.style.cssText = 'padding: 4px 0; display: flex; justify-content: space-between; align-items: center;';
+            li.className = 'subnet-row';
             const label = document.createElement('span');
             label.textContent = `${row.normalized} — ${row.hostCount.toLocaleString()} host${row.hostCount === 1 ? '' : 's'} (${row.annotation})`;
             li.appendChild(label);
             if (row.removable) {
                 const actions = document.createElement('span');
-                actions.style.cssText = 'display: inline-flex; align-items: center; gap: 4px;';
+                actions.className = 'subnet-row-actions';
 
                 const edit = document.createElement('button');
-                edit.textContent = '✎';
+                // Static markup, no interpolation.
+                edit.innerHTML = ICON_EDIT;
+                edit.className = 'btn btn-icon';
                 edit.setAttribute('aria-label', 'edit');
                 edit.title = 'edit subnet';
-                edit.style.cssText =
-                    'background: none; border: none; color: #58a6ff; font-size: 14px; cursor: pointer;';
                 edit.addEventListener('click', () => this.openEditSubnet(row.id, row.raw));
                 actions.appendChild(edit);
 
                 const x = document.createElement('button');
-                x.textContent = '×';
+                x.innerHTML = ICON_REMOVE;
+                x.className = 'btn btn-icon btn-icon-danger';
                 x.setAttribute('aria-label', 'remove');
-                x.style.cssText = 'background: none; border: none; color: #f06c75; font-size: 16px; cursor: pointer;';
+                x.title = 'remove subnet';
                 x.addEventListener('click', () => this.removeRowById(row.id));
                 actions.appendChild(x);
 

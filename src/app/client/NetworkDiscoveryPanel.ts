@@ -188,7 +188,6 @@ export function renderPairingSection(deps: PairingSectionDeps): HTMLElement {
             <div class="discovery-pairing-modes">
                 <button class="dep-btn" data-pair-mode="qr" aria-pressed="false">scan QR code</button>
                 <button class="dep-btn" data-pair-mode="code" aria-pressed="false">pairing code</button>
-                <button class="dep-btn discovery-pairing-cancel" data-pair-cancel>cancel</button>
             </div>
         </div>
         <div class="discovery-pairing-qr" data-pair-qr></div>
@@ -198,7 +197,10 @@ export function renderPairingSection(deps: PairingSectionDeps): HTMLElement {
             <button class="dep-btn" data-pair-submit disabled>pair</button>
         </div>
         <div class="discovery-pairing-status" data-pair-status role="status"></div>
-        <button class="dep-btn discovery-pairing-action" data-pair-action></button>
+        <div class="discovery-pairing-footer">
+            <button class="dep-btn discovery-pairing-cancel" data-pair-cancel>cancel</button>
+            <button class="dep-btn discovery-pairing-action" data-pair-action></button>
+        </div>
     `;
 
     const qrBtn = section.querySelector<HTMLButtonElement>('[data-pair-mode="qr"]')!;
@@ -760,10 +762,14 @@ export class NetworkDiscoveryPanel {
         this.container.innerHTML = `
             <div class="discovery-header">
                 <h2>Available Network Devices</h2>
-                <div class="discovery-header-actions">
-                    <button class="dep-btn discovery-quick-scan-btn" title="mDNS-only — finds modern Android devices with wireless debugging enabled">quick scan</button>
-                    <button class="dep-btn discovery-scan-btn">scan network</button>
-                    <button class="dep-btn discovery-manual-btn">manually add</button>
+                <div class="discovery-header-actions discovery-more">
+                    <button class="btn btn-icon discovery-more-btn" aria-haspopup="menu" aria-expanded="false" aria-label="advanced options" title="advanced options">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+                    </button>
+                    <div class="discovery-more-menu" role="menu" hidden>
+                        <button class="discovery-menu-item discovery-scan-btn" role="menuitem">scan network</button>
+                        <button class="discovery-menu-item discovery-manual-btn" role="menuitem">manually add</button>
+                    </div>
                 </div>
             </div>
             <div class="discovery-manual-form" hidden>
@@ -782,7 +788,6 @@ export class NetworkDiscoveryPanel {
         this.defaultInfoText = this.infoBox.textContent ?? '';
         this.resultsContainer = this.container.querySelector('.discovery-results')!;
         this.container.querySelector('.discovery-scan-btn')!.addEventListener('click', () => this.scan());
-        this.container.querySelector('.discovery-quick-scan-btn')!.addEventListener('click', () => this.quickScan());
         this.container.querySelector('.discovery-manual-btn')!.addEventListener('click', () => this.toggleManualForm());
         this.container
             .querySelector('.discovery-manual-close')!
@@ -796,6 +801,28 @@ export class NetworkDiscoveryPanel {
                 if ((e as KeyboardEvent).key === 'Enter') this.manualConnect();
             });
         }
+
+        // Advanced options (full subnet scan, manual add) live behind a menu.
+        const moreBtn = this.container.querySelector<HTMLButtonElement>('.discovery-more-btn')!;
+        const moreMenu = this.container.querySelector<HTMLElement>('.discovery-more-menu')!;
+        const setMenuOpen = (open: boolean): void => {
+            moreMenu.hidden = !open;
+            moreBtn.setAttribute('aria-expanded', String(open));
+        };
+        moreBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            setMenuOpen(moreMenu.hidden);
+        });
+        moreMenu.addEventListener('click', () => setMenuOpen(false));
+        document.addEventListener('click', () => {
+            if (!moreMenu.hidden) setMenuOpen(false);
+        });
+        this.container.addEventListener('keydown', (e) => {
+            if ((e as KeyboardEvent).key === 'Escape' && !moreMenu.hidden) {
+                setMenuOpen(false);
+                moreBtn.focus();
+            }
+        });
 
         // Pairing sits alongside the scan and manual-add controls: a scan can
         // only find a device that already trusts this server, so pairing is the
@@ -819,6 +846,15 @@ export class NetworkDiscoveryPanel {
                 onConnectByHand: () => this.openManualFormForPairing(),
             }),
         );
+
+        // Quick scan finds devices that are already paired, so it belongs with
+        // the other ways of finding/pairing one: first in the pairing row.
+        const quickScanBtn = document.createElement('button');
+        quickScanBtn.className = 'dep-btn discovery-quick-scan-btn';
+        quickScanBtn.textContent = 'quick scan';
+        quickScanBtn.title = 'mDNS-only — finds modern Android devices with wireless debugging enabled';
+        quickScanBtn.addEventListener('click', () => this.quickScan());
+        this.container.querySelector('.discovery-pairing-modes')!.prepend(quickScanBtn);
     }
 
     getElement(): HTMLElement {
