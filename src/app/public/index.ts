@@ -6,6 +6,7 @@
 /// <reference path="../../types/assets.d.ts" />
 /// <reference types="node" />
 
+import '../util/disposePolyfill';
 import '../../style/ws-scrcpy.css';
 import { StreamClientScrcpy } from '../googDevice/client/StreamClientScrcpy';
 import { WebCodecsPlayer } from '../player/WebCodecsPlayer';

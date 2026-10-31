@@ -1,3 +1,4 @@
+import './util/disposePolyfill';
 import '../style/app.css';
 import '../style/admin-scope-banner.css';
 import '../style/bookmark-reminder.css';
@@ -27,6 +28,7 @@ import { WelcomeModal } from './client/WelcomeModal';
 import { StreamClientScrcpy } from './googDevice/client/StreamClientScrcpy';
 import { installThemeEmbedListener, notifyThemeReady } from './public/themeEmbed';
 import { onPageTeardown } from './util/onPageTeardown';
+import { installOnScreenConsole } from './util/onScreenConsole';
 
 /**
  * `notice` is a line for the welcome screen's status area: the declined-prompt
@@ -222,6 +224,9 @@ function maybeShowBookmarkReminder(globallyDismissed: boolean, dismissedFor: num
     if (!shouldShowBookmark({ globallyDismissed, dismissedForPort: dismissedFor, currentPort })) return;
     showBookmarkReminder('bookmark', currentPort);
 }
+
+// `?debug` mirrors the console on screen (for phones/iPads with no dev tools).
+installOnScreenConsole();
 
 // Initialize theme immediately to prevent flash of wrong colors
 initTheme();
