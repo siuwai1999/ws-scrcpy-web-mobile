@@ -1,5 +1,6 @@
 import type { Messages } from './en';
 import { en } from './en';
+import { ja } from './ja';
 import { zhCN } from './zh-CN';
 import { zhTW } from './zh-TW';
 
@@ -7,6 +8,7 @@ export const LOCALES = {
     en: { label: 'English', messages: en as Messages },
     'zh-TW': { label: '繁體中文', messages: zhTW },
     'zh-CN': { label: '简体中文', messages: zhCN },
+    ja: { label: '日本語', messages: ja },
 } as const;
 
 export type LocaleCode = keyof typeof LOCALES;
