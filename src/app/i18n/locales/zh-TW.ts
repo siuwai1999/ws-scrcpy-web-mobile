@@ -713,4 +713,6 @@ export const zhTW: Messages = {
     'boot.update': '更新',
     'boot.reload': '重新載入',
     'boot.staleToken': '此頁面與伺服器失去連線,且無法恢復。請重新載入頁面以重新連線。',
+    'secure.notice':
+        '此位址不是安全來源,因此瀏覽器不會開放視訊解碼器,無法開始串流。在自己的網路上最快的解法:到「設定 → 本機 HTTPS」開啟本機 https;或在執行 ws-scrcpy-web 的機器上開啟 {address};若要用於家用區域網路之外,請透過受信任來源以 https 提供本應用程式。',
 };

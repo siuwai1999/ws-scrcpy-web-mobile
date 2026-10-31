@@ -117,7 +117,10 @@ body.list #device_list_menu {
 
 #devices .device-info td {
     padding: 2px 0;
-    vertical-align: top;
+    /* Baseline, not top: the first row's value is larger than its label (and the
+       ID value is smaller), so top alignment left the label floating above the
+       name. Baseline lines up the text whatever the font sizes. */
+    vertical-align: baseline;
     color: var(--fg-1);
 }
 
@@ -519,4 +522,14 @@ a.link-stream .kind-icon {
     width: 14px;
     height: 14px;
     vertical-align: middle;
+}
+
+/* With the insecure-origin notice under the actions, the card's bottom edge is
+   the notice, not the action row, so the absolutely pinned pencil would land on
+   the notice text. Keep it inline beside the name instead. */
+/* biome-ignore lint/style/noDescendingSpecificity: the `right` offsets above do not apply once the pencil is static, so the two never compete */
+#devices .device-list div.device:has(.insecure-origin-notice) .device-name-text + .device-name-edit-btn {
+    position: static;
+    vertical-align: middle;
+    margin-left: var(--space-1);
 }

@@ -751,6 +751,8 @@ export const en = {
     'boot.reload': 'reload',
     'boot.staleToken':
         'this page lost its connection to the server and could not get it back. reload the page to reconnect.',
+    'secure.notice':
+        'this address is not a secure origin, so the browser will not expose the video decoder and no stream can start. turn on local https in settings → local https for the quickest fix on your own network, open {address} on the machine running ws-scrcpy-web, or serve this app over https from a trusted origin for anything beyond a home lan.',
 } as const;
 
 export type MessageKey = keyof typeof en;

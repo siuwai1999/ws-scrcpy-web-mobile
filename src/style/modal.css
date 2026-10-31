@@ -774,16 +774,20 @@ dialog.settings-modal
     .settings-item:not([hidden]):has(> :not([hidden]))
     ~ .settings-item.settings-item--alert:not([hidden]):has(> :not([hidden])) {
     border: 1px solid var(--warning-color);
-    border-radius: 6px;
-    background-color: var(--header-bg-color);
+    /* Same corner radius as the cards it sits in, and a warning tint over the
+       card's own background so it reads as part of the tab in both themes. */
+    border-radius: var(--radius-sm);
+    background-color: color-mix(in srgb, var(--warning-color) 8%, var(--settings-card-bg));
     padding: 0.6rem 0.75rem;
     margin: 0.4rem -0.75rem;
+    row-gap: 0.25rem;
 }
 
 dialog.settings-modal .settings-alert-title {
     color: var(--warning-color);
     font-weight: 600;
     font-size: 13px;
+    line-height: 1.4;
 }
 
 dialog.settings-modal .settings-row {
@@ -872,6 +876,16 @@ dialog.settings-modal .settings-control .settings-radio-label {
  * radio is never `disabled` (Chromium desaturates accent-color on :disabled),
  * so this dot renders at full saturation in both the active and locked state. */
 dialog.settings-modal .settings-control .settings-radio-label input[type="radio"] {
+    accent-color: var(--accent-color);
+}
+
+/* Settings checkboxes (remote admin, automatic updates, ...): the same accent
+   and size as the checkboxes in the stream-settings dialog. */
+dialog.settings-modal .settings-control input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    cursor: pointer;
     accent-color: var(--accent-color);
 }
 
@@ -1270,13 +1284,53 @@ body:has(dialog.connect-modal[open]) {
     }
 }
 
+/* Language picker in the Settings header: the same field look as the other
+   inputs (surface fill, strong border, accent focus ring), a drawn chevron
+   instead of the browser's, and theme-colored options. Without the option
+   rules the open list keeps the browser's white background with the dialog's
+   pale text on it, which is unreadable in the dark theme. */
 dialog.modal .modal-header-controls .language-select {
-    background: transparent;
-    color: var(--text-color, inherit);
-    border: 1px solid var(--border-color, rgba(128, 128, 128, 0.4));
-    border-radius: 6px;
-    padding: 4px 8px;
+    appearance: none;
+    box-sizing: border-box;
+    min-width: 9.5rem;
+    height: 32px;
+    padding: 0 28px 0 10px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background-color: var(--surface-2);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%238a8f98' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    color: var(--text-color);
     font: inherit;
     font-size: 13px;
     cursor: pointer;
+    transition: border-color var(--duration-fast) var(--ease);
+}
+
+dialog.modal .modal-header-controls .language-select:hover {
+    border-color: var(--accent-color);
+}
+
+dialog.modal .modal-header-controls .language-select:focus-visible {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-color) 35%, transparent);
+}
+
+dialog.modal .modal-header-controls .language-select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+dialog.modal .modal-header-controls .language-select option {
+    background-color: var(--surface-2);
+    color: var(--text-color);
+}
+
+dialog.modal .modal-header-controls .language-select option:checked {
+    /* A tint of the accent, not the accent itself: pale text on the dark
+       theme's light accent would not reach readable contrast. */
+    background-color: color-mix(in srgb, var(--accent-color) 30%, var(--surface-2));
+    color: var(--text-color);
 }

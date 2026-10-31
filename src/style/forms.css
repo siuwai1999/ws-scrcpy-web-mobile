@@ -45,3 +45,14 @@ dialog.modal .modal-frame select:not([multiple]) {
 dialog.modal .modal-frame select:not([multiple]):disabled {
     cursor: not-allowed;
 }
+
+/* Checkboxes in the Users dialog: the same accent and size as the Settings and
+   stream-settings checkboxes, instead of the browser's default control. */
+dialog.users-modal input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    cursor: pointer;
+    accent-color: var(--accent-color);
+    flex: none;
+}

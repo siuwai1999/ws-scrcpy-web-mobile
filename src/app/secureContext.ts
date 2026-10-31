@@ -1,3 +1,4 @@
+import { t } from './i18n';
 /**
  * Secure-context detection for the streaming path.
  *
@@ -51,14 +52,7 @@ export function loopbackEquivalent(location: LocationParts): string {
  */
 export function insecureOriginNotice(win: SecureContextWindow): string | null {
     if (win.isSecureContext) return null;
-    return (
-        'this address is not a secure origin, so the browser will not expose the video decoder ' +
-        'and no stream can start. turn on local https in settings → local https for the ' +
-        'quickest fix on your own network, open ' +
-        loopbackEquivalent(win.location) +
-        ' on the machine running ws-scrcpy-web, or serve this app over https from a trusted origin ' +
-        'for anything beyond a home lan.'
-    );
+    return t('secure.notice', { address: loopbackEquivalent(win.location) });
 }
 
 /**

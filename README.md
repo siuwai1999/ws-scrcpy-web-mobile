@@ -1,6 +1,6 @@
 # ws-scrcpy-web-mobile
 
-> **Fork of [bilbospocketses/ws-scrcpy-web](https://github.com/bilbospocketses/ws-scrcpy-web)** with fixes for using it from **phones and tablets (iPhone / iPad)**.
+> **Fork of [bilbospocketses/ws-scrcpy-web](https://github.com/bilbospocketses/ws-scrcpy-web)** with fixes for using it from **phones and tablets (iPhone / iPad)**, and a translated interface (English / 繁體中文).
 
 ## What this fork changes
 
@@ -12,6 +12,12 @@
 - **One button system** across the whole app (primary, secondary, danger, icon) and consistent form fields and dropdowns in every dialog.
 - **Network tab** reorganised: quick scan, scan QR code and pairing code sit together (QR code centred, cancel beneath it); *scan network* and *manually add* are tucked behind a `...` menu.
 - **Phone-sized dialogs**: Settings, the file browser and the others fit a phone screen; the file browser gives the file name the room.
+
+**Languages (i18n)**
+
+- **English and Traditional Chinese (繁體中文).** Pick a language from the drop-down in the Settings header: *Automatic* follows the browser, or choose one explicitly. The choice is saved with your settings and applies the next time the page loads (picking one reloads it).
+- The whole interface is translated: the home page, device cards, every Settings tab, dialogs, pairing and scanning, the file browser, the shell, the in-app help guides (subnet cheat sheet, certificate guide) and the server's error messages as the UI shows them. Server logs and the API stay in English.
+- Adding a language is two files: copy `src/app/i18n/locales/zh-TW.ts` to a new locale, translate the values, and register it in `src/app/i18n/locales/index.ts` (the type checker rejects a catalog that is missing a key). Translated help guides are named `<guide>.<locale>.html` in `public/help/`.
 
 **iPhone / iPad fixes**
 
