@@ -67,12 +67,13 @@
 }
 
 .list-files-filter input {
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
-    color: var(--text-color, #ddd);
-    padding: 2px 8px;
-    font-family: var(--font-mono);
+    box-sizing: border-box;
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    color: var(--text-color);
+    padding: 3px 8px;
+    font-family: inherit;
     font-size: 12px;
     width: 120px;
 }
@@ -82,10 +83,6 @@
     border-color: var(--accent-color);
 }
 
-[data-theme="light"] .list-files-filter input {
-    border-color: rgba(0, 0, 0, 0.15);
-    color: #333;
-}
 
 /* ── Column headers ──
    Sticky inside .list-files-body so header and rows share the same scroll
@@ -97,18 +94,13 @@
     padding: 6px 12px;
     border-bottom: 1px solid var(--modal-divider);
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--fg-3);
     flex-shrink: 0;
     gap: 8px;
     position: sticky;
     top: 0;
     z-index: 1;
-    background: rgb(30, 35, 45);
-}
-
-[data-theme="light"] .list-files-header {
-    color: rgba(0, 0, 0, 0.4);
-    background: rgb(245, 248, 252);
+    background: var(--surface-2);
 }
 
 .list-files-header-icon-spacer {
@@ -398,4 +390,51 @@
     padding: 24px;
     opacity: 0.5;
     font-size: 13px;
+}
+
+/* ── Phone width ──
+   The row is [check][icon][name][actions][size][date] with fixed widths, which
+   leaves the name column almost nothing on a phone. Give the name the room:
+   drop the date column, narrow the size column, and let the hover actions float
+   over the end of the row instead of reserving a column for them. */
+@media (max-width: 640px) {
+    .list-files-header-date,
+    .list-files-row-date,
+    .list-files-header-actions-spacer {
+        display: none;
+    }
+
+    .list-files-header-size,
+    .list-files-row-size {
+        width: 56px;
+    }
+
+    .list-files-row-actions {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        width: auto;
+        transform: translateY(-50%);
+        padding: 2px 4px;
+        border-radius: var(--radius-sm);
+        background: var(--surface-3);
+    }
+
+    .list-files-row-actions .list-files-action-btn {
+        display: none;
+    }
+
+    .list-files-row:hover .list-files-row-actions .list-files-action-btn {
+        display: inline-flex;
+    }
+
+    /* Wrapped names stay on one line, truncated; the list scrolls sideways
+       only for the breadcrumb. */
+    .list-files-filter input {
+        width: 90px;
+    }
+
+    .list-files-footer {
+        flex-wrap: wrap;
+    }
 }
