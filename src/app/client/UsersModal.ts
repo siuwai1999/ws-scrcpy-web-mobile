@@ -227,7 +227,7 @@ export class UsersModal extends Modal {
         const pwInput = document.createElement('input');
         pwInput.type = 'password';
         pwInput.placeholder = 'new password';
-        pwInput.style.cssText = 'padding: 2px 6px; font-size: 13px;';
+        
 
         const eyeBtn = document.createElement('button');
         eyeBtn.type = 'button';
@@ -316,7 +316,7 @@ export class UsersModal extends Modal {
             adminUsernameInput.value = 'admin';
             adminUsernameInput.required = true;
             adminUsernameInput.style.cssText =
-                'display: block; width: 100%; margin-bottom: 10px; padding: 4px 8px; box-sizing: border-box;';
+                'display: block; width: 100%; margin-bottom: 10px;';
             adminUsernameInput.setAttribute('data-field', 'admin-username');
             lockSection.appendChild(adminUsernameInput);
 
@@ -332,7 +332,7 @@ export class UsersModal extends Modal {
             adminPasswordInput = document.createElement('input');
             adminPasswordInput.type = 'password';
             adminPasswordInput.required = true;
-            adminPasswordInput.style.cssText = 'flex: 1; padding: 4px 8px;';
+            adminPasswordInput.style.cssText = 'flex: 1;';
             adminPasswordInput.setAttribute('data-field', 'admin-password');
 
             const adminEyeBtn = document.createElement('button');
@@ -372,7 +372,7 @@ export class UsersModal extends Modal {
         usernameInput.type = 'text';
         usernameInput.required = true;
         usernameInput.style.cssText =
-            'display: block; width: 100%; margin-bottom: 10px; padding: 4px 8px; box-sizing: border-box;';
+            'display: block; width: 100%; margin-bottom: 10px;';
         newUserSection.appendChild(usernameInput);
 
         // Role select
@@ -404,7 +404,7 @@ export class UsersModal extends Modal {
         const passwordInput = document.createElement('input');
         passwordInput.type = 'password';
         passwordInput.required = true;
-        passwordInput.style.cssText = 'flex: 1; padding: 4px 8px;';
+        passwordInput.style.cssText = 'flex: 1;';
 
         const eyeBtn = document.createElement('button');
         eyeBtn.type = 'button';

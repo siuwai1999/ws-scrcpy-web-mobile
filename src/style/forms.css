@@ -1,0 +1,47 @@
+/* Form fields inside dialogs: one look for selects and text inputs.
+ *
+ * Settings inputs and the stream-settings fields are styled in modal.css; this
+ * file covers the rest (the Users dialog's role dropdowns and text inputs) and
+ * gives every single-line select the same custom chevron, so a dropdown looks
+ * the same wherever it appears. */
+
+dialog.modal .modal-select,
+dialog.users-modal input:not([type="checkbox"]):not([type="radio"]) {
+    box-sizing: border-box;
+    min-height: 2.25rem;
+    padding: 6px 10px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background-color: var(--surface-2);
+    color: var(--text-color);
+    font: inherit;
+    transition: border-color var(--duration-fast) var(--ease);
+}
+
+dialog.modal .modal-select:focus,
+dialog.users-modal input:not([type="checkbox"]):not([type="radio"]):focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+dialog.modal .modal-select:disabled,
+dialog.users-modal input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Single-line selects: replace the native arrow with one chevron. */
+dialog.modal .modal-frame select:not([multiple]) {
+    -webkit-appearance: none;
+    appearance: none;
+    padding-right: 2rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a93a0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+    background-size: 1rem;
+    cursor: pointer;
+}
+
+dialog.modal .modal-frame select:not([multiple]):disabled {
+    cursor: not-allowed;
+}

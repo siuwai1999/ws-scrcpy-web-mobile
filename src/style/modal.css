@@ -885,11 +885,11 @@ dialog.settings-modal .settings-control .settings-radio-label.settings-radio-loc
 
 dialog.settings-modal .settings-input {
     box-sizing: border-box;
-    background: var(--stream-bg-color, #1a1a2e);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 6px;
-    color: var(--text-color, #ddd);
-    padding: 4px 8px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    color: var(--text-color);
+    padding: 6px 10px;
     width: 100%;
     max-width: 240px;
     font: inherit;
@@ -898,11 +898,6 @@ dialog.settings-modal .settings-input {
 dialog.settings-modal .settings-input:focus {
     outline: none;
     border-color: var(--accent-color);
-}
-
-[data-theme="light"] dialog.settings-modal .settings-input {
-    background: #fff;
-    border-color: rgba(0, 0, 0, 0.15);
 }
 
 /*
@@ -1121,15 +1116,10 @@ dialog.settings-modal .settings-combo-list {
     list-style: none;
     max-height: 12rem;
     overflow-y: auto;
-    background: var(--stream-bg-color);
+    background: var(--surface-2);
     border: 1px solid var(--device-border-color);
     border-radius: 6px;
     box-shadow: var(--settings-popup-shadow);
-}
-
-/* The same white as the box it drops from (.settings-input's light override). */
-[data-theme="light"] dialog.settings-modal .settings-combo-list {
-    background: #fff;
 }
 
 dialog.settings-modal .settings-combo-list[hidden] {
@@ -1265,7 +1255,7 @@ body:has(dialog.connect-modal[open]) {
         padding-right: var(--space-3);
     }
 
-    dialog.modal .modal-body {
+    dialog.modal:not(.connect-modal) .modal-body {
         padding: var(--space-3);
     }
 
