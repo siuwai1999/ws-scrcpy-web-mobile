@@ -10,15 +10,28 @@ const NAV: NavTarget[] = [
     { label: 'Network', targetId: 'network' },
 ];
 
+const TAB_KEY = 'wsScrcpyHomeTab';
+
+function readStoredTab(): string {
+    try {
+        const stored = localStorage.getItem(TAB_KEY);
+        if (stored && NAV.some((n) => n.targetId === stored)) return stored;
+    } catch {
+        // storage blocked (private window): fall through to the default
+    }
+    return NAV[0]!.targetId;
+}
+
 /**
- * The site header: brand on the left, section navigation in the middle, and
- * the page's controls (update pill, dependency badge, settings, theme) on the
- * right. The controls are created elsewhere and handed in, so each keeps its
- * own behaviour; the header only lays them out.
+ * The site header: brand on the left, the page tabs (Devices, Network) in the
+ * middle with a link to the project, and the page's controls (update pill,
+ * dependency badge, settings, theme) on the right. The controls are created
+ * elsewhere and handed in, so each keeps its own behaviour; the header only
+ * lays them out.
  *
- * Navigation scrolls to a section by id rather than using `#id` links: the
- * stream pages route on the URL hash (`#!action=...`), and a bare fragment
- * would be read as a navigation.
+ * The tabs switch `body[data-tab]`; CSS (header.css) shows the matching
+ * section and hides the other. Devices is the default, and the last choice is
+ * remembered per browser.
  */
 export function createSiteHeader(actions: HTMLElement[]): HTMLElement {
     const header = document.createElement('header');
@@ -38,17 +51,30 @@ export function createSiteHeader(actions: HTMLElement[]): HTMLElement {
 
     const nav = document.createElement('nav');
     nav.className = 'site-nav';
-    nav.setAttribute('aria-label', 'Sections');
+    nav.setAttribute('aria-label', 'Pages');
+    const items = new Map<string, HTMLButtonElement>();
+    const select = (id: string): void => {
+        document.body.dataset['tab'] = id;
+        for (const [key, item] of items) {
+            if (key === id) item.setAttribute('aria-current', 'page');
+            else item.removeAttribute('aria-current');
+        }
+        try {
+            localStorage.setItem(TAB_KEY, id);
+        } catch {
+            // not persisted; the tab still switches
+        }
+    };
     for (const { label, targetId } of NAV) {
         const item = document.createElement('button');
         item.type = 'button';
         item.className = 'site-nav-item';
         item.textContent = label;
-        item.addEventListener('click', () => {
-            document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
+        item.addEventListener('click', () => select(targetId));
+        items.set(targetId, item);
         nav.appendChild(item);
     }
+    select(readStoredTab());
     const repo = document.createElement('a');
     repo.className = 'site-nav-item';
     repo.href = REPO_URL;

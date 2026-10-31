@@ -10,6 +10,16 @@
  * result does not depend on stylesheet order.
  */
 
+/* A button's `display` below must not defeat the `hidden` attribute. */
+.modal-button[hidden],
+.settings-btn[hidden],
+.dep-btn[hidden],
+.list-files-footer-btn[hidden],
+.connect-btn[hidden],
+.btn[hidden] {
+    display: none;
+}
+
 /* ── Base (secondary) ── */
 .modal-button,
 .settings-btn,

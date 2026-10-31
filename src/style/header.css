@@ -77,10 +77,15 @@
     margin-left: auto;
 }
 
-/* Sections scrolled to by the nav stop below the sticky header. */
-#devices,
-#network {
-    scroll-margin-top: 4.5rem;
+.site-nav-item[aria-current="page"] {
+    background: rgba(var(--accent-rgb), 0.14);
+    color: var(--accent);
+}
+
+/* Tabs: one section at a time, Devices by default. */
+body[data-tab="devices"] #network,
+body[data-tab="network"] #devices {
+    display: none;
 }
 
 @media (max-width: 640px) {
