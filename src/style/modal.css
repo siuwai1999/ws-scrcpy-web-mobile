@@ -1226,3 +1226,50 @@ body:has(dialog.connect-modal[open]) {
     overflow: hidden;
     overscroll-behavior: none;
 }
+
+/* ── Phone width ──
+   The frames above have pixel minimums (400-500px) that are wider than a phone,
+   and their label/control grids reserve 18-20rem for labels. On a narrow screen
+   the frame fits the viewport and each grid collapses to a single column: the
+   `[labels controls]` line name points both named columns at that one column,
+   so every `grid-column: labels|controls` placement still resolves and the
+   label simply stacks above its control. The stream dialog (connect-modal) has
+   its own full-screen layout and is excluded. */
+@media (max-width: 640px) {
+    dialog.modal:not(.connect-modal) .modal-frame {
+        width: calc(100vw - var(--space-4));
+        max-width: calc(100vw - var(--space-4));
+        max-height: 92dvh;
+    }
+
+    dialog.modal:not(.connect-modal) {
+        max-width: 100vw;
+        max-height: 100dvh;
+    }
+
+    dialog.settings-modal .settings-item,
+    dialog.settings-modal .settings-section-body,
+    dialog.modal .modal-controls,
+    dialog.modal .modal-advanced {
+        grid-template-columns: [labels controls] minmax(0, 1fr);
+    }
+
+    dialog.modal .modal-controls,
+    dialog.modal .modal-advanced {
+        padding-right: 0;
+    }
+
+    dialog.modal .modal-header,
+    dialog.modal .modal-footer {
+        padding-left: var(--space-3);
+        padding-right: var(--space-3);
+    }
+
+    dialog.modal .modal-body {
+        padding: var(--space-3);
+    }
+
+    dialog.settings-modal .settings-tab {
+        padding: 0.5rem 0.7rem;
+    }
+}
