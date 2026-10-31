@@ -54,44 +54,34 @@ dialog.modal {
 
 /* ── Backdrop ── */
 dialog.modal::backdrop {
-    background: rgba(0, 0, 0, 0.45);
+    background: rgba(0, 0, 0, 0.55);
 }
 
 /* ── Glassmorphism frame ── */
 dialog.modal .modal-frame {
-    font-family: var(--font-mono);
-    color: var(--text-color, #ddd);
+    font-family: var(--font-sans);
+    color: var(--text-color);
     width: clamp(400px, 50vw, 700px);
     max-height: 80vh;
     display: flex;
     flex-direction: column;
-    background: rgba(42, 42, 42, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
     overflow: hidden;
-}
-
-[data-theme="light"] dialog.modal .modal-frame {
-    background: rgba(245, 248, 252, 0.87);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
 }
 
 /* Nested-modal readability: when a second modal opens on top, the top one uses
    a fully opaque frame so its content is crisp over the lower modal's glass. */
 body:has(dialog.modal[open] ~ dialog.modal[open]) dialog.modal[open]:last-of-type .modal-frame {
-    background: rgb(42, 42, 42);
-}
-
-[data-theme="light"] body:has(dialog.modal[open] ~ dialog.modal[open]) dialog.modal[open]:last-of-type .modal-frame {
-    background: rgb(245, 248, 252);
+    background: var(--surface-1);
 }
 
 dialog.modal .modal-frame button,
 dialog.modal .modal-frame select,
 dialog.modal .modal-frame input {
-    font-family: var(--font-mono);
+    font-family: inherit;
     font-size: var(--font-size);
 }
 
@@ -139,7 +129,9 @@ dialog.modal[open] .modal-frame {
 
 /* Backdrop: exit-end state */
 dialog.modal::backdrop {
-    background: rgba(0, 0, 0, 0.45);
+    background: rgba(0, 0, 0, 0.55);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
     opacity: 0;
     transition:
         opacity 0.2s ease-out,
@@ -176,8 +168,9 @@ dialog.modal .modal-header {
 }
 
 dialog.modal .modal-title {
-    font-size: 15px;
+    font-size: var(--text-lg);
     font-weight: 600;
+    letter-spacing: -0.01em;
 }
 
 dialog.modal .modal-header-controls {
@@ -259,18 +252,11 @@ dialog.modal .modal-controls select,
 dialog.modal .modal-controls input:not([type="checkbox"]) {
     grid-column: controls;
     box-sizing: border-box;
-    background: var(--stream-bg-color, #1a1a2e);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 6px;
-    color: var(--text-color, #ddd);
-    padding: 4px 8px;
-}
-
-[data-theme="light"] dialog.modal .modal-controls select,
-[data-theme="light"] dialog.modal .modal-controls input:not([type="checkbox"]) {
-    background: #fff;
-    border-color: rgba(0, 0, 0, 0.15);
-    color: #333;
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    color: var(--text-color);
+    padding: 6px 10px;
 }
 
 dialog.modal .modal-controls select:focus,
@@ -285,14 +271,7 @@ dialog.modal .modal-advanced input:disabled,
 dialog.modal .modal-advanced select:disabled {
     opacity: 0.4;
     cursor: not-allowed;
-    background: rgba(255, 255, 255, 0.03);
-}
-
-[data-theme="light"] dialog.modal .modal-controls input:disabled,
-[data-theme="light"] dialog.modal .modal-controls select:disabled,
-[data-theme="light"] dialog.modal .modal-advanced input:disabled,
-[data-theme="light"] dialog.modal .modal-advanced select:disabled {
-    background: #eee;
+    background: var(--surface-1);
 }
 
 /* ── Slider ── */
@@ -377,11 +356,11 @@ dialog.modal .modal-advanced input:not([type="checkbox"]) {
     grid-column: controls;
     box-sizing: border-box;
     width: 100%;
-    background: var(--stream-bg-color, #1a1a2e);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 6px;
-    color: var(--text-color, #ddd);
-    padding: 4px 8px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    color: var(--text-color);
+    padding: 6px 10px;
 }
 /* biome-ignore-end lint/style/noDescendingSpecificity: end of the sibling-container block above */
 
@@ -509,13 +488,7 @@ dialog.connect-modal--mobile .modal-frame {
     max-height: 100dvh;
     border: none;
     border-radius: 0;
-    /* Full screen has nothing to show through to: the glass would let the page behind bleed in. */
-    background: rgb(42, 42, 42);
-}
-
-/* biome-ignore lint/style/noDescendingSpecificity: the nested-modal override above only matters for a second dialog stacked on this one; this one is full screen and never has one over it */
-[data-theme="light"] dialog.connect-modal--mobile .modal-frame {
-    background: rgb(245, 248, 252);
+    background: var(--surface-1);
 }
 
 dialog.connect-modal--mobile .modal-header {

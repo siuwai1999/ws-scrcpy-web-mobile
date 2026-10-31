@@ -500,7 +500,7 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
         (disconnect ?? config)?.classList.add('icon-first');
 
         actions.remove();
-        services.before(...[primary, secondary].filter((el) => el.childElementCount > 0));
+        services.before(...(primary.childElementCount > 0 ? [primary, secondary] : [secondary]));
     }
 
     /**

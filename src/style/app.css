@@ -54,7 +54,7 @@
     --text-shadow-color: var(--surface-1);
     --header-bg-color: var(--surface-1);
     --controls-bg-color: rgba(21, 24, 29, 0.85);
-    --text-color: var(--fg-1);
+    --text-color: #eceef1;
     --text-color-light: var(--fg-2);
     --success-color: #4ade80;
     --success-hover-bg: rgba(74, 222, 128, 0.1);
@@ -68,8 +68,8 @@
     --link-color-visited-light: #6d5bd0;
     --kill-button-hover-color: #f87171;
     --url-color: var(--fg-3);
-    --button-text-color: var(--accent);
-    --button-border-color: var(--border);
+    --button-text-color: #8b8dff;
+    --button-border-color: #2a2f38;
     --progress-background-color: rgba(139, 141, 255, 0.2);
     --progress-background-error-color: rgba(248, 113, 113, 0.2);
     --accent-color: var(--accent);
@@ -80,7 +80,7 @@
     --border-muted: rgba(255, 255, 255, 0.16);
     /* Settings cards (modal.css .settings-card), the Dependencies card and the
      * Local HTTPS callout inside the dialog: the device list's own card color. */
-    --settings-card-bg: var(--surface-1);
+    --settings-card-bg: var(--surface-2);
     /* A list that drops from a Settings control (the certificate subject's
      * address list, modal.css .settings-combo-list). */
     --settings-popup-shadow: var(--shadow-2);
@@ -110,7 +110,7 @@
     --text-shadow-color: var(--surface-2);
     --header-bg-color: var(--surface-1);
     --controls-bg-color: rgba(255, 255, 255, 0.85);
-    --text-color: var(--fg-1);
+    --text-color: #14171c;
     --text-color-light: var(--fg-2);
     --success-color: #15803d;
     --success-hover-bg: rgba(21, 128, 61, 0.1);
@@ -124,8 +124,8 @@
     --link-color-visited-light: #c4b5fd;
     --kill-button-hover-color: #dc2626;
     --url-color: var(--fg-3);
-    --button-text-color: var(--accent);
-    --button-border-color: var(--border-strong);
+    --button-text-color: #4f46e5;
+    --button-border-color: #c8ced6;
     --progress-background-color: rgba(79, 70, 229, 0.15);
     --progress-background-error-color: rgba(185, 28, 28, 0.15);
     --accent-color: var(--accent);

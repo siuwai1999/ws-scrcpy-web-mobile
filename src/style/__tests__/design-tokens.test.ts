@@ -253,8 +253,9 @@ describe('ws-scrcpy.css is self-contained (embed.html loads it without app.css)'
 describe('settings card tokens', () => {
     it('defines --settings-card-bg and --settings-popup-shadow in both themes, the card solid in each', () => {
         const appCss = readStyle('app.css');
-        expect(darkBlock(appCss)).toMatch(/--settings-card-bg:\s*#252525;/);
-        expect(lightBlock(appCss)).toMatch(/--settings-card-bg:\s*#e9edf2;/);
+        // A surface token (one step above the dialog frame), so the card is solid in each theme.
+        expect(darkBlock(appCss)).toMatch(/--settings-card-bg:\s*var\(--surface-2\);/);
+        expect(lightBlock(appCss)).toMatch(/--settings-card-bg:\s*var\(--surface-2\);/);
         expect(darkBlock(appCss)).toMatch(/--settings-popup-shadow\s*:/);
         expect(lightBlock(appCss)).toMatch(/--settings-popup-shadow\s*:/);
     });

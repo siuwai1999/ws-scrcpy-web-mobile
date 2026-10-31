@@ -391,13 +391,21 @@ export class StreamClientScrcpy
     private isRefreshing = false;
     private isStopping = false;
     private reconnectOnVisible = false;
+    private resumedSinceVisible = false;
     private hiddenAt = 0;
     private visibleAt = 0;
     private static readonly BACKGROUND_RESYNC_MS = 1500;
     private static readonly BACKGROUND_GRACE_MS = 5000;
 
+    /**
+     * True while the page is in the background, or for a few seconds after it
+     * came back. Only one automatic reconnect is allowed per return, so a
+     * server that is really down surfaces as a failure instead of looping.
+     */
     private wasRecentlyBackgrounded(): boolean {
-        return document.hidden || performance.now() - this.visibleAt < StreamClientScrcpy.BACKGROUND_GRACE_MS;
+        if (document.hidden) return true;
+        if (this.resumedSinceVisible || this.visibleAt === 0) return false;
+        return performance.now() - this.visibleAt < StreamClientScrcpy.BACKGROUND_GRACE_MS;
     }
 
     /** Re-arm audio: a fresh AudioContext needs a user gesture on iOS. */
@@ -411,6 +419,7 @@ export class StreamClientScrcpy
 
     private resumeAfterBackground(): void {
         this.reconnectOnVisible = false;
+        this.resumedSinceVisible = true;
         if (this.isStopping) return;
         this.refreshStream();
         this.armAudioResume();
@@ -424,6 +433,7 @@ export class StreamClientScrcpy
             return;
         }
         this.visibleAt = now;
+        this.resumedSinceVisible = false;
         const hiddenFor = now - this.hiddenAt;
         // Socket died while away, or we were away long enough that buffered
         // audio/video would play back stale: reconnect for a clean resync.
@@ -441,7 +451,7 @@ export class StreamClientScrcpy
         let failure = this.isStopping ? undefined : streamFailureFromClose(ev);
         // iOS/iPadOS kills sockets of backgrounded pages (close code 1006). That
         // is not a stream failure: reconnect when the page is visible again.
-        if (failure && !this.isRefreshing && this.wasRecentlyBackgrounded()) {
+        if (failure && ev?.code === 1006 && !this.isRefreshing && this.wasRecentlyBackgrounded()) {
             failure = undefined;
             this.reconnectOnVisible = true;
             if (!document.hidden) this.resumeAfterBackground();
@@ -583,7 +593,6 @@ export class StreamClientScrcpy
         };
         document.addEventListener('click', resumeAudio, { once: true });
         document.addEventListener('keydown', resumeAudio, { once: true });
-        this.visibleAt = performance.now();
         document.addEventListener('visibilitychange', this.onVisibilityChange);
 
         if (this.params.videoCodec) {

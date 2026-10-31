@@ -6,6 +6,7 @@
     --device-list-default-color: var(--surface-1);
     --device-list-hover-color: var(--surface-2);
     --section-border-color: var(--border);
+    --icon-btn: 2rem;
     --icon-power: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18.36 6.64a9 9 0 1 1-12.73 0'/%3E%3Cline x1='12' y1='2' x2='12' y2='12'/%3E%3C/svg%3E");
     --icon-gear: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Cpath d='M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z'/%3E%3C/svg%3E");
     --icon-disconnect: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='15' y1='9' x2='9' y2='15'/%3E%3Cline x1='9' y1='9' x2='15' y2='15'/%3E%3C/svg%3E");
@@ -80,12 +81,12 @@ body.list #device_list_menu {
     border-color: var(--border-strong);
 }
 
-/* Status dot: in the card padding, right of the name row, so it never meets the rename pencil. */
+/* Status dot, top right. */
 #devices .device-list div.device::before {
     content: "";
     position: absolute;
     top: calc(var(--space-4) + 0.4rem);
-    right: 5px;
+    right: var(--space-4);
     width: 8px;
     height: 8px;
     border-radius: 50%;
@@ -258,8 +259,9 @@ body.list #device_list_menu {
     margin: 0 calc(var(--space-2) * -1) calc(var(--space-2) * -1);
 }
 
-#devices .device-list div.device .device-secondary:empty {
-    display: none;
+/* Kept even when empty: the rename pencil is placed in this row. */
+#devices .device-list div.device .device-secondary {
+    min-height: var(--icon-btn);
 }
 
 #devices .device-list div.device .device-secondary > .desc-block {
@@ -297,8 +299,8 @@ body.list #device_list_menu {
 #devices .device-list div.device .device-secondary .stream .action-button {
     position: relative;
     box-sizing: border-box;
-    width: 2rem;
-    height: 2rem;
+    width: var(--icon-btn);
+    height: var(--icon-btn);
     min-width: 0;
     padding: 0;
     border: none;
@@ -356,10 +358,10 @@ body.list #device_list_menu {
 }
 
 @media (pointer: coarse) {
-    #devices .device-list div.device .device-secondary .disconnect-btn,
-    #devices .device-list div.device .device-secondary .stream .action-button {
-        width: var(--touch-target);
-        height: var(--touch-target);
+    :root,
+    [data-theme="dark"],
+    [data-theme="light"] {
+        --icon-btn: var(--touch-target);
     }
 
     #devices .device-list div.device .device-secondary > .shell a,
@@ -418,15 +420,18 @@ body.list #device_list_menu {
     grid-column: 1 / -1;
 }
 
-/* Device name row — inline label editor */
+/* Device name row — inline label editor.
+   The rename pencil is a child of the name cell but is drawn in the card's
+   bottom action row, left of the stream-settings gear (the card is the
+   positioning context, so the cell must not be). While editing, the save
+   button follows the input inline instead. */
 #devices .device-name-cell {
-    position: relative;
-    /* biome-ignore lint/complexity/noImportantStyles: targeted override of the row's base padding for the inline name-editor affordance */
+    /* biome-ignore lint/complexity/noImportantStyles: targeted override of the row's base padding so the name never runs under the status dot */
     padding-right: 28px !important;
 }
 
 #devices .device-name-text {
-    font-size: 15px;
+    font-size: var(--text-lg);
     font-weight: 600;
 }
 
@@ -437,29 +442,55 @@ body.list #device_list_menu {
 }
 
 #devices .device-name-edit-btn {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: var(--icon-btn);
+    height: var(--icon-btn);
+    padding: 0;
     border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--fg-3);
     cursor: pointer;
-    color: var(--text-color-light, #888);
-    padding: 2px;
-    line-height: 1;
-    opacity: 0.6;
+    transition:
+        background-color var(--duration-fast) var(--ease),
+        color var(--duration-fast) var(--ease);
 }
 
 #devices .device-name-edit-btn:hover {
-    opacity: 1;
-    color: var(--text-color, #ddd);
+    background: var(--surface-2);
+    color: var(--fg-1);
+}
+
+#devices .device-name-edit-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Display mode: pin the pencil to the action row (no gear => far right). */
+#devices .device-list div.device .device-name-text + .device-name-edit-btn {
+    position: absolute;
+    right: calc(var(--space-4) - var(--space-2));
+    bottom: calc(var(--space-4) - var(--space-2));
+}
+
+#devices .device-list div.device:has(.device-secondary .stream) .device-name-text + .device-name-edit-btn {
+    right: calc(var(--space-4) - var(--space-2) + var(--icon-btn) + var(--space-1));
+}
+
+/* Edit mode: save button sits inline after the input. */
+#devices .device-name-input + .device-name-edit-btn {
+    vertical-align: middle;
+    margin-left: var(--space-1);
 }
 
 #devices .device-name-input {
-    width: calc(100% - 24px);
-    background: var(--stream-bg-color, #333);
-    border: 1px solid var(--text-color-light, #888);
-    border-radius: 4px;
+    width: calc(100% - 2.5rem);
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
     color: var(--text-color, #ddd);
     font-size: 14px;
     padding: 2px 6px;
