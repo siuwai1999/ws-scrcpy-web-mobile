@@ -1,4 +1,5 @@
 import type { ServiceInstallResponse, ServiceStatusResponse } from '../../common/ServiceEvents';
+import { t } from '../i18n';
 import { sameOriginBase } from '../sameOriginUrl';
 import { Modal } from '../ui/Modal';
 import {
@@ -42,7 +43,7 @@ export class WelcomeModal extends Modal {
     private descEl: HTMLElement | null = null;
 
     constructor(options: WelcomeModalOptions) {
-        super({ title: 'Welcome to ws-scrcpy-web' });
+        super({ title: t('welcome.title') });
         this.opts = options;
         this.dialog.classList.add('welcome-modal');
         // No eager bookmarkDismissedForPort stamp here (removed — bug #35).
@@ -71,7 +72,7 @@ export class WelcomeModal extends Modal {
     private fillBody(container: HTMLElement): void {
         const intro = document.createElement('p');
         intro.style.cssText = 'margin: 0 0 8px;';
-        intro.appendChild(document.createTextNode('server is running on '));
+        intro.appendChild(document.createTextNode(t('welcome.runningOn')));
         const link = document.createElement('a');
         // The address THIS browser reached the app on, not the serving
         // machine's loopback — a LAN user bookmarks their own URL.
@@ -92,7 +93,7 @@ export class WelcomeModal extends Modal {
         // brief hint about where to change the port later.
         const note = document.createElement('p');
         note.style.cssText = 'margin: 0 0 8px; color: var(--text-color-light); font-size: 13px;';
-        note.textContent = 'you can change the port anytime in settings.';
+        note.textContent = t('welcome.portNote');
         container.appendChild(note);
 
         const divider = document.createElement('hr');
@@ -101,15 +102,13 @@ export class WelcomeModal extends Modal {
 
         const heading = document.createElement('p');
         heading.style.cssText = 'margin: 0 0 8px; font-weight: 600; font-size: 14px;';
-        heading.textContent = 'run as a service?';
+        heading.textContent = t('welcome.headingService');
         this.headingEl = heading;
         container.appendChild(heading);
 
         const desc = document.createElement('p');
         desc.style.cssText = 'margin: 0 0 8px;';
-        desc.textContent =
-            'recommended for always-on access (headless servers, multi-user setups). ' +
-            'the server starts at login and runs in the background.';
+        desc.textContent = t('welcome.descService');
         this.descEl = desc;
         container.appendChild(desc);
 
@@ -121,7 +120,7 @@ export class WelcomeModal extends Modal {
             'margin: 0 0 12px; padding: 8px 12px; ' +
             'border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; display: none;';
         const legend = document.createElement('legend');
-        legend.textContent = 'scope';
+        legend.textContent = t('welcome.scope');
         legend.style.cssText = 'padding: 0 6px; font-size: 13px; color: var(--text-color-light);';
         fieldset.appendChild(legend);
 
@@ -133,7 +132,7 @@ export class WelcomeModal extends Modal {
         userRadio.value = 'user';
         userRadio.checked = true;
         userLabel.appendChild(userRadio);
-        userLabel.appendChild(document.createTextNode('just for me (no sudo)'));
+        userLabel.appendChild(document.createTextNode(t('welcome.scopeUser')));
         fieldset.appendChild(userLabel);
 
         const sysLabel = document.createElement('label');
@@ -143,7 +142,7 @@ export class WelcomeModal extends Modal {
         sysRadio.name = 'welcome-scope';
         sysRadio.value = 'system';
         sysLabel.appendChild(sysRadio);
-        sysLabel.appendChild(document.createTextNode('all users (requires sudo)'));
+        sysLabel.appendChild(document.createTextNode(t('welcome.scopeAll')));
         fieldset.appendChild(sysLabel);
 
         this.scopeFieldset = fieldset;
@@ -152,7 +151,7 @@ export class WelcomeModal extends Modal {
 
         const later = document.createElement('p');
         later.style.cssText = 'margin: 0 0 16px; color: var(--text-color-light); font-size: 13px;';
-        later.textContent = 'you can install/uninstall the service later in settings.';
+        later.textContent = t('welcome.laterNote');
         container.appendChild(later);
 
         // v0.1.9 bookmark hint. ws-scrcpy-web is a web app served from
@@ -164,10 +163,7 @@ export class WelcomeModal extends Modal {
             'margin: 0 0 16px; padding: 8px 12px; ' +
             'background: rgba(91, 154, 255, 0.08); border-left: 3px solid #5b9aff; ' +
             'color: var(--text-color-light); font-size: 13px; line-height: 1.5;';
-        bookmarkHint.textContent =
-            'tip: bookmark this page once you’ve picked an install mode. ' +
-            'choosing "yes install service" shifts the server to a different port, ' +
-            'so wait until after the redirect to bookmark the new URL.';
+        bookmarkHint.textContent = t('welcome.tip');
         container.appendChild(bookmarkHint);
 
         // v0.1.17 dependency-warning note. On first launch the dep manager
@@ -181,11 +177,7 @@ export class WelcomeModal extends Modal {
             'margin: 0 0 16px; padding: 8px 12px; ' +
             'background: rgba(255, 191, 73, 0.08); border-left: 3px solid #ffbf49; ' +
             'color: var(--text-color-light); font-size: 13px; line-height: 1.5;';
-        depHint.textContent =
-            'heads up: on first launch we fetch Node, ADB, and scrcpy-server in the background. ' +
-            'this can take up to ~3 minutes on slower networks, and you may see "missing dependency" ' +
-            'warnings near the top of the page during that window. they clear themselves once ' +
-            'the downloads finish — no action needed.';
+        depHint.textContent = t('welcome.headsUp');
         container.appendChild(depHint);
 
         this.statusEl = document.createElement('p');
@@ -204,14 +196,14 @@ export class WelcomeModal extends Modal {
         this.dontShowCheckbox = document.createElement('input');
         this.dontShowCheckbox.type = 'checkbox';
         dontShowLabel.appendChild(this.dontShowCheckbox);
-        dontShowLabel.appendChild(document.createTextNode("don't show this again on this browser"));
+        dontShowLabel.appendChild(document.createTextNode(t('welcome.dontShow')));
         container.appendChild(dontShowLabel);
 
         const buttons = document.createElement('div');
         buttons.style.cssText = 'display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap;';
 
         this.yesBtn = document.createElement('button');
-        this.yesBtn.textContent = 'yes, install service';
+        this.yesBtn.textContent = t('welcome.yes');
         this.yesBtn.style.cssText =
             'border: 0.5px solid var(--text-color, #ddd); border-radius: 6px; ' +
             'background: transparent; color: var(--text-color, #ddd); padding: 8px 16px; cursor: pointer;';
@@ -221,7 +213,7 @@ export class WelcomeModal extends Modal {
         buttons.appendChild(this.yesBtn);
 
         this.noBtn = document.createElement('button');
-        this.noBtn.textContent = 'no, run on demand';
+        this.noBtn.textContent = t('welcome.no');
         this.noBtn.style.cssText =
             'border: 0.5px solid var(--text-color, #ddd); border-radius: 6px; ' +
             'background: transparent; color: var(--text-color, #ddd); padding: 8px 16px; cursor: pointer;';
@@ -262,20 +254,17 @@ export class WelcomeModal extends Modal {
         if (!statusResp) return;
 
         if (statusResp.platform === 'linux' && statusResp.supported) {
-            if (this.headingEl) this.headingEl.textContent = 'run as a systemd service?';
+            if (this.headingEl) this.headingEl.textContent = t('welcome.headingSystemd');
             if (this.descEl) {
-                this.descEl.textContent =
-                    'recommended for always-on access. the server starts at login ' + '(or boot, for system scope).';
+                this.descEl.textContent = t('welcome.descSystemd');
             }
             if (this.scopeFieldset) {
                 this.scopeFieldset.style.display = '';
             }
         } else if (statusResp.platform === 'win32') {
-            if (this.headingEl) this.headingEl.textContent = 'run as a windows service?';
+            if (this.headingEl) this.headingEl.textContent = t('welcome.headingWindows');
             if (this.descEl) {
-                this.descEl.textContent =
-                    'recommended for always-on access (headless servers, multi-user setups). ' +
-                    'the server starts with windows and runs in the background.';
+                this.descEl.textContent = t('welcome.descWindows');
             }
         }
     }
@@ -283,7 +272,7 @@ export class WelcomeModal extends Modal {
     /** "Yes, install service" — try real service install; on Linux, fall back to user mode. */
     private async onYes(): Promise<void> {
         this.setBusy(true);
-        this.setStatus('checking service support…');
+        this.setStatus(t('welcome.checking'));
 
         let statusResp: ServiceStatusResponse | null = null;
         try {
@@ -303,8 +292,8 @@ export class WelcomeModal extends Modal {
 
         if (!statusResp.supported) {
             // Linux (or other unsupported platform): show notice + fall back to user mode.
-            const reason = statusResp.unsupportedReason || 'service mode is not supported on this platform.';
-            this.setStatus(`${reason} falling back to on-demand mode…`);
+            const reason = statusResp.unsupportedReason || t('welcome.unsupported');
+            this.setStatus(t('welcome.fallback', { reason }));
             const patch: Record<string, unknown> = { installMode: 'user' };
             if (this.dontShowCheckbox.checked) patch['firstRunComplete'] = true;
             const ok = await this.patchConfig(patch);
@@ -320,7 +309,7 @@ export class WelcomeModal extends Modal {
 
         // Supported. Linux: include scope in the body. Windows: empty body
         // (the API ignores the body entirely on Windows).
-        this.setStatus('installing service…');
+        this.setStatus(t('welcome.installing'));
         const requestBody: { scope?: 'user' | 'system' } = {};
         if (statusResp.platform === 'linux') {
             requestBody.scope = this.scopeSystemRadio?.checked ? 'system' : 'user';
@@ -344,7 +333,7 @@ export class WelcomeModal extends Modal {
                         ? data.reason === 'uac-declined'
                             ? reasonToUserMessage(data.reason, data.error)
                             : data.error
-                        : `install failed (${r.status})`;
+                        : t('svc.installFailedStatus', { status: r.status });
                 this.setStatus(errMsg, true);
                 this.setBusy(false);
                 return;
@@ -359,12 +348,12 @@ export class WelcomeModal extends Modal {
             // 403 are progress, not failure. The loop is Settings → Service's,
             // shared (installHandoffPoll.ts); this modal's own copy read the
             // first as fatal and the second as "not ready" (smoke 1.11 c).
-            this.setStatus('service installed. waiting for it to start…');
+            this.setStatus(t('welcome.installed'));
             startInstallHandoffPoll({
                 baselineMtime: data.configMtime ?? 0,
                 onNavigate: (url) => {
                     modal.close();
-                    this.setStatus('service mode active. switching you over…');
+                    this.setStatus(t('welcome.switching'));
                     setTimeout(() => {
                         // Same host, new port — never a literal localhost.
                         window.location.href = url;
@@ -375,7 +364,7 @@ export class WelcomeModal extends Modal {
                     // grace Settings → Service uses. Same line as a port move —
                     // the user is switched over either way (smoke 1.11 c).
                     modal.close();
-                    this.setStatus('service mode active. switching you over…');
+                    this.setStatus(t('welcome.switching'));
                     setTimeout(() => {
                         window.location.reload();
                     }, INSTALL_HANDOFF_RECONNECT_DELAY_MS);
@@ -399,7 +388,7 @@ export class WelcomeModal extends Modal {
     private async onNo(): Promise<void> {
         if (this.dontShowCheckbox.checked) {
             this.setBusy(true);
-            this.setStatus('saving…');
+            this.setStatus(t('welcome.saving'));
             // installMode + firstRunComplete are boot-trio fields → /api/config.
             // bookmarkDismissedForPort is a per-user prompt flag → /api/settings.
             const configOk = await this.patchConfig({

@@ -1,3 +1,4 @@
+import { t } from '../i18n';
 import { Modal } from '../ui/Modal';
 
 export class ShellCloseConfirmModal extends Modal {
@@ -11,7 +12,7 @@ export class ShellCloseConfirmModal extends Modal {
     }
 
     private constructor(resolve: (value: boolean) => void) {
-        super({ title: 'End Shell Session' });
+        super({ title: t('shellClose.title') });
         this.resolveFn = resolve;
         this.dialog.classList.add('shell-close-confirm-modal');
         queueMicrotask(() => this.fillBody(this.bodyEl));
@@ -24,12 +25,12 @@ export class ShellCloseConfirmModal extends Modal {
     private fillBody(container: HTMLElement): void {
         const message = document.createElement('p');
         message.style.cssText = 'margin: 0 0 12px;';
-        message.textContent = 'ending the shell session loses any active work in the shell.';
+        message.textContent = t('shellClose.message');
         container.appendChild(message);
 
         const question = document.createElement('p');
         question.style.cssText = 'margin: 0 0 8px;';
-        question.textContent = 'close anyway?';
+        question.textContent = t('shellClose.question');
         container.appendChild(question);
     }
 
@@ -40,14 +41,14 @@ export class ShellCloseConfirmModal extends Modal {
         const cancelBtn = document.createElement('button');
         cancelBtn.type = 'button';
         cancelBtn.className = 'modal-button';
-        cancelBtn.textContent = 'cancel';
+        cancelBtn.textContent = t('common.cancel');
         cancelBtn.addEventListener('click', () => this.resolveAndClose(false));
         footer.appendChild(cancelBtn);
 
         const closeBtn = document.createElement('button');
         closeBtn.type = 'button';
         closeBtn.className = 'modal-button';
-        closeBtn.textContent = 'close';
+        closeBtn.textContent = t('common.close');
         closeBtn.addEventListener('click', () => this.resolveAndClose(true));
         footer.appendChild(closeBtn);
 

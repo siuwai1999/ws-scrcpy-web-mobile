@@ -1,3 +1,4 @@
+import { t } from '../i18n';
 import { firstPaintTheme, getTheme, notifyThemeChanged, setTheme } from '../public/themeEmbed';
 import { settingsService } from './SettingsService';
 
@@ -33,7 +34,7 @@ export function createThemeToggle(): HTMLElement {
 
     const refresh = (): void => {
         const theme = getTheme();
-        btn.title = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+        btn.title = theme === 'dark' ? t('theme.toLight') : t('theme.toDark');
         btn.innerHTML = theme === 'dark' ? SUN_SVG : MOON_SVG;
     };
 

@@ -2,6 +2,7 @@
 
 import type { PairingState, PairingStatus } from '../../common/PairingStatus';
 import { SCAN_WS_PATH, type ScanServerMessage } from '../../common/ScanMessage';
+import { t } from '../i18n';
 import { ScanNetworkModal } from './ScanNetworkModal';
 import { ScanProgressChip } from './ScanProgressChip';
 
@@ -46,7 +47,7 @@ export function scanHitDisplayName(hit: { name?: string | undefined; model?: str
  * judgements are assertable without standing up the whole panel.
  */
 export function scanHitPairingHint(hit: { mayNeedPairing?: boolean | undefined }): string {
-    return hit.mayNeedPairing ? 'may need pairing first — use “Pair a new device”' : '';
+    return hit.mayNeedPairing ? t('net.mayNeedPairing') : '';
 }
 
 // ---------------------------------------------------------------------------
@@ -86,11 +87,11 @@ export function isTerminalPairingState(state: PairingState): boolean {
 export function pairingStatusText(status: PairingStatus): { text: string; action?: 'connect' | 'restart' } {
     switch (status.state) {
         case 'awaiting-scan':
-            return { text: 'Scan this code on the phone: Wireless debugging → Pair device with QR code.' };
+            return { text: t('net.pair.scan') };
         case 'pairing':
-            return { text: 'Pairing…' };
+            return { text: t('net.pair.pairing') };
         case 'connecting':
-            return { text: 'Paired. Connecting…' };
+            return { text: t('net.pair.connecting') };
         case 'paired':
             // The "within a few seconds" is not padding. The server's
             // ControlCenter discovers device-set changes by polling adb every
@@ -98,26 +99,26 @@ export function pairingStatusText(status: PairingStatus): { text: string; action
             // empty list in that window reads as a failure unless it is named.
             // (A client-side refresh cannot shorten it: the tracker only diffs
             // descriptors it was pushed, so there is nothing local to re-fetch.)
-            return { text: 'Paired and connected. The device appears in the list within a few seconds.' };
+            return { text: t('net.pair.done') };
         case 'paired-not-connected':
             // Deliberately NOT phrased as a failure, and deliberately not styled
             // as one either. The pairing is durable and survives; only the
             // auto-connect leg fell short. Calling this "failed" makes the user
             // re-pair a device the server already trusts.
             return {
-                text: `Paired, but not connected yet — ${status.message ?? 'no connect service found'}.`,
+                text: t('net.pair.notConnected', { reason: status.message ?? t('net.pair.noService') }),
                 action: 'connect',
             };
         case 'expired':
-            return { text: 'The pairing window closed. Start again to get a fresh code.', action: 'restart' };
+            return { text: t('net.pair.closed'), action: 'restart' };
         case 'failed':
-            return { text: status.message ?? 'Pairing failed.', action: 'restart' };
+            return { text: status.message ?? t('net.pair.failed'), action: 'restart' };
         default: {
             // Unreachable for a known state; the `never` binding makes adding a
             // state to PairingState a compile error here rather than a silent
             // `undefined` at runtime if the server ever ships one we predate.
             const unhandled: never = status.state;
-            return { text: `Pairing reported an unknown state (${String(unhandled)}).`, action: 'restart' };
+            return { text: t('net.pair.unknownState', { state: String(unhandled) }), action: 'restart' };
         }
     }
 }
@@ -184,21 +185,21 @@ export function renderPairingSection(deps: PairingSectionDeps): HTMLElement {
     // Static markup — nothing here is interpolated from input.
     section.innerHTML = `
         <div class="discovery-pairing-header">
-            <span class="discovery-pairing-title">Pair a new device</span>
+            <span class="discovery-pairing-title">${t('net.pair.title')}</span>
             <div class="discovery-pairing-modes">
-                <button class="dep-btn" data-pair-mode="qr" aria-pressed="false">scan QR code</button>
-                <button class="dep-btn" data-pair-mode="code" aria-pressed="false">pairing code</button>
+                <button class="dep-btn" data-pair-mode="qr" aria-pressed="false">${t('net.pair.modeQr')}</button>
+                <button class="dep-btn" data-pair-mode="code" aria-pressed="false">${t('net.pair.modeCode')}</button>
             </div>
         </div>
         <div class="discovery-pairing-qr" data-pair-qr></div>
         <div class="discovery-pairing-code" data-pair-code-form>
-            <input type="text" data-pair-address placeholder="192.168.86.190:41415" autocomplete="off" spellcheck="false" aria-label="pairing address shown on the phone" />
-            <input type="text" data-pair-code placeholder="123456" inputmode="numeric" maxlength="10" autocomplete="off" spellcheck="false" aria-label="pairing code shown on the phone" />
-            <button class="dep-btn" data-pair-submit disabled>pair</button>
+            <input type="text" data-pair-address placeholder="192.168.86.190:41415" autocomplete="off" spellcheck="false" aria-label="${t('net.pair.addressAria')}" />
+            <input type="text" data-pair-code placeholder="123456" inputmode="numeric" maxlength="10" autocomplete="off" spellcheck="false" aria-label="${t('net.pair.codeAria')}" />
+            <button class="dep-btn" data-pair-submit disabled>${t('net.pair.submit')}</button>
         </div>
         <div class="discovery-pairing-status" data-pair-status role="status"></div>
         <div class="discovery-pairing-footer">
-            <button class="dep-btn discovery-pairing-cancel" data-pair-cancel>cancel</button>
+            <button class="dep-btn discovery-pairing-cancel" data-pair-cancel>${t('common.cancel')}</button>
             <button class="dep-btn discovery-pairing-action" data-pair-action></button>
         </div>
     `;
@@ -313,7 +314,7 @@ export function renderPairingSection(deps: PairingSectionDeps): HTMLElement {
             // All four pairing routes are admin-gated, and deliberately stricter
             // than /api/devices/connect: pairing establishes a persistent trust
             // relationship with a NEW device on the whole server's behalf.
-            return 'Pairing needs an admin account. Ask an administrator to pair this device.';
+            return t('net.pair.needsAdmin');
         }
         try {
             const body = (await res.json()) as { error?: unknown };
@@ -339,8 +340,8 @@ export function renderPairingSection(deps: PairingSectionDeps): HTMLElement {
             return '';
         }
         return seconds < 90
-            ? ` It stops working in about ${seconds} seconds.`
-            : ` It stops working in about ${Math.round(seconds / 60)} minutes.`;
+            ? t('net.pair.expiresSeconds', { count: seconds })
+            : t('net.pair.expiresMinutes', { count: Math.round(seconds / 60) });
     }
 
     /**
@@ -403,7 +404,7 @@ export function renderPairingSection(deps: PairingSectionDeps): HTMLElement {
                 schedulePoll(session);
                 return;
             }
-            render(localFailure('Lost contact with the server while pairing.'));
+            render(localFailure(t('net.pair.lost')));
             return;
         }
 
@@ -426,7 +427,7 @@ export function renderPairingSection(deps: PairingSectionDeps): HTMLElement {
         if (res.status === 404) {
             // No await between the check above and here, so the session cannot
             // have changed underneath: this is the same liveness, not a re-ask.
-            render(localFailure('That pairing session is no longer available.'));
+            render(localFailure(t('net.pair.gone')));
             return;
         }
 
@@ -462,7 +463,7 @@ export function renderPairingSection(deps: PairingSectionDeps): HTMLElement {
             return;
         }
         if (status === null) {
-            render(localFailure('The server sent a pairing status this page could not read.'));
+            render(localFailure(t('net.pair.unreadable')));
             return;
         }
         render(status);
@@ -513,7 +514,7 @@ export function renderPairingSection(deps: PairingSectionDeps): HTMLElement {
         qrBtn.setAttribute('aria-pressed', 'true');
         codeBtn.setAttribute('aria-pressed', 'false');
         clearQr();
-        setStatus('Requesting a pairing code…');
+        setStatus(t('net.pair.requesting'));
 
         let res: Response;
         try {
@@ -536,7 +537,7 @@ export function renderPairingSection(deps: PairingSectionDeps): HTMLElement {
         const sessionId = typeof body?.sessionId === 'string' ? body.sessionId : '';
         const svg = typeof body?.svg === 'string' ? body.svg : '';
         if (!sessionId || !svg) {
-            setStatus('The server did not return a pairing code.', 'error');
+            setStatus(t('net.pair.noCode'), 'error');
             return;
         }
         // The server sends a DURATION, and it is turned into a deadline on THIS
@@ -622,7 +623,7 @@ export function renderPairingSection(deps: PairingSectionDeps): HTMLElement {
         }
         const sessionId = typeof body?.sessionId === 'string' ? body.sessionId : '';
         if (!sessionId) {
-            setStatus('The server did not start a pairing session.', 'error');
+            setStatus(t('net.pair.noSession'), 'error');
             syncSubmit();
             return;
         }
@@ -674,7 +675,7 @@ export function renderPairingSection(deps: PairingSectionDeps): HTMLElement {
             });
             const result = (await res.json()) as { success?: unknown; message?: unknown };
             if (result.success === true) {
-                setStatus(`Connected to ${address}.`, 'success');
+                setStatus(t('net.connectedTo', { address }), 'success');
                 hideAction();
                 deps.onPaired?.(status);
             } else {
@@ -682,12 +683,12 @@ export function renderPairingSection(deps: PairingSectionDeps): HTMLElement {
                 setStatus(
                     typeof result.message === 'string' && result.message
                         ? result.message
-                        : `Paired, but could not connect to ${address}.`,
+                        : t('net.pair.couldNotConnect', { address }),
                     'error',
                 );
             }
         } catch {
-            setStatus(`Paired, but could not connect to ${address}.`, 'error');
+            setStatus(t('net.pair.couldNotConnect', { address }), 'error');
         } finally {
             actionBtn.disabled = false;
         }
@@ -701,7 +702,7 @@ export function renderPairingSection(deps: PairingSectionDeps): HTMLElement {
             showCodeForm();
             codeInput.value = '';
             syncSubmit();
-            setStatus('Enter the new pairing code shown on the phone.');
+            setStatus(t('net.pair.enterNew'));
             codeInput.focus();
             return;
         }
@@ -763,28 +764,28 @@ export class NetworkDiscoveryPanel {
         this.container.className = 'home-section';
         this.container.innerHTML = `
             <div class="discovery-header">
-                <h2>Available Network Devices</h2>
+                <h2>${t('net.title')}</h2>
                 <div class="discovery-header-actions discovery-more">
-                    <button class="btn btn-icon discovery-more-btn" aria-haspopup="menu" aria-expanded="false" aria-label="advanced options" title="advanced options">
+                    <button class="btn btn-icon discovery-more-btn" aria-haspopup="menu" aria-expanded="false" aria-label="${t('net.advanced')}" title="${t('net.advanced')}">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
                     </button>
                     <div class="discovery-more-menu" role="menu" hidden>
-                        <button class="discovery-menu-item discovery-scan-btn" role="menuitem">scan network</button>
-                        <button class="discovery-menu-item discovery-manual-btn" role="menuitem">manually add</button>
+                        <button class="discovery-menu-item discovery-scan-btn" role="menuitem">${t('net.scanNetwork')}</button>
+                        <button class="discovery-menu-item discovery-manual-btn" role="menuitem">${t('net.manualAdd')}</button>
                     </div>
                 </div>
             </div>
             <div class="discovery-manual-form" hidden>
                 <input type="text" class="discovery-manual-address" placeholder="192.168.86.50" />
                 <input type="text" class="discovery-manual-port" placeholder="5555" value="5555" />
-                <input type="text" class="discovery-manual-label" placeholder="optional name" />
-                <button class="dep-btn discovery-connect-btn discovery-manual-connect">connect</button>
-                <button class="discovery-manual-close" aria-label="close" title="close">×</button>
+                <input type="text" class="discovery-manual-label" placeholder="${t('net.optionalName')}" />
+                <button class="dep-btn discovery-connect-btn discovery-manual-connect">${t('cfg.connect')}</button>
+                <button class="discovery-manual-close" aria-label="${t('common.close')}" title="${t('common.close')}">×</button>
                 <div class="discovery-manual-result" hidden></div>
             </div>
             <div class="discovery-pairing-mount"></div>
             <div class="discovery-results"></div>
-            <div class="empty-state-card discovery-info">Click quick scan for modern Android devices on your network, or scan network to probe a full subnet. Make sure wireless debugging is enabled on the devices you wish to connect with.</div>
+            <div class="empty-state-card discovery-info">${t('net.info')}</div>
         `;
         this.infoBox = this.container.querySelector('.discovery-info')!;
         this.defaultInfoText = this.infoBox.textContent ?? '';
@@ -853,8 +854,8 @@ export class NetworkDiscoveryPanel {
         // the other ways of finding/pairing one: first in the pairing row.
         const quickScanBtn = document.createElement('button');
         quickScanBtn.className = 'dep-btn discovery-quick-scan-btn';
-        quickScanBtn.textContent = 'quick scan';
-        quickScanBtn.title = 'mDNS-only — finds modern Android devices with wireless debugging enabled';
+        quickScanBtn.textContent = t('net.quickScan');
+        quickScanBtn.title = t('net.quickScanTitle');
         quickScanBtn.addEventListener('click', () => this.quickScan());
         this.container.querySelector('.discovery-pairing-modes')!.prepend(quickScanBtn);
     }
@@ -919,7 +920,7 @@ export class NetworkDiscoveryPanel {
         this.infoBox.textContent = '';
         this.infoBox.style.color = '';
         if (mdnsOnly) {
-            this.infoBox.textContent = 'scanning over mDNS…';
+            this.infoBox.textContent = t('net.scanningMdns');
         } else {
             this.chip = new ScanProgressChip({
                 parent: this.infoBox,
@@ -956,12 +957,12 @@ export class NetworkDiscoveryPanel {
         ws.addEventListener('close', () => {
             this.scanWs = undefined;
             if (!terminalReceived) {
-                this.setInfoText('Scan connection lost before completion.', true);
+                this.setInfoText(t('net.scanLost'), true);
                 this.chip?.dismiss();
             }
         });
         ws.addEventListener('error', () => {
-            this.setInfoText('Scan connection failed.', true);
+            this.setInfoText(t('net.scanFailed'), true);
             this.chip?.dismiss();
         });
     }
@@ -983,7 +984,7 @@ export class NetworkDiscoveryPanel {
             case 'scan.complete':
                 if (mdnsOnly) {
                     if (msg.found === 0) {
-                        this.setInfoText('No devices advertising over mDNS. Try scan network for a full subnet probe.');
+                        this.setInfoText(t('net.noMdns'));
                     } else {
                         this.restoreInfoText();
                     }
@@ -995,7 +996,7 @@ export class NetworkDiscoveryPanel {
                 this.chip?.setCancelled(msg.found);
                 break;
             case 'scan.error':
-                this.setInfoText(`Scan error: ${msg.reason}`, true);
+                this.setInfoText(t('net.scanError', { reason: msg.reason }), true);
                 this.chip?.dismiss();
                 break;
         }
@@ -1029,9 +1030,9 @@ export class NetworkDiscoveryPanel {
                 ${pairingHint ? `<div class="discovery-card-hint">${escapeHtml(pairingHint)}</div>` : ''}
             </div>
             <div class="discovery-card-actions">
-                <input type="text" class="discovery-name-input" placeholder="Name this device..." value="${escapeHtml(hit.label || '')}" />
-                <button class="dep-btn discovery-connect-btn" data-address="${escapeHtml(hit.address)}" data-serial="${escapeHtml(hit.serial)}">connect</button>
-                <button class="dep-btn discovery-dismiss-btn" aria-label="dismiss" title="dismiss">close</button>
+                <input type="text" class="discovery-name-input" placeholder="${t('device.namePlaceholder')}" value="${escapeHtml(hit.label || '')}" />
+                <button class="dep-btn discovery-connect-btn" data-address="${escapeHtml(hit.address)}" data-serial="${escapeHtml(hit.serial)}">${t('cfg.connect')}</button>
+                <button class="dep-btn discovery-dismiss-btn" aria-label="${t('admin.dismissLower')}" title="${t('admin.dismissLower')}">${t('common.close')}</button>
             </div>
             <div class="discovery-card-result" hidden></div>
         `;
@@ -1112,7 +1113,7 @@ export class NetworkDiscoveryPanel {
         const label = labelInput.value.trim();
 
         if (!ip) {
-            this.showManualResult('Address is required', 'error');
+            this.showManualResult(t('net.addressRequired'), 'error');
             addressInput.focus();
             return;
         }
@@ -1123,10 +1124,7 @@ export class NetworkDiscoveryPanel {
         // Everywhere else the 5555 default is the convenience it has always
         // been.
         if (!typedPort && this.manualPortIsRequired) {
-            this.showManualResult(
-                'Port is required — read it from the phone’s Wireless debugging screen (not the pairing dialog).',
-                'error',
-            );
+            this.showManualResult(t('net.portRequired'), 'error');
             portInput.focus();
             return;
         }
@@ -1134,7 +1132,7 @@ export class NetworkDiscoveryPanel {
 
         const address = `${ip}:${port}`;
         btn.disabled = true;
-        btn.textContent = 'Connecting...';
+        btn.textContent = t('net.connecting');
         const resultEl = this.container.querySelector('.discovery-manual-result') as HTMLElement;
         resultEl.setAttribute('hidden', '');
         resultEl.textContent = '';
@@ -1144,7 +1142,7 @@ export class NetworkDiscoveryPanel {
         using _restoreBtn = {
             [Symbol.dispose](): void {
                 btn.disabled = false;
-                btn.textContent = 'connect';
+                btn.textContent = t('cfg.connect');
             },
         };
 
@@ -1156,13 +1154,13 @@ export class NetworkDiscoveryPanel {
             });
             const result: ConnectResult = await res.json();
             if (result.success) {
-                this.showManualResult(`Connected to ${address}`, 'success');
+                this.showManualResult(t('net.connectedToNoDot', { address }), 'success');
                 setTimeout(() => this.toggleManualForm(false), 2000);
             } else {
-                this.showManualResult(result.message || `Failed to connect to ${address}`, 'error');
+                this.showManualResult(result.message || t('net.failedConnect', { address }), 'error');
             }
         } catch (err: any) {
-            this.showManualResult(err?.message || 'Request failed', 'error');
+            this.showManualResult(err?.message || t('net.requestFailed'), 'error');
         }
     }
 
@@ -1188,11 +1186,11 @@ export class NetworkDiscoveryPanel {
                 setTimeout(() => card.remove(), 1500);
             } else {
                 btn.disabled = false;
-                this.showCardResult(resultEl, result.message || `Failed to connect to ${address}`, 'error');
+                this.showCardResult(resultEl, result.message || t('net.failedConnect', { address }), 'error');
             }
         } catch (err: any) {
             btn.disabled = false;
-            this.showCardResult(resultEl, err?.message || 'Request failed', 'error');
+            this.showCardResult(resultEl, err?.message || t('net.requestFailed'), 'error');
         }
     }
 

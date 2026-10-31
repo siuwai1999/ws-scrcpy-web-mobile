@@ -1,6 +1,7 @@
 import type { FirstRunStatus } from '../../common/ConfigEvents';
 import type { DependencyInfo } from '../../common/DependencyTypes';
 import { DependencyStatus } from '../../common/DependencyTypes';
+import { t } from '../i18n';
 import { onAdminAccessLost } from './adminAccess';
 import { adminApiReachable } from './adminGate';
 
@@ -130,7 +131,7 @@ export class FirstRunBanner {
         // Inject the (server-supplied) dependency names as text, never as markup.
         const textEl = this.container.querySelector('.first-run-banner-text');
         if (textEl) {
-            textEl.textContent = `Setup incomplete — ${names} failed to download. Check your network connection.`;
+            textEl.textContent = t('firstRun.incomplete', { names });
         }
         this.retryButton = this.container.querySelector('.first-run-banner-retry');
         this.retryButton?.addEventListener('click', () => this.onRetry());
@@ -142,7 +143,7 @@ export class FirstRunBanner {
         const btn = this.retryButton;
         const originalText = btn.textContent ?? 'Retry';
         btn.disabled = true;
-        btn.textContent = 'Retrying…';
+        btn.textContent = t('firstRun.retrying');
         try {
             await fetch('/api/dependencies/retry-install', { method: 'POST' });
         } catch {

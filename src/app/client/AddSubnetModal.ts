@@ -1,4 +1,5 @@
 import { parseSubnetInput } from '../../common/SubnetParser';
+import { t } from '../i18n';
 import { Modal } from '../ui/Modal';
 import { SUBNETS_HELP_HREF, themeHelpLink } from './helpLink';
 
@@ -33,14 +34,13 @@ export class AddSubnetModal extends Modal {
 
     private fillBody(container: HTMLElement): void {
         const help = document.createElement('p');
-        help.textContent =
-            'Accepted formats: CIDR (192.168.2.0/24), single IP (192.168.2.5), or range (192.168.2.10-50).';
+        help.textContent = t('subnet.formats');
         help.style.cssText = 'margin: 0 0 12px; color: var(--text-color-light); font-size: 13px;';
         container.appendChild(help);
 
         this.input = document.createElement('input');
         this.input.type = 'text';
-        this.input.placeholder = '192.168.2.0/24 or 192.168.2.5 or 192.168.2.10-50';
+        this.input.placeholder = t('subnet.placeholder');
         this.input.style.cssText =
             'width: 100%; padding: 8px; font-family: var(--font-mono, monospace); box-sizing: border-box;';
         this.input.addEventListener('input', () => this.revalidate());
@@ -68,7 +68,7 @@ export class AddSubnetModal extends Modal {
 
     private fillFooter(footer: HTMLElement): void {
         const cancel = document.createElement('button');
-        cancel.textContent = 'cancel';
+        cancel.textContent = t('common.cancel');
         cancel.addEventListener('click', () => this.close());
         this.addBtn = document.createElement('button');
         this.addBtn.textContent = this.mode === 'edit' ? 'save' : 'add';
@@ -95,10 +95,10 @@ export class AddSubnetModal extends Modal {
             this.addBtn.disabled = true;
         } else {
             const label = r.normalized.includes('/32')
-                ? '✓ single host'
+                ? t('subnet.single')
                 : r.normalized.includes('-')
-                  ? `✓ range, ${r.hostCount} host${r.hostCount === 1 ? '' : 's'}`
-                  : `✓ CIDR, ${r.hostCount} host${r.hostCount === 1 ? '' : 's'}`;
+                  ? t('subnet.range', { count: r.hostCount })
+                  : t('subnet.cidr', { count: r.hostCount });
             this.status.style.color = '#8ad67a';
             this.status.textContent = label;
             this.addBtn.disabled = false;
@@ -124,16 +124,16 @@ export class AddSubnetModal extends Modal {
         const before = message.slice(0, idx);
         const after = message.slice(idx + CHEAT_SHEET_NOTE.length);
         if (before) this.status.appendChild(document.createTextNode(before));
-        this.status.appendChild(document.createTextNode('See the '));
+        this.status.appendChild(document.createTextNode(t('subnet.seeThe')));
         const link = document.createElement('a');
         // The cheat sheet opens in the app's current theme (helpLink.ts).
         themeHelpLink(link, SUBNETS_HELP_HREF);
         link.target = '_blank';
         link.rel = 'noopener';
-        link.textContent = 'subnet cheat sheet';
+        link.textContent = t('subnet.cheatSheet');
         link.style.cssText = 'color: #58a6ff; text-decoration: underline;';
         this.status.appendChild(link);
-        this.status.appendChild(document.createTextNode(' for help.'));
+        this.status.appendChild(document.createTextNode(t('subnet.forHelp')));
         if (after) this.status.appendChild(document.createTextNode(after));
     }
 

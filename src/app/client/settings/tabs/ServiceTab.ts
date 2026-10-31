@@ -3,6 +3,7 @@ import type {
     ServiceStatusResponse,
     ServiceUninstallResponse,
 } from '../../../../common/ServiceEvents';
+import { t } from '../../../i18n';
 import { sameOriginUrl } from '../../../sameOriginUrl';
 import { AdminConfirmModal, type AdminConfirmOptions } from '../../AdminConfirmModal';
 import { type AdminRefusal, adminRefusal } from '../../adminGate';
@@ -34,7 +35,7 @@ import type { TabContext } from './EmbeddingTab';
  * line of its own; its old branch here had no caller and was removed (item 157).
  */
 export function uninstallFollowupMessage(): string {
-    return 'service removed. the system service has been stopped. relaunch the app manually to use local mode.';
+    return t('svc.removed');
 }
 
 // The install hand-off poll and its pure classifier live in installHandoffPoll.ts,
@@ -99,7 +100,7 @@ export interface SystemServiceInstallGate {
 export function systemServiceInstallGate(input: { machineWideInstalled: boolean }): SystemServiceInstallGate {
     return input.machineWideInstalled
         ? { enabled: true, note: null }
-        : { enabled: false, note: 'system service install requires installing system-wide for all users first.' };
+        : { enabled: false, note: t('svc.needSystemWide') };
 }
 
 /**
@@ -168,7 +169,7 @@ export interface ServiceTabCallbacks {
     onServiceStatus(resp: ServiceStatusResponse): void;
     /**
      * The status read failed (an error status, or the server unreachable), and
-     * this tab is showing "couldn't reach server" with its retry button.
+     * this tab is showing t('server.couldntReach') with its retry button.
      * `retry` re-runs the same refresh that button does, so whatever else waits
      * on the response (the Local HTTPS tab, which builds its panel only once a
      * status arrives) can offer a retry of its own instead of waiting forever.
@@ -221,7 +222,7 @@ const refreshers = new WeakMap<HTMLElement, (callbacks: ServiceTabCallbacks) => 
  */
 export function buildServiceTab(ctx: TabContext, _store: StagedSettingsStore): HTMLElement {
     // `body` is the tab's card: everything below renders into it, one item per setting.
-    const { section, card: body } = buildSection('Service');
+    const { section, card: body } = buildSection(t('settings.tab.service'));
     // The tab's one status line. Built now, but below the card all the same:
     // `body` is the section's only card, and only its contents are redrawn.
     const tabAlert = buildTabAlert(section);
@@ -233,7 +234,7 @@ export function buildServiceTab(ctx: TabContext, _store: StagedSettingsStore): H
     // subject even before the network answers, since refreshService() firing is
     // now entirely external/gated (see the class doc above) and this placeholder
     // is genuinely the only thing `buildServiceTab` can render synchronously.
-    placeholder.textContent = 'loading install/uninstall status…';
+    placeholder.textContent = t('svc.loading');
     body.appendChild(buildItem(placeholder));
 
     // Replaces the instance fields `this.servicePlatform` / `this.serviceScopeSystemRadio`
@@ -247,7 +248,7 @@ export function buildServiceTab(ctx: TabContext, _store: StagedSettingsStore): H
         const retryBtn = document.createElement('button');
         retryBtn.type = 'button';
         retryBtn.className = 'settings-btn';
-        retryBtn.textContent = 'retry';
+        retryBtn.textContent = t('update.retry');
         retryBtn.addEventListener('click', onRetry);
         const { row, labelEl } = buildDynamicLabelRow(msg, retryBtn);
         labelEl.classList.add('settings-status-error');
@@ -288,8 +289,7 @@ export function buildServiceTab(ctx: TabContext, _store: StagedSettingsStore): H
             const notice = document.createElement('p');
             notice.className = 'settings-status';
             notice.style.gridColumn = '1 / -1';
-            notice.textContent =
-                resp.unsupportedReason || 'service mode is currently windows-only. linux support arrives later in SP3.';
+            notice.textContent = resp.unsupportedReason || t('svc.unsupported');
             body.appendChild(buildItem(notice));
             return;
         }
@@ -327,7 +327,7 @@ export function buildServiceTab(ctx: TabContext, _store: StagedSettingsStore): H
             userRadio.value = 'user';
             userRadio.checked = st.userChecked;
             userLabel.appendChild(userRadio);
-            userLabel.appendChild(document.createTextNode('user'));
+            userLabel.appendChild(document.createTextNode(t('svc.scopeUser')));
             if (st.locked) lockScopeRadioControl(userLabel, userRadio);
             scopeFrag.appendChild(userLabel);
 
@@ -339,11 +339,11 @@ export function buildServiceTab(ctx: TabContext, _store: StagedSettingsStore): H
             sysRadio.value = 'system';
             sysRadio.checked = st.systemChecked;
             sysLabel.appendChild(sysRadio);
-            sysLabel.appendChild(document.createTextNode('system (req. sudo)'));
+            sysLabel.appendChild(document.createTextNode(t('svc.scopeSystem')));
             if (st.locked) lockScopeRadioControl(sysLabel, sysRadio);
             scopeFrag.appendChild(sysLabel);
 
-            body.appendChild(buildItem(buildRow('service scope', scopeFrag)));
+            body.appendChild(buildItem(buildRow(t('svc.scopeRow'), scopeFrag)));
             // serviceScopeSystemRadio feeds the install request body; null it
             // out when locked so the install handler (unreachable in that state
             // anyway) can't accidentally consume a stale value.
@@ -360,19 +360,19 @@ export function buildServiceTab(ctx: TabContext, _store: StagedSettingsStore): H
         btn.type = 'button';
         if (status === 'not-installed') {
             btn.className = 'settings-btn settings-btn-ready';
-            btn.textContent = 'not installed — install?';
+            btn.textContent = t('svc.installQ');
             btn.addEventListener('click', () => {
                 void onInstallService(btn, callbacks);
             });
         } else {
             btn.className = 'settings-btn settings-btn-danger';
-            btn.textContent = `${status} — uninstall?`;
+            btn.textContent = t('svc.uninstallQ', { status });
             btn.addEventListener('click', () => {
                 void onUninstallService(btn, callbacks);
             });
         }
         // The install row's item; the system-scope gate note below joins it.
-        const installItem = buildItem(buildRow('installs/uninstalls server service', btn));
+        const installItem = buildItem(buildRow(t('svc.row'), btn));
         body.appendChild(installItem);
 
         // Linux: gate the system-scope install button on a prior machine-wide
@@ -422,7 +422,7 @@ export function buildServiceTab(ctx: TabContext, _store: StagedSettingsStore): H
         loading.className = 'settings-status';
         loading.style.gridColumn = '1 / -1';
         // Matches the build-time placeholder's wording — see the comment there.
-        loading.textContent = 'loading install/uninstall status…';
+        loading.textContent = t('svc.loading');
         body.appendChild(buildItem(loading));
 
         const retry = (): void => void runRefresh(callbacks);
@@ -435,13 +435,13 @@ export function buildServiceTab(ctx: TabContext, _store: StagedSettingsStore): H
                     renderServiceRefused(refusal, callbacks);
                     return;
                 }
-                renderServiceError("couldn't reach server", retry);
+                renderServiceError(t('server.couldntReach'), retry);
                 callbacks.onServiceStatusFailed?.(retry);
                 return;
             }
             resp = (await r.json()) as ServiceStatusResponse;
         } catch {
-            renderServiceError("couldn't reach server", retry);
+            renderServiceError(t('server.couldntReach'), retry);
             callbacks.onServiceStatusFailed?.(retry);
             return;
         }
@@ -463,7 +463,7 @@ export function buildServiceTab(ctx: TabContext, _store: StagedSettingsStore): H
 
         btn.disabled = true;
         const prevText = btn.textContent;
-        btn.textContent = 'installing…';
+        btn.textContent = t('server.installing');
 
         const requestBody: { scope?: 'user' | 'system' } = {};
         if (serviceScopeSystemRadio) {
@@ -483,7 +483,7 @@ export function buildServiceTab(ctx: TabContext, _store: StagedSettingsStore): H
                 const errMsg =
                     data && data.ok === false
                         ? reasonToUserMessage(data.reason, data.error)
-                        : `install failed (${r.status})`;
+                        : t('svc.installFailedStatus', { status: r.status });
                 modal.close();
                 failAction(btn, prevText, errMsg);
                 return;
@@ -493,7 +493,7 @@ export function buildServiceTab(ctx: TabContext, _store: StagedSettingsStore): H
             // reflect the hand-off window — local instance is exiting,
             // systemd is restarting, service will bind the same port.
             if (isSystemScope) {
-                btn.textContent = 'switching to the system service…';
+                btn.textContent = t('svc.switching');
             }
             // §39: poll /api/service/status until the service has taken over. The
             // loop (dead window, stale-token 403, port shift) is shared with the
@@ -508,7 +508,7 @@ export function buildServiceTab(ctx: TabContext, _store: StagedSettingsStore): H
                 onReconnect: () => {
                     // Same-port handoff: reload the current URL after a short
                     // grace so the service has bound the port.
-                    btn.textContent = 'reconnecting…';
+                    btn.textContent = t('svc.reconnecting');
                     setTimeout(() => {
                         window.location.reload();
                     }, INSTALL_HANDOFF_RECONNECT_DELAY_MS);
@@ -521,7 +521,7 @@ export function buildServiceTab(ctx: TabContext, _store: StagedSettingsStore): H
             });
         } catch {
             modal.close();
-            failAction(btn, prevText, "couldn't reach server");
+            failAction(btn, prevText, t('server.couldntReach'));
         }
     }
 
@@ -540,7 +540,7 @@ export function buildServiceTab(ctx: TabContext, _store: StagedSettingsStore): H
 
         btn.disabled = true;
         const prevText = btn.textContent;
-        btn.textContent = 'uninstalling…';
+        btn.textContent = t('server.uninstalling');
 
         const modal = new ServiceOperationModal({ operation: 'uninstall' });
         try {
@@ -550,7 +550,7 @@ export function buildServiceTab(ctx: TabContext, _store: StagedSettingsStore): H
                 const errMsg =
                     data && data.ok === false
                         ? reasonToUserMessage(data.reason, data.error)
-                        : `uninstall failed (${r.status})`;
+                        : t('svc.uninstallFailedStatus', { status: r.status });
                 modal.close();
                 failAction(btn, prevText, errMsg);
                 return;
@@ -568,7 +568,7 @@ export function buildServiceTab(ctx: TabContext, _store: StagedSettingsStore): H
                     // actually gone, and surface a failure if it never does.
                     modal.close();
                     // In progress: on the tab's line until the outcome replaces it.
-                    tabAlert.show('busy', 'removing the system service…');
+                    tabAlert.show('busy', t('svc.removing'));
                     const outcome = await pollServiceUninstalled();
                     // 'stopped' is this page's own server going quiet: the service
                     // served this page and nothing relaunches after a system-scope
@@ -580,11 +580,7 @@ export function buildServiceTab(ctx: TabContext, _store: StagedSettingsStore): H
                         // A standing state, not a result: it stays in the card.
                         renderServiceInfo(uninstallFollowupMessage());
                     } else {
-                        failAction(
-                            btn,
-                            prevText,
-                            'the system service is still running — uninstall may not have completed. check the service logs and try again.',
-                        );
+                        failAction(btn, prevText, t('svc.stillRunning'));
                     }
                     return;
                 }
@@ -606,7 +602,7 @@ export function buildServiceTab(ctx: TabContext, _store: StagedSettingsStore): H
                         clearInterval(poll);
                         modal.close();
                         // The uninstall ran; only the relaunch was not seen.
-                        settleAction('service uninstalled but fresh instance not detected. try reloading.', callbacks);
+                        settleAction(t('svc.noFresh'), callbacks);
                         return;
                     }
                     try {
@@ -651,7 +647,7 @@ export function buildServiceTab(ctx: TabContext, _store: StagedSettingsStore): H
             await runRefresh(callbacks);
         } catch {
             modal.close();
-            failAction(btn, prevText, "couldn't reach server");
+            failAction(btn, prevText, t('server.couldntReach'));
         }
     }
 

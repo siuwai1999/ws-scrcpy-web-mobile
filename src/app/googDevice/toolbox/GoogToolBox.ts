@@ -1,5 +1,6 @@
 import { CommandControlMessage } from '../../controlMessage/CommandControlMessage';
 import { KeyCodeControlMessage } from '../../controlMessage/KeyCodeControlMessage';
+import { t } from '../../i18n';
 import type { BasePlayer } from '../../player/BasePlayer';
 import { ToolBox } from '../../toolbox/ToolBox';
 import { ToolBoxButton } from '../../toolbox/ToolBoxButton';
@@ -12,32 +13,44 @@ import type { StreamClientScrcpy } from '../client/StreamClientScrcpy';
 
 const BUTTONS = [
     {
-        title: 'Power',
+        get title() {
+            return t('toolbox.power');
+        },
         code: KeyEvent.KEYCODE_POWER,
         icon: SvgImage.Icon.POWER,
     },
     {
-        title: 'Volume up',
+        get title() {
+            return t('toolbox.volumeUp');
+        },
         code: KeyEvent.KEYCODE_VOLUME_UP,
         icon: SvgImage.Icon.VOLUME_UP,
     },
     {
-        title: 'Volume down',
+        get title() {
+            return t('toolbox.volumeDown');
+        },
         code: KeyEvent.KEYCODE_VOLUME_DOWN,
         icon: SvgImage.Icon.VOLUME_DOWN,
     },
     {
-        title: 'Back',
+        get title() {
+            return t('toolbox.back');
+        },
         code: KeyEvent.KEYCODE_BACK,
         icon: SvgImage.Icon.BACK,
     },
     {
-        title: 'Home',
+        get title() {
+            return t('toolbox.home');
+        },
         code: KeyEvent.KEYCODE_HOME,
         icon: SvgImage.Icon.HOME,
     },
     {
-        title: 'Overview',
+        get title() {
+            return t('toolbox.overview');
+        },
         code: KeyEvent.KEYCODE_APP_SWITCH,
         icon: SvgImage.Icon.OVERVIEW,
     },
@@ -70,7 +83,7 @@ export class GoogToolBox extends ToolBox {
             });
         });
 
-        const more = new ToolBoxButton('More', SvgImage.Icon.MORE);
+        const more = new ToolBoxButton(t('toolbox.more'), SvgImage.Icon.MORE);
         const outsideTap = (ev: Event): void => {
             const target = ev.target as Node | null;
             if (target && (menu.contains(target) || more.getElement().contains(target))) return;
@@ -116,7 +129,7 @@ export class GoogToolBox extends ToolBox {
             return button;
         });
         if (player.supportsScreenshot) {
-            const screenshot = new ToolBoxButton('Take screenshot', SvgImage.Icon.CAMERA);
+            const screenshot = new ToolBoxButton(t('toolbox.screenshot'), SvgImage.Icon.CAMERA);
             screenshot.addEventListener('click', () => {
                 player.createScreenshot(client.getDeviceName());
             });
@@ -124,7 +137,7 @@ export class GoogToolBox extends ToolBox {
         }
 
         const keyboard = new ToolBoxCheckbox(
-            'Capture keyboard',
+            t('toolbox.captureKeyboard'),
             SvgImage.Icon.KEYBOARD,
             `capture_keyboard_${udid}_${playerName}`,
         );
@@ -135,11 +148,7 @@ export class GoogToolBox extends ToolBox {
         });
         elements.push(keyboard);
 
-        const uhid = new ToolBoxCheckbox(
-            'UHID Input (keyboard + mouse)',
-            SvgImage.Icon.KEYBOARD,
-            `uhid_input_${udid}_${playerName}`,
-        );
+        const uhid = new ToolBoxCheckbox(t('toolbox.uhid'), SvgImage.Icon.KEYBOARD, `uhid_input_${udid}_${playerName}`);
         uhid.addEventListener('click', (_, el) => {
             const element = el.getElement();
             client.toggleUhid(element.checked);
@@ -147,7 +156,7 @@ export class GoogToolBox extends ToolBox {
         elements.push(uhid);
 
         const stats = new ToolBoxCheckbox(
-            'Display quality stats',
+            t('toolbox.qualityStats'),
             SvgImage.Icon.BAR_CHART,
             `quality_stats_${udid}_${playerName}`,
         );
@@ -157,8 +166,8 @@ export class GoogToolBox extends ToolBox {
         elements.push(stats);
 
         // D-pad mode (default/unchecked) vs Touch mode (checked)
-        const DPAD_TITLE = 'D-pad mode (click for Touch mode)';
-        const TOUCH_TITLE = 'Touch mode (click for D-pad mode)';
+        const DPAD_TITLE = t('toolbox.dpadMode');
+        const TOUCH_TITLE = t('toolbox.touchMode');
         const inputMode = new ToolBoxCheckbox(
             DPAD_TITLE,
             { off: SvgImage.Icon.DPAD, on: SvgImage.Icon.TOUCH_HAND },
@@ -181,7 +190,7 @@ export class GoogToolBox extends ToolBox {
         });
         elements.push(inputMode);
 
-        const refresh = new ToolBoxButton('Refresh stream', SvgImage.Icon.REFRESH);
+        const refresh = new ToolBoxButton(t('toolbox.refresh'), SvgImage.Icon.REFRESH);
         refresh.addEventListener('click', () => {
             client.refreshStream();
         });
@@ -200,14 +209,14 @@ export class GoogToolBox extends ToolBox {
         // It still does nothing when there is no selection, and on Android 5
         // and 6: the server injects KEYCODE_COPY only from Android 7 (API 24),
         // and with autosync on it sends no reply of its own.
-        const clipGet = new ToolBoxButton('copy device selection to host clipboard', SvgImage.Icon.CLIPBOARD_GET);
+        const clipGet = new ToolBoxButton(t('toolbox.clipGet'), SvgImage.Icon.CLIPBOARD_GET);
         clipGet.addEventListener('click', () => {
             client.sendMessage(CommandControlMessage.createGetClipboardCommand(CommandControlMessage.COPY_KEY_COPY));
         });
         elements.push(clipGet);
 
         // SET: push host clipboard to device
-        const clipSet = new ToolBoxButton('push host clipboard to device', SvgImage.Icon.CLIPBOARD_SET);
+        const clipSet = new ToolBoxButton(t('toolbox.clipSet'), SvgImage.Icon.CLIPBOARD_SET);
         clipSet.addEventListener('click', async () => {
             if (!navigator.clipboard?.readText) {
                 console.error('[GoogToolBox] navigator.clipboard.readText unavailable');

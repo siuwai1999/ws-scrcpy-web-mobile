@@ -1,3 +1,4 @@
+import { t } from '../i18n';
 import { sameOriginBase } from '../sameOriginUrl';
 import { ConfirmModal } from './ConfirmModal';
 import { settingsService } from './SettingsService';
@@ -75,19 +76,13 @@ export class BookmarkReminder {
         link.rel = 'noopener';
         link.textContent = url;
         if (this.opts.kind === 'service') {
-            text.appendChild(
-                document.createTextNode(
-                    'ws-scrcpy-web is running as a service and starts with your computer. this page lives at ',
-                ),
-            );
+            text.appendChild(document.createTextNode(t('bookmark.serviceBefore')));
             text.appendChild(link);
-            text.appendChild(document.createTextNode(' — bookmark it.'));
+            text.appendChild(document.createTextNode(t('bookmark.serviceAfter')));
         } else {
-            text.appendChild(document.createTextNode('this app lives at '));
+            text.appendChild(document.createTextNode(t('bookmark.appBefore')));
             text.appendChild(link);
-            text.appendChild(
-                document.createTextNode(' — bookmark it. if the port ever changes, this reminder comes back.'),
-            );
+            text.appendChild(document.createTextNode(t('bookmark.appAfter')));
         }
         inner.appendChild(text);
 
@@ -98,22 +93,22 @@ export class BookmarkReminder {
         const gotIt = document.createElement('button');
         gotIt.type = 'button';
         gotIt.className = 'bookmark-reminder-got-it';
-        gotIt.textContent = 'got it';
+        gotIt.textContent = t('bookmark.gotIt');
         gotIt.addEventListener('click', () => this.gotIt());
         actions.appendChild(gotIt);
 
         const never = document.createElement('button');
         never.type = 'button';
         never.className = 'bookmark-reminder-never';
-        never.textContent = 'never again';
+        never.textContent = t('bookmark.never');
         never.addEventListener('click', () => void this.neverAgain());
         actions.appendChild(never);
 
         const close = document.createElement('button');
         close.type = 'button';
         close.className = 'bookmark-reminder-close';
-        close.setAttribute('aria-label', 'dismiss for now');
-        close.title = 'dismiss for now';
+        close.setAttribute('aria-label', t('bookmark.dismiss'));
+        close.title = t('bookmark.dismiss');
         close.textContent = '×';
         close.addEventListener('click', () => this.remove());
         actions.appendChild(close);
@@ -140,8 +135,8 @@ export class BookmarkReminder {
     private async neverAgain(): Promise<void> {
         if (this.settled) return;
         const ok = await ConfirmModal.confirm({
-            title: 'dismiss bookmark reminder',
-            message: "you won't see this bookmark helper again, even when the port changes.",
+            title: t('bookmark.dismissTitle'),
+            message: t('bookmark.dismissMessage'),
         });
         if (!ok || this.settled) return;
         this.settled = true;

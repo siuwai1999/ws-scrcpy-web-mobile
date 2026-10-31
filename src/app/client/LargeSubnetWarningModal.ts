@@ -1,3 +1,4 @@
+import { t } from '../i18n';
 import { Modal } from '../ui/Modal';
 
 export interface LargeSubnetWarningOptions {
@@ -10,7 +11,7 @@ export class LargeSubnetWarningModal extends Modal {
     private readonly data: LargeSubnetWarningOptions;
 
     constructor(options: LargeSubnetWarningOptions) {
-        super({ title: 'Large Scan — Confirm' });
+        super({ title: t('large.title') });
         this.data = options;
         this.dialog.classList.add('large-subnet-warning-modal');
     }
@@ -24,23 +25,28 @@ export class LargeSubnetWarningModal extends Modal {
 
     private fillBody(container: HTMLElement): void {
         const summary = document.createElement('p');
-        summary.innerHTML =
-            `The scan covers <strong>${this.data.totalHosts.toLocaleString()} hosts</strong> ` +
-            `across <strong>${this.data.subnetBreakdown.length} subnet${this.data.subnetBreakdown.length === 1 ? '' : 's'}</strong>. ` +
-            `At roughly 30 seconds per 1,000 hosts, this will take about <strong>${formatDuration(this.data.totalHosts)}</strong>.`;
+        summary.innerHTML = t('large.summary', {
+            hosts: t('large.hosts', { count: this.data.totalHosts }),
+            subnets: t('large.subnets', { count: this.data.subnetBreakdown.length }),
+            duration: formatDuration(this.data.totalHosts),
+        });
         container.appendChild(summary);
 
         const list = document.createElement('ul');
         list.style.cssText = 'font-family: var(--font-mono, monospace); font-size: 13px; padding-left: 20px;';
         for (const row of this.data.subnetBreakdown) {
             const li = document.createElement('li');
-            li.textContent = `${row.normalized} — ${row.hostCount.toLocaleString()} host${row.hostCount === 1 ? '' : 's'} (${row.annotation})`;
+            li.textContent = t('scan.rowLabel', {
+                subnet: row.normalized,
+                hosts: t('large.hosts', { count: row.hostCount }),
+                annotation: row.annotation,
+            });
             list.appendChild(li);
         }
         container.appendChild(list);
 
         const advice = document.createElement('p');
-        advice.textContent = 'To narrow the scan, cancel and edit subnets. Otherwise continue.';
+        advice.textContent = t('large.advice');
         advice.style.cssText = 'margin-top: 12px; color: var(--text-color-light); font-size: 13px;';
         container.appendChild(advice);
     }
@@ -48,10 +54,10 @@ export class LargeSubnetWarningModal extends Modal {
     protected override buildFooter(): HTMLElement | null {
         const footer = document.createElement('div');
         const cancel = document.createElement('button');
-        cancel.textContent = 'cancel';
+        cancel.textContent = t('common.cancel');
         cancel.addEventListener('click', () => this.close());
         const cont = document.createElement('button');
-        cont.textContent = 'continue scan';
+        cont.textContent = t('large.continue');
         cont.addEventListener('click', () => {
             // Close first: onContinue closes the parent, which closes its open
             // children, so closing after it would close this dialog twice.
@@ -66,7 +72,7 @@ export class LargeSubnetWarningModal extends Modal {
 
 function formatDuration(totalHosts: number): string {
     const seconds = Math.round((totalHosts / 1000) * 30);
-    if (seconds < 60) return `${seconds} seconds`;
+    if (seconds < 60) return t('large.seconds', { count: seconds });
     const minutes = Math.round(seconds / 60);
-    return minutes === 1 ? '1 minute' : `${minutes} minutes`;
+    return t('large.minutes', { count: minutes });
 }

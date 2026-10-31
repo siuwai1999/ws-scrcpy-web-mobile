@@ -1,3 +1,4 @@
+import { t } from '../../i18n';
 import { DragAndDropHandler, type DragEventListener } from '../DragAndDropHandler';
 import { FilePushResponseStatus } from './FilePushResponseStatus';
 import type { FilePushStream, PushResponse } from './FilePushStream';
@@ -49,8 +50,15 @@ export default class FilePushHandler implements DragEventListener {
     }
 
     private logError(pushId: number, fileName: string, code: number): void {
-        const msg = RESPONSE_CODES.get(code) || `Unknown error (${code})`;
-        this.sendUpdate({ pushId, fileName, message: `error: "${msg}"`, progress: -1, error: true, finished: true });
+        const msg = RESPONSE_CODES.get(code) || t('push.unknownCode', { code });
+        this.sendUpdate({
+            pushId,
+            fileName,
+            message: t('push.error', { error: msg }),
+            progress: -1,
+            error: true,
+            finished: true,
+        });
     }
 
     private static async getStreamReader(file: File): Promise<{
@@ -73,7 +81,14 @@ export default class FilePushHandler implements DragEventListener {
             return;
         }
         const id = FilePushHandler.REQUEST_NEW_PUSH_ID;
-        this.sendUpdate({ pushId: id, fileName, message: 'begins...', progress: 0, error: false, finished: false });
+        this.sendUpdate({
+            pushId: id,
+            fileName,
+            message: t('push.begins'),
+            progress: 0,
+            error: false,
+            finished: false,
+        });
         this.filePushStream.sendEventNew({ id });
         const { code: pushId } = await this.waitForResponse(id);
         if (pushId <= 0) {
@@ -109,7 +124,7 @@ export default class FilePushHandler implements DragEventListener {
                     this.sendUpdate({
                         pushId,
                         fileName,
-                        message: 'success!',
+                        message: t('push.success'),
                         progress: 100,
                         error: false,
                         finished: true,
@@ -154,7 +169,7 @@ export default class FilePushHandler implements DragEventListener {
     }
 
     onStreamError = ({ id: pushId, error }: { id: number; error: Error }): void => {
-        const fileName = this.pushIdFileNameMap.get(pushId) || 'Unknown file';
+        const fileName = this.pushIdFileNameMap.get(pushId) || t('push.unknownFile');
         this.sendUpdate({ pushId, fileName, message: error.message, progress: -1, error: true, finished: true });
     };
 
@@ -196,7 +211,7 @@ export default class FilePushHandler implements DragEventListener {
                 const errorParams: PushUpdateParams = {
                     pushId: FilePushHandler.REQUEST_NEW_PUSH_ID,
                     fileName: name,
-                    message: `Unsupported type "${type}"`,
+                    message: t('push.unsupported', { type }),
                     progress: -1,
                     error: true,
                     finished: true,
@@ -208,7 +223,7 @@ export default class FilePushHandler implements DragEventListener {
     }
 
     public static getErrorMessage(code: number, message?: string): string {
-        return message || RESPONSE_CODES.get(code) || 'Unknown error';
+        return message || RESPONSE_CODES.get(code) || t('push.unknownError');
     }
 
     public onDragEnter(): boolean {
@@ -248,18 +263,18 @@ export default class FilePushHandler implements DragEventListener {
 }
 
 const RESPONSE_CODES = new Map([
-    [FilePushResponseStatus.NEW_PUSH_ID, 'New push id'],
-    [FilePushResponseStatus.NO_ERROR, 'No error'],
+    [FilePushResponseStatus.NEW_PUSH_ID, t('push.code0')],
+    [FilePushResponseStatus.NO_ERROR, t('push.code1')],
 
-    [FilePushResponseStatus.ERROR_INVALID_NAME, 'Invalid name'],
-    [FilePushResponseStatus.ERROR_NO_SPACE, 'No space'],
-    [FilePushResponseStatus.ERROR_FAILED_TO_DELETE, 'Failed to delete existing'],
-    [FilePushResponseStatus.ERROR_FAILED_TO_CREATE, 'Failed to create new file'],
-    [FilePushResponseStatus.ERROR_FILE_NOT_FOUND, 'File not found'],
-    [FilePushResponseStatus.ERROR_FAILED_TO_WRITE, 'Failed to write to file'],
-    [FilePushResponseStatus.ERROR_FILE_IS_BUSY, 'File is busy'],
-    [FilePushResponseStatus.ERROR_INVALID_STATE, 'Invalid state'],
-    [FilePushResponseStatus.ERROR_UNKNOWN_ID, 'Unknown id'],
-    [FilePushResponseStatus.ERROR_NO_FREE_ID, 'No free id'],
-    [FilePushResponseStatus.ERROR_INCORRECT_SIZE, 'Incorrect size'],
+    [FilePushResponseStatus.ERROR_INVALID_NAME, t('push.code2')],
+    [FilePushResponseStatus.ERROR_NO_SPACE, t('push.code3')],
+    [FilePushResponseStatus.ERROR_FAILED_TO_DELETE, t('push.code4')],
+    [FilePushResponseStatus.ERROR_FAILED_TO_CREATE, t('push.code5')],
+    [FilePushResponseStatus.ERROR_FILE_NOT_FOUND, t('push.code6')],
+    [FilePushResponseStatus.ERROR_FAILED_TO_WRITE, t('push.code7')],
+    [FilePushResponseStatus.ERROR_FILE_IS_BUSY, t('push.code8')],
+    [FilePushResponseStatus.ERROR_INVALID_STATE, t('push.code9')],
+    [FilePushResponseStatus.ERROR_UNKNOWN_ID, t('push.code10')],
+    [FilePushResponseStatus.ERROR_NO_FREE_ID, t('push.code11')],
+    [FilePushResponseStatus.ERROR_INCORRECT_SIZE, t('push.code12')],
 ]);

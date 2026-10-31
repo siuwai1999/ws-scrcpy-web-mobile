@@ -7,6 +7,7 @@ import { Multiplexer } from '../../../packages/multiplexer/Multiplexer';
 import type { MessageXtermClient } from '../../../types/MessageXtermClient';
 import { ManagerClient } from '../../client/ManagerClient';
 import { ShellCloseConfirmModal } from '../../client/ShellCloseConfirmModal';
+import { t } from '../../i18n';
 import { Modal } from '../../ui/Modal';
 import { buildMultiplexUrl } from './multiplexConnection';
 
@@ -19,9 +20,11 @@ function describeUnreachable(socketUrl: string, event?: CloseEvent): string {
     const target = `${hostname}:${port || (protocol === 'wss:' ? '443' : '80')}`;
     let detail = '';
     if (event?.code) {
-        detail = event.reason ? ` (code ${event.code}: ${event.reason})` : ` (code ${event.code})`;
+        detail = event.reason
+            ? t('shell.codeReason', { code: event.code, reason: event.reason })
+            : t('shell.code', { code: event.code });
     }
-    return `could not reach ${target}${detail}`;
+    return t('shell.unreachable', { target, detail });
 }
 
 export class ShellModal extends Modal {
@@ -60,7 +63,7 @@ export class ShellModal extends Modal {
         // Insert resize warning between header and body
         const warning = document.createElement('div');
         warning.className = 'shell-warning';
-        warning.textContent = 'resizing the browser window after starting a session may cause display issues';
+        warning.textContent = t('shell.resizeWarn');
         this.frameEl.insertBefore(warning, this.bodyEl);
 
         // Get the terminal container created by buildBody
@@ -136,7 +139,7 @@ export class ShellModal extends Modal {
         console.error('[ShellModal]', err);
         const errorEl = document.createElement('div');
         errorEl.className = 'shell-modal-error';
-        errorEl.textContent = `connection failed: ${err instanceof Error ? err.message : String(err)}`;
+        errorEl.textContent = t('shell.connectionFailed', { error: err instanceof Error ? err.message : String(err) });
         errorEl.style.cssText =
             'padding: 24px; color: #f06c75; font-family: monospace; font-size: 14px; text-align: center;';
         this.bodyEl.innerHTML = '';

@@ -4,6 +4,7 @@ import { Multiplexer } from '../../../packages/multiplexer/Multiplexer';
 import { BinaryWriter } from '../../BinaryWriter';
 import { ManagerClient } from '../../client/ManagerClient';
 import type { SettingsService } from '../../client/SettingsService';
+import { getLocale, t } from '../../i18n';
 import { basename, resolve } from '../../pathUtils';
 import { Modal } from '../../ui/Modal';
 import { debugLog } from '../../util/debugLog';
@@ -52,7 +53,7 @@ function formatDate(date: Date): string {
     const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
     const year = String(date.getFullYear()).slice(2);
     const day = String(date.getDate()).padStart(2, '0');
-    return `${months[date.getMonth()]} ${day} ${year}`;
+    return getLocale() === 'en' ? `${months[date.getMonth()]} ${day} ${year}` : date.toLocaleDateString(getLocale());
 }
 
 export class ListFilesModal extends Modal implements DragAndPushListener {
@@ -119,7 +120,7 @@ export class ListFilesModal extends Modal implements DragAndPushListener {
         const sizeBtn = document.createElement('button');
         sizeBtn.className = 'modal-close';
         sizeBtn.textContent = '\u229e'; // ⊞
-        sizeBtn.title = 'icon size preference';
+        sizeBtn.title = t('files.iconSizePref');
         sizeBtn.addEventListener('click', () => this.showSizePicker());
         this.addHeaderButton(sizeBtn);
 
@@ -166,20 +167,20 @@ export class ListFilesModal extends Modal implements DragAndPushListener {
 
         const uploadBtn = document.createElement('button');
         uploadBtn.className = 'list-files-footer-btn lf-upload-btn';
-        uploadBtn.textContent = 'upload';
+        uploadBtn.textContent = t('files.upload');
         uploadBtn.addEventListener('click', () => this.triggerUpload());
         actions.appendChild(uploadBtn);
 
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'list-files-footer-btn delete lf-delete-btn';
-        deleteBtn.textContent = 'delete';
+        deleteBtn.textContent = t('um.delete');
         deleteBtn.disabled = true;
         deleteBtn.addEventListener('click', () => this.deleteSelected());
         actions.appendChild(deleteBtn);
 
         const downloadBtn = document.createElement('button');
         downloadBtn.className = 'list-files-footer-btn lf-download-btn';
-        downloadBtn.textContent = 'download';
+        downloadBtn.textContent = t('files.download');
         downloadBtn.disabled = true;
         downloadBtn.addEventListener('click', () => this.downloadSelected());
         actions.appendChild(downloadBtn);
@@ -257,7 +258,7 @@ export class ListFilesModal extends Modal implements DragAndPushListener {
 
     private confirmClose(): boolean {
         if (this.hasActiveTransfers()) {
-            return confirm('transfers in progress \u2014 close anyway?');
+            return confirm(t('files.transfersInProgress'));
         }
         return true;
     }
@@ -271,7 +272,7 @@ export class ListFilesModal extends Modal implements DragAndPushListener {
         picker.className = 'list-files-size-picker';
 
         const heading = document.createElement('h3');
-        heading.textContent = 'icon size';
+        heading.textContent = t('files.iconSize');
         picker.appendChild(heading);
 
         const options = document.createElement('div');
@@ -328,14 +329,14 @@ export class ListFilesModal extends Modal implements DragAndPushListener {
         const note = document.createElement('div');
         note.className = 'list-files-size-picker-note';
         const updateNote = (): void => {
-            note.textContent = saveCheck.checked ? 'uncheck and click ok to clear saved preference' : '';
+            note.textContent = saveCheck.checked ? t('files.clearPref') : '';
         };
         saveCheck.addEventListener('change', updateNote);
         updateNote();
 
         const okBtn = document.createElement('button');
         okBtn.className = 'list-files-footer-btn';
-        okBtn.textContent = 'ok';
+        okBtn.textContent = t('common.ok');
         okBtn.addEventListener('click', () => {
             this.iconSize = selectedSize;
             this.dialog.style.setProperty('--file-icon-size', `${this.iconSize}px`);
@@ -389,7 +390,7 @@ export class ListFilesModal extends Modal implements DragAndPushListener {
 
         const nameHeader = document.createElement('span');
         nameHeader.className = 'list-files-header-name';
-        nameHeader.textContent = 'name';
+        nameHeader.textContent = t('files.name');
         nameHeader.addEventListener('click', () => this.toggleSort('name'));
         headerRow.appendChild(nameHeader);
 
@@ -401,13 +402,13 @@ export class ListFilesModal extends Modal implements DragAndPushListener {
 
         const sizeHeader = document.createElement('span');
         sizeHeader.className = 'list-files-header-size';
-        sizeHeader.textContent = 'size';
+        sizeHeader.textContent = t('files.size');
         sizeHeader.addEventListener('click', () => this.toggleSort('size'));
         headerRow.appendChild(sizeHeader);
 
         const dateHeader = document.createElement('span');
         dateHeader.className = 'list-files-header-date';
-        dateHeader.textContent = 'date';
+        dateHeader.textContent = t('files.date');
         dateHeader.addEventListener('click', () => this.toggleSort('date'));
         headerRow.appendChild(dateHeader);
 
@@ -425,7 +426,7 @@ export class ListFilesModal extends Modal implements DragAndPushListener {
         // Drop zone overlay (hidden by default)
         this.dropZone = document.createElement('div');
         this.dropZone.className = 'list-files-dropzone';
-        this.dropZone.textContent = 'drop files here';
+        this.dropZone.textContent = t('files.dropHere');
         this.dropZone.style.display = 'none';
         this.bodyEl.appendChild(this.dropZone);
 
@@ -450,7 +451,7 @@ export class ListFilesModal extends Modal implements DragAndPushListener {
         console.error('[ListFilesModal]', err);
         const errorEl = document.createElement('div');
         errorEl.className = 'list-files-modal-error';
-        errorEl.textContent = `connection failed: ${err instanceof Error ? err.message : String(err)}`;
+        errorEl.textContent = t('shell.connectionFailed', { error: err instanceof Error ? err.message : String(err) });
         errorEl.style.cssText =
             'padding: 24px; color: #f06c75; font-family: monospace; font-size: 14px; text-align: center;';
         this.bodyEl.innerHTML = '';
@@ -920,7 +921,7 @@ export class ListFilesModal extends Modal implements DragAndPushListener {
         filterWrap.className = 'list-files-filter';
         this.filterInput = document.createElement('input');
         this.filterInput.type = 'text';
-        this.filterInput.placeholder = 'filter...';
+        this.filterInput.placeholder = t('files.filter');
         this.filterInput.value = this.filterText;
         this.filterInput.addEventListener('input', () => {
             this.filterText = this.filterInput?.value ?? '';
@@ -941,7 +942,7 @@ export class ListFilesModal extends Modal implements DragAndPushListener {
         if (this.filteredEntries.length === 0) {
             const empty = document.createElement('div');
             empty.className = 'list-files-loading';
-            empty.textContent = this.filterText ? 'no matching files' : 'empty directory';
+            empty.textContent = this.filterText ? t('files.noMatch') : t('files.empty');
             this.rowsContainer.appendChild(empty);
             return;
         }
@@ -1007,7 +1008,7 @@ export class ListFilesModal extends Modal implements DragAndPushListener {
             const dlBtn = document.createElement('button');
             dlBtn.className = 'list-files-action-btn list-files-action-download';
             dlBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>';
-            dlBtn.title = 'download';
+            dlBtn.title = t('files.download');
             dlBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.downloadFile(entryPath, entry);
@@ -1019,10 +1020,10 @@ export class ListFilesModal extends Modal implements DragAndPushListener {
         delBtn.className = 'list-files-action-btn list-files-action-delete';
         delBtn.innerHTML =
             '<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>';
-        delBtn.title = 'delete';
+        delBtn.title = t('um.delete');
         delBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            if (confirm(`delete "${entry.name}"?`)) {
+            if (confirm(t('files.deleteQ', { name: entry.name }))) {
                 this.deleteFiles([entryPath]);
             }
         });
@@ -1057,7 +1058,7 @@ export class ListFilesModal extends Modal implements DragAndPushListener {
         this.rowsContainer.innerHTML = '';
         const loading = document.createElement('div');
         loading.className = 'list-files-loading';
-        loading.textContent = 'loading...';
+        loading.textContent = t('common.loading');
         this.rowsContainer.appendChild(loading);
     }
 
@@ -1119,9 +1120,9 @@ export class ListFilesModal extends Modal implements DragAndPushListener {
         const totalCount = this.filteredEntries.length;
 
         if (selectedCount > 0) {
-            info.textContent = `${selectedCount} selected / ${totalCount} items`;
+            info.textContent = t('files.selected', { selected: selectedCount, count: totalCount });
         } else {
-            info.textContent = `${totalCount} items`;
+            info.textContent = t('files.items', { count: totalCount });
         }
     }
 
@@ -1298,7 +1299,7 @@ export class ListFilesModal extends Modal implements DragAndPushListener {
             console.error(TAG, 'delete request failed:', err);
             const infoEl2 = this.getFooterInfo();
             if (infoEl2) {
-                infoEl2.textContent = 'delete request failed';
+                infoEl2.textContent = t('files.deleteFailed');
                 setTimeout(() => this.updateFooterInfo(), 10000);
             }
         }

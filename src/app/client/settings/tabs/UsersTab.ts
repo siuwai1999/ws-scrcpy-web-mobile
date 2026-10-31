@@ -1,5 +1,6 @@
 import type { AppConfigEnvelope } from '../../../../common/ConfigEvents';
 import { REMOTE_ADMIN_FORCED_MESSAGE, REMOTE_ADMIN_ID } from '../../../../common/remoteAdmin';
+import { t } from '../../../i18n';
 import { authClient } from '../../AuthClient';
 import { adminApiReachable } from '../../adminGate';
 import { RemoteAdminWarningModal } from '../../RemoteAdminWarningModal';
@@ -16,32 +17,31 @@ import {
 import type { TabContext } from './EmbeddingTab';
 
 /** The staged field's summary label: `Remote admin without sign-in: off → on`. */
-export const REMOTE_ADMIN_LABEL = 'Remote admin without sign-in';
+export const REMOTE_ADMIN_LABEL = t('users.remoteAdmin');
 
 /** Under the checkbox while it is checked (warning tone): the notice that used to be the home page's banner. */
-export const REMOTE_ADMIN_ON_NOTE =
-    'any device that can reach this server can administer it. set up sign-in, or uncheck this, to close it.';
+export const REMOTE_ADMIN_ON_NOTE = t('users.remoteOnNote');
 
 /**
  * The bold title over the note while the exposure is live (saved on, or forced
  * by the environment): the home page banner's own title, which this item replaced.
  */
-export const REMOTE_ADMIN_ON_TITLE = 'remote admin is enabled without sign-in.';
+export const REMOTE_ADMIN_ON_TITLE = t('users.remoteOnTitle');
 
 /** The same title while the box is checked but not yet saved. */
-export const REMOTE_ADMIN_STAGED_TITLE = 'remote admin will be enabled without sign-in when you save.';
+export const REMOTE_ADMIN_STAGED_TITLE = t('users.remoteStagedTitle');
 
 /** Under the checkbox while it is unchecked. */
-export const REMOTE_ADMIN_OFF_NOTE = 'admin actions are limited to this machine unless sign-in is set up.';
+export const REMOTE_ADMIN_OFF_NOTE = t('users.remoteOffNote');
 
 /** Under the checkbox while sign-in is on, which makes the setting moot until it is turned off again. */
-export const REMOTE_ADMIN_SIGN_IN_NOTE = 'ignored while sign-in is on; it applies again if sign-in is turned off.';
+export const REMOTE_ADMIN_SIGN_IN_NOTE = t('users.remoteSignInNote');
 
 /**
  * Under the checkbox, and on the review screen, when the device turning it off
  * is an admin only BECAUSE of it: once saved, this device is refused.
  */
-export const REMOTE_ADMIN_OFF_BOX_WARNING = 'you are on another device: saving this ends your admin access from here.';
+export const REMOTE_ADMIN_OFF_BOX_WARNING = t('users.remoteOffWarning');
 
 /** Ids for the remote-admin row's label, unique across every dialog opened on the page. */
 let remoteAdminDomSeq = 0;
@@ -94,7 +94,7 @@ export function applyUsersAdminUnreachable(section: HTMLElement): void {
  * as well as disabled; until then they stayed on screen, disabled, under it.
  */
 export function buildUsersTab(ctx: TabContext, store: StagedSettingsStore): HTMLElement {
-    const { section, card } = buildSection('Users');
+    const { section, card } = buildSection(t('settings.tab.users'));
     // The tab's one status line. Built now, but it lands below the card all
     // the same: the card is already in the section and stays its last card.
     const tabAlert = buildTabAlert(section);
@@ -108,12 +108,12 @@ export function buildUsersTab(ctx: TabContext, store: StagedSettingsStore): HTML
     const manageBtn = document.createElement('button');
     manageBtn.type = 'button';
     manageBtn.className = 'modal-button';
-    manageBtn.textContent = 'manage users';
+    manageBtn.textContent = t('users.manage');
     manageBtn.addEventListener('click', () => {
         // A child of Settings: it closes if Settings does.
         ctx.openChild(() => new UsersModal());
     });
-    const manageItem = buildItem(buildRow('user accounts', manageBtn));
+    const manageItem = buildItem(buildRow(t('users.accounts'), manageBtn));
     card.appendChild(manageItem);
 
     // 2. Auth toggle — disable login (authEnabled=true) or enable login
@@ -130,7 +130,7 @@ export function buildUsersTab(ctx: TabContext, store: StagedSettingsStore): HTML
         const disableBtn = document.createElement('button');
         disableBtn.type = 'button';
         disableBtn.className = 'modal-button';
-        disableBtn.textContent = 'disable login (return to open mode)';
+        disableBtn.textContent = t('users.disableLogin');
         disableBtn.addEventListener('click', () => {
             disableBtn.disabled = true;
             void (async () => {
@@ -138,18 +138,18 @@ export function buildUsersTab(ctx: TabContext, store: StagedSettingsStore): HTML
                     await authClient.disableAuth();
                     ctx.reload();
                 } catch {
-                    tabAlert.show('error', 'failed to disable login — see server logs.');
+                    tabAlert.show('error', t('users.disableFailed'));
                     disableBtn.disabled = heldBack;
                 }
             })();
         });
-        loginItem = buildItem(buildRow('login', disableBtn));
+        loginItem = buildItem(buildRow(t('users.login'), disableBtn));
         loginBtn = disableBtn;
     } else {
         const enableBtn = document.createElement('button');
         enableBtn.type = 'button';
         enableBtn.className = 'modal-button';
-        enableBtn.textContent = 'enable login';
+        enableBtn.textContent = t('users.enableLogin');
         enableBtn.addEventListener('click', () => {
             enableBtn.disabled = true;
             void (async () => {
@@ -161,18 +161,16 @@ export function buildUsersTab(ctx: TabContext, store: StagedSettingsStore): HTML
                     }
                     tabAlert.show(
                         'error',
-                        res.status === 409
-                            ? 'Add a user with an admin password first (Users → manage users)'
-                            : `failed to enable login (${res.status})`,
+                        res.status === 409 ? t('users.needAdmin') : t('users.enableFailed', { status: res.status }),
                     );
                     enableBtn.disabled = heldBack;
                 } catch {
-                    tabAlert.show('error', 'failed to enable login — could not reach server.');
+                    tabAlert.show('error', t('users.enableUnreachable'));
                     enableBtn.disabled = heldBack;
                 }
             })();
         });
-        loginItem = buildItem(buildRow('login', enableBtn));
+        loginItem = buildItem(buildRow(t('users.login'), enableBtn));
         loginBtn = enableBtn;
     }
     card.appendChild(loginItem);
@@ -237,7 +235,7 @@ function buildRemoteAdminItem(
     checkbox.type = 'checkbox';
     checkbox.setAttribute('data-remote-admin', '');
 
-    const row = buildRow('remote admin without sign-in', checkbox);
+    const row = buildRow(t('users.remoteAdminRow'), checkbox);
     const label = row.querySelector<HTMLElement>('.settings-label');
     if (label) {
         remoteAdminDomSeq += 1;
@@ -320,7 +318,7 @@ function buildRemoteAdminItem(
             id: REMOTE_ADMIN_ID,
             label: REMOTE_ADMIN_LABEL,
             initial,
-            format: (v) => (v === true ? 'on' : 'off'),
+            format: (v) => (v === true ? t('common.on') : t('common.off')),
             warning: (to) => (to === false && adminBecauseOfIt ? REMOTE_ADMIN_OFF_BOX_WARNING : null),
         });
     }

@@ -1,3 +1,4 @@
+import { t } from '../i18n';
 import { Modal } from '../ui/Modal';
 import { AddSubnetModal } from './AddSubnetModal';
 import { SUBNETS_HELP_HREF, themeHelpLink } from './helpLink';
@@ -33,10 +34,7 @@ export interface ScanNetworkModalOptions {
 }
 
 /** The note a container shows above the subnet list. Exported for its test. */
-export const CONTAINER_SCAN_NOTE =
-    "ws-scrcpy-web is running in a container, so it can't see your network's subnet. Add it below " +
-    '(for example 192.168.1.0/24): the port-5555 probe reaches your LAN through docker. ' +
-    "Finding devices over mDNS needs the container on the host's network (network_mode: host).";
+export const CONTAINER_SCAN_NOTE = t('scan.containerNote');
 
 const SVG_ATTRS =
     'width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"';
@@ -53,7 +51,7 @@ export class ScanNetworkModal extends Modal {
     private settings: SettingsService | undefined;
 
     constructor(options: ScanNetworkModalOptions) {
-        super({ title: 'Scan Network for Devices' });
+        super({ title: t('scan.title') });
         this.opts = options;
         this.dialog.classList.add('scan-network-modal');
         // super()'s buildBody deferred rendering — now run initial population.
@@ -72,24 +70,18 @@ export class ScanNetworkModal extends Modal {
 
     private fillBody(container: HTMLElement): void {
         const explain = document.createElement('p');
-        explain.textContent =
-            'This scans your local network for Android devices with wireless debugging enabled. ' +
-            'It checks mDNS broadcasts (modern devices) and probes port 5555 on each host in the ' +
-            'selected subnets (older devices).';
+        explain.textContent = t('scan.intro');
         container.appendChild(explain);
 
         const warning = document.createElement('div');
         warning.style.cssText =
             'background: rgba(240,108,117,0.12); border: 1px solid #f06c75; color: #f06c75; ' +
             'padding: 10px 12px; border-radius: 4px; margin: 12px 0; font-size: 13px;';
-        warning.innerHTML =
-            '⚠ Scanning sends connection attempts to every host on the selected subnet(s). ' +
-            'On managed or corporate networks this may trigger intrusion-detection alerts. ' +
-            'Only scan networks you own or administer.';
+        warning.innerHTML = t('scan.warning');
         container.appendChild(warning);
 
         const listHeader = document.createElement('div');
-        listHeader.textContent = 'Subnets to scan:';
+        listHeader.textContent = t('scan.subnets');
         listHeader.style.cssText = 'margin-top: 8px; font-weight: 600;';
         container.appendChild(listHeader);
 
@@ -105,10 +97,7 @@ export class ScanNetworkModal extends Modal {
 
         this.emptyNotice = document.createElement('div');
         this.emptyNotice.style.cssText = 'color: #d0a050; font-size: 13px; padding: 6px 0;';
-        this.emptyNotice.textContent =
-            this.opts.inContainer === true
-                ? 'Add at least one subnet below to scan.'
-                : "Couldn't detect your gateway subnet. Add at least one subnet below to scan.";
+        this.emptyNotice.textContent = this.opts.inContainer === true ? t('scan.addOne') : t('scan.noGateway');
         container.appendChild(this.emptyNotice);
 
         this.subnetListEl = document.createElement('ul');
@@ -117,7 +106,7 @@ export class ScanNetworkModal extends Modal {
         container.appendChild(this.subnetListEl);
 
         const addBtn = document.createElement('button');
-        addBtn.textContent = 'add subnet';
+        addBtn.textContent = t('scan.addSubnet');
         addBtn.className = 'btn';
         addBtn.style.cssText = 'margin: 4px 0 12px;';
         addBtn.addEventListener('click', () => this.openAddSubnet());
@@ -131,8 +120,8 @@ export class ScanNetworkModal extends Modal {
         themeHelpLink(link, SUBNETS_HELP_HREF);
         link.target = '_blank';
         link.rel = 'noopener';
-        link.textContent = 'subnet cheat sheet';
-        cheatLink.append('New to CIDR? See the ', link, '.');
+        link.textContent = t('subnet.cheatSheet');
+        cheatLink.append(t('scan.newToCidr'), link, t('scan.period'));
         container.appendChild(cheatLink);
     }
 
@@ -145,11 +134,11 @@ export class ScanNetworkModal extends Modal {
 
     private fillFooter(footer: HTMLElement): void {
         const cancel = document.createElement('button');
-        cancel.textContent = 'cancel';
+        cancel.textContent = t('common.cancel');
         cancel.className = 'btn';
         cancel.addEventListener('click', () => this.close());
         this.startBtn = document.createElement('button');
-        this.startBtn.textContent = 'start scan';
+        this.startBtn.textContent = t('scan.start');
         this.startBtn.className = 'btn btn-primary';
         this.startBtn.disabled = true;
         this.startBtn.addEventListener('click', () => this.onStartClick());
@@ -167,7 +156,7 @@ export class ScanNetworkModal extends Modal {
                 raw: this.opts.gatewaySubnet.cidr,
                 normalized: this.opts.gatewaySubnet.cidr,
                 hostCount: this.opts.gatewaySubnet.hostCount,
-                annotation: 'detected gateway subnet',
+                annotation: t('scan.annGateway'),
                 removable: false,
             });
         }
@@ -201,7 +190,7 @@ export class ScanNetworkModal extends Modal {
             raw,
             normalized: r.normalized,
             hostCount: r.hostCount,
-            annotation: 'manually added',
+            annotation: t('scan.annManual'),
             removable: true,
         });
         this.saveSubnets();
@@ -244,7 +233,11 @@ export class ScanNetworkModal extends Modal {
             const li = document.createElement('li');
             li.className = 'subnet-row';
             const label = document.createElement('span');
-            label.textContent = `${row.normalized} — ${row.hostCount.toLocaleString()} host${row.hostCount === 1 ? '' : 's'} (${row.annotation})`;
+            label.textContent = t('scan.rowLabel', {
+                subnet: row.normalized,
+                hosts: t('large.hosts', { count: row.hostCount }),
+                annotation: row.annotation,
+            });
             li.appendChild(label);
             if (row.removable) {
                 const actions = document.createElement('span');
@@ -254,16 +247,16 @@ export class ScanNetworkModal extends Modal {
                 // Static markup, no interpolation.
                 edit.innerHTML = ICON_EDIT;
                 edit.className = 'btn btn-icon';
-                edit.setAttribute('aria-label', 'edit');
-                edit.title = 'edit subnet';
+                edit.setAttribute('aria-label', t('scan.edit'));
+                edit.title = t('scan.editSubnet');
                 edit.addEventListener('click', () => this.openEditSubnet(row.id, row.raw));
                 actions.appendChild(edit);
 
                 const x = document.createElement('button');
                 x.innerHTML = ICON_REMOVE;
                 x.className = 'btn btn-icon btn-icon-danger';
-                x.setAttribute('aria-label', 'remove');
-                x.title = 'remove subnet';
+                x.setAttribute('aria-label', t('embed.remove'));
+                x.title = t('scan.removeSubnet');
                 x.addEventListener('click', () => this.removeRowById(row.id));
                 actions.appendChild(x);
 

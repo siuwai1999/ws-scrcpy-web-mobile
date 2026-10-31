@@ -1,3 +1,4 @@
+import { t } from '../i18n';
 import { Modal } from '../ui/Modal';
 import { isElevationDeclined, reasonToUserMessage } from './serviceFailureMessage';
 import { showStatusBanner } from './statusBanner';
@@ -40,7 +41,7 @@ export function showSystemWideDeclinedBanner(
     retry: () => Promise<SystemWideInstallOutcome> = () => runSystemWideInstall(),
     reload: () => void = () => window.location.reload(),
 ): HTMLElement {
-    return showStatusBanner(notice, 'try again', () => {
+    return showStatusBanner(notice, t('sysInstall.tryAgain'), () => {
         void retry().then((outcome) => {
             if (outcome.kind === 'reload') reload();
         });
@@ -79,7 +80,7 @@ export class SystemWideInstallModal extends Modal {
     private declineBtn!: HTMLButtonElement;
 
     constructor(options: SystemWideInstallModalOptions) {
-        super({ title: 'install for all users?', dismissible: false });
+        super({ title: t('sysInstall.title'), dismissible: false });
         this.opts = options;
         this.dialog.classList.add('system-wide-install-modal');
         // Defer body fill past class-field init phase (ES2022 useDefineForClassFields).
@@ -96,25 +97,24 @@ export class SystemWideInstallModal extends Modal {
     private fillBody(container: HTMLElement): void {
         const question = document.createElement('p');
         question.style.cssText = 'margin: 0 0 12px;';
-        question.textContent = 'run ws-scrcpy-web for all users on this machine?';
+        question.textContent = t('sysInstall.question');
         container.appendChild(question);
 
         const yesLine = document.createElement('p');
         yesLine.style.cssText = 'margin: 0 0 12px;';
-        yesLine.textContent = 'clicking "yes, all users" installs the app to /opt with one administrator prompt.';
+        yesLine.textContent = t('sysInstall.yesLine');
         container.appendChild(yesLine);
 
         const noLine = document.createElement('p');
         noLine.style.cssText = 'margin: 0 0 16px;';
-        noLine.textContent =
-            'clicking "no, me only" will leave the application running from wherever you launch it from.';
+        noLine.textContent = t('sysInstall.noLine');
         container.appendChild(noLine);
 
         const buttons = document.createElement('div');
         buttons.style.cssText = 'display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap;';
 
         this.installBtn = document.createElement('button');
-        this.installBtn.textContent = 'yes, all users';
+        this.installBtn.textContent = t('sysInstall.yes');
         this.installBtn.className = 'modal-button modal-button-primary';
         this.installBtn.addEventListener('click', () => {
             this.opts.onInstall();
@@ -123,7 +123,7 @@ export class SystemWideInstallModal extends Modal {
         buttons.appendChild(this.installBtn);
 
         this.declineBtn = document.createElement('button');
-        this.declineBtn.textContent = 'no, me only';
+        this.declineBtn.textContent = t('sysInstall.no');
         this.declineBtn.className = 'modal-button';
         this.declineBtn.addEventListener('click', () => {
             this.opts.onDecline();

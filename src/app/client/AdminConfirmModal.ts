@@ -1,3 +1,4 @@
+import { t } from '../i18n';
 import { Modal } from '../ui/Modal';
 
 export interface AdminConfirmOptions {
@@ -47,7 +48,7 @@ export class AdminConfirmModal extends Modal {
 
     private constructor(opts: AdminConfirmOptions, resolve: (value: boolean) => void) {
         const isLinux = opts.platform === 'linux';
-        super({ title: isLinux ? 'Root Privileges Required' : 'Administrative Privileges Required' });
+        super({ title: isLinux ? t('adminConfirm.titleRoot') : t('adminConfirm.titleAdmin') });
         this.resolveFn = resolve;
         this.action = opts.action;
         this.platform = opts.platform ?? 'win32';
@@ -64,13 +65,13 @@ export class AdminConfirmModal extends Modal {
         message.style.cssText = 'margin: 0 0 12px;';
         message.textContent =
             this.platform === 'linux'
-                ? `${this.capitalizedAction()} with system scope needs administrator privileges. polkit will show a password prompt next.`
-                : `${this.capitalizedAction()} requires administrative privileges. Windows will show a UAC prompt next.`;
+                ? t('adminConfirm.bodyLinux', { action: this.capitalizedAction() })
+                : t('adminConfirm.bodyWindows', { action: this.capitalizedAction() });
         container.appendChild(message);
 
         const question = document.createElement('p');
         question.style.cssText = 'margin: 0 0 8px;';
-        question.textContent = 'Continue?';
+        question.textContent = t('adminConfirm.continueQ');
         container.appendChild(question);
     }
 
@@ -81,14 +82,14 @@ export class AdminConfirmModal extends Modal {
         const cancelBtn = document.createElement('button');
         cancelBtn.type = 'button';
         cancelBtn.className = 'modal-button';
-        cancelBtn.textContent = 'cancel';
+        cancelBtn.textContent = t('common.cancel');
         cancelBtn.addEventListener('click', () => this.resolveAndClose(false));
         footer.appendChild(cancelBtn);
 
         const continueBtn = document.createElement('button');
         continueBtn.type = 'button';
         continueBtn.className = 'modal-button';
-        continueBtn.textContent = 'continue';
+        continueBtn.textContent = t('common.continue');
         continueBtn.addEventListener('click', () => this.resolveAndClose(true));
         footer.appendChild(continueBtn);
 
@@ -127,6 +128,8 @@ export class AdminConfirmModal extends Modal {
     }
 
     private capitalizedAction(): string {
-        return this.action.charAt(0).toUpperCase() + this.action.slice(1);
+        return this.action === 'install service'
+            ? t('adminConfirm.installService')
+            : t('adminConfirm.uninstallService');
     }
 }

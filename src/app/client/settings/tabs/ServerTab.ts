@@ -1,5 +1,6 @@
 import type { AppConfigEnvelope } from '../../../../common/ConfigEvents';
 import type { ServiceStatusResponse } from '../../../../common/ServiceEvents';
+import { t } from '../../../i18n';
 import { authClient } from '../../AuthClient';
 import { canSeeSection } from '../../adminGate';
 import { ConfirmModal } from '../../ConfirmModal';
@@ -34,18 +35,17 @@ import type { ScopeRadioInputs } from './ServiceTab';
  *  the build-time registration and the post-read re-baseline cannot disagree.
  *  The id stays `webPort`, the config key's name, so nothing on disk moves. */
 const WEB_PORT_ID = 'webPort';
-const WEB_PORT_LABEL = 'HTTP port';
+const WEB_PORT_LABEL = t('server.httpPort');
 
 /** The staged-field id and summary label for the https port (`SettingsBatchApi`'s `httpsPort`). */
 export const HTTPS_PORT_ID = 'httpsPort';
-const HTTPS_PORT_LABEL = 'HTTPS port';
+const HTTPS_PORT_LABEL = t('server.httpsPort');
 
 /** `Config.ts`'s DEFAULT_HTTPS_PORT, for a /api/tls/state that does not name one. */
 const DEFAULT_HTTPS_PORT = 8443;
 
 /** Under the https port while it is unavailable: no mkcert, or no certificate yet. */
-export const HTTPS_PORT_GATE_NOTE =
-    'applies to the certificate local https generates; install mkcert and generate one first.';
+export const HTTPS_PORT_GATE_NOTE = `${t('server.gate.pre')}mkcert${t('server.gate.and')}${t('server.gate.generate')}${t('server.gate.post')}`;
 
 /**
  * HTTPS_PORT_GATE_NOTE in pieces: "mkcert" links to the Dependencies tab, where
@@ -55,18 +55,18 @@ export const HTTPS_PORT_GATE_NOTE =
  * HTTPS_PORT_GATE_NOTE (a unit test holds them to it).
  */
 export const HTTPS_PORT_GATE_NOTE_PARTS: ReadonlyArray<string | { text: string; tab: string }> = [
-    'applies to the certificate local https generates; install ',
+    t('server.gate.pre'),
     { text: 'mkcert', tab: DEPENDENCIES_TAB_ID },
-    ' and ',
-    { text: 'generate', tab: LOCAL_HTTPS_TAB_ID },
-    ' one first.',
+    t('server.gate.and'),
+    { text: t('server.gate.generate'), tab: LOCAL_HTTPS_TAB_ID },
+    t('server.gate.post'),
 ];
 
 /** Below both port rows, always: saving either one restarts the server (SettingsBatchApi). */
-export const PORT_RESTART_NOTE = 'changing either port restarts the server; any active streams will drop.';
+export const PORT_RESTART_NOTE = t('server.portRestartNote');
 
 /** The inline refusal on whichever port row was just edited onto the other's value. */
-export const PORT_COLLISION_ERROR = 'the http and https ports must differ.';
+export const PORT_COLLISION_ERROR = t('server.portCollision');
 
 /**
  * Notification 5: a sub-1024 port needs elevated privileges outside win32.
@@ -82,7 +82,7 @@ export const PORT_COLLISION_ERROR = 'the http and https ports must differ.';
 export function subPrivilegedPortNotice(port: number, platform: NodeJS.Platform | string | undefined): string | null {
     if (platform !== 'linux' && platform !== 'darwin') return null;
     if (!Number.isFinite(port) || port <= 0 || port >= 1024) return null;
-    return 'ports below 1024 need elevated privileges on this platform; the server may fail to start.';
+    return t('server.lowPortNotice');
 }
 
 /** Ids for the port rows' labels and notes, unique across every dialog opened on the page. */
@@ -147,7 +147,7 @@ async function readTlsPortState(): Promise<{ ready: boolean; port: number | null
  * same class of unearned success claim as #120.
  */
 export function appUninstallStartedMessage(): string {
-    return 'uninstall started — ws-scrcpy-web is shutting down and removing itself. you can close this tab.';
+    return t('server.uninstallStarted');
 }
 
 /**
@@ -199,7 +199,7 @@ export function stopServerButtonState(resp: ScopeRadioInputs): {
     return isInstalled
         ? {
               disabled: true,
-              note: 'managed by the system service — stop it via your service manager, or uninstall the service.',
+              note: t('server.managedByService'),
           }
         : { disabled: false, note: null };
 }
@@ -244,7 +244,7 @@ export function appSectionButtonsState(resp: {
     return {
         showInstallAllUsers: linux && !container,
         installAllUsersDisabled: linux && machineWide,
-        installAllUsersNote: linux && machineWide ? 'already installed for all users (/opt)' : null,
+        installAllUsersNote: linux && machineWide ? t('server.installedAllUsers') : null,
         showUninstall: (linux || resp.platform === 'win32') && !container,
     };
 }
@@ -280,7 +280,7 @@ export function buildResetControl(opts: {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'settings-btn settings-btn-primary';
-    button.textContent = 'reset';
+    button.textContent = t('server.reset');
 
     button.addEventListener('click', () => {
         void (async () => {
@@ -330,7 +330,7 @@ export function buildInstallAllUsersControl(opts: { reload: () => void; alert: P
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'settings-btn settings-btn-primary';
-    button.textContent = 'install';
+    button.textContent = t('server.install');
 
     const note = document.createElement('p');
     note.className = 'settings-status';
@@ -339,7 +339,7 @@ export function buildInstallAllUsersControl(opts: { reload: () => void; alert: P
 
     button.addEventListener('click', () => {
         button.disabled = true;
-        button.textContent = 'installing…';
+        button.textContent = t('server.installing');
         void (async () => {
             try {
                 const res = await fetch('/api/service/install-system-wide', { method: 'POST' });
@@ -353,13 +353,13 @@ export function buildInstallAllUsersControl(opts: { reload: () => void; alert: P
                     'error',
                     (await isElevationDeclined(res))
                         ? reasonToUserMessage('uac-declined', '')
-                        : 'install failed — see the server logs and try again.',
+                        : t('server.installFailed'),
                 );
             } catch {
-                opts.alert.show('error', 'install failed — could not reach the server.');
+                opts.alert.show('error', t('server.installUnreachable'));
             }
             button.disabled = false;
-            button.textContent = 'install';
+            button.textContent = t('server.install');
         })();
     });
 
@@ -398,7 +398,7 @@ export function buildUninstallControl(opts: {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'settings-btn settings-btn-danger';
-    button.textContent = 'uninstall…';
+    button.textContent = t('server.uninstall');
 
     button.addEventListener('click', () => {
         void (async () => {
@@ -408,7 +408,7 @@ export function buildUninstallControl(opts: {
             });
             if (!r.confirmed) return;
             button.disabled = true;
-            button.textContent = 'uninstalling…';
+            button.textContent = t('server.uninstalling');
             try {
                 const res = await fetch('/api/service/uninstall-app', {
                     method: 'POST',
@@ -431,13 +431,13 @@ export function buildUninstallControl(opts: {
                     'error',
                     body?.reason === 'unsupported' && typeof body.error === 'string'
                         ? body.error
-                        : 'uninstall failed — see the server logs and try again.',
+                        : t('server.uninstallFailed'),
                 );
             } catch {
-                opts.alert.show('error', 'uninstall failed — could not reach the server.');
+                opts.alert.show('error', t('server.uninstallUnreachable'));
             }
             button.disabled = false;
-            button.textContent = 'uninstall…';
+            button.textContent = t('server.uninstall');
         })();
     });
 
@@ -451,7 +451,7 @@ function showAppStoppedOverlay(): void {
         'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;' +
         'padding:1rem;text-align:center;opacity:0.85;';
     const msg = document.createElement('p');
-    msg.textContent = 'app stopped — you can close this tab.';
+    msg.textContent = t('server.appStopped');
     overlay.appendChild(msg);
     document.body.replaceChildren(overlay);
 }
@@ -477,17 +477,15 @@ async function onStopServerExit(btn: HTMLButtonElement, askChild: AskChild): Pro
     const confirmed = await askChild(
         () =>
             ConfirmModal.confirm({
-                title: 'stop server & exit',
-                message:
-                    'the app will shut down and this browser tab will try to close. ' +
-                    'any active device connections will end. continue?',
+                title: t('server.stopExit'),
+                message: t('server.stopConfirm'),
             }),
         false,
     );
     if (!confirmed) return;
 
     btn.disabled = true;
-    btn.textContent = 'stopping…';
+    btn.textContent = t('server.stopping');
     try {
         await fetch('/api/server/shutdown', { method: 'POST' });
     } catch {
@@ -501,9 +499,8 @@ async function onStopServerExit(btn: HTMLButtonElement, askChild: AskChild): Pro
 }
 
 /** The overlay's words while the server restarts, and if it does not come back. */
-export const RESTARTING_MESSAGE = 'restarting the server… this page will reload once it is back.';
-export const RESTART_TIMEOUT_MESSAGE =
-    "the server hasn't come back yet. reload this page to check, or look at the server log.";
+export const RESTARTING_MESSAGE = t('server.restarting');
+export const RESTART_TIMEOUT_MESSAGE = t('server.restartTimeout');
 
 /**
  * Wait for a restart to finish, by asking whether this page's instance token
@@ -552,11 +549,7 @@ function showRestartingOverlay(): HTMLParagraphElement {
  * Settings and not saved, so when something is, the confirm says so first.
  */
 export function restartConfirmMessage(unsavedChanges: boolean): string {
-    return (
-        (unsavedChanges ? 'your unsaved settings changes will be lost. ' : '') +
-        'the server will restart and this page will reload once it is back. ' +
-        'any active device connections will end. continue?'
-    );
+    return (unsavedChanges ? t('server.restartConfirmUnsaved') : '') + t('server.restartConfirm');
 }
 
 /**
@@ -574,7 +567,7 @@ async function onRestartServer(
     const confirmed = await askChild(
         () =>
             ConfirmModal.confirm({
-                title: 'restart server',
+                title: t('server.restart'),
                 message: restartConfirmMessage(hasUnsavedChanges()),
             }),
         false,
@@ -590,9 +583,9 @@ async function onRestartServer(
         accepted = false;
     }
     if (!accepted) {
-        alert.show('error', "couldn't restart the server.");
+        alert.show('error', t('server.restartFailed'));
         btn.disabled = false;
-        btn.textContent = 'restart server';
+        btn.textContent = t('server.restart');
         return;
     }
 
@@ -659,11 +652,11 @@ const adminUnreachableAppliers = new WeakMap<HTMLElement, () => void>();
  * untitled card holding only the note (0.5.8, `applyAdminUnreachable`).
  */
 export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTMLElement {
-    const { section } = buildSplitSection('Server');
+    const { section } = buildSplitSection(t('settings.tab.server'));
     // The tab's one status line: the change-password, log-out and install
     // results. Built first, and every card goes above it (`addCard`).
     const tabAlert = buildTabAlert(section);
-    const settingsCard = addCard(section, 'Settings');
+    const settingsCard = addCard(section, t('settings.title'));
 
     // Replaces the instance fields `SettingsModal` held for this section
     // (`this.webPortInput`, `this.stopServerButton`, …). Each stays null when its
@@ -728,7 +721,7 @@ export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTM
         sendFirstRunReset: () => !containerMode && !adminUnreachable,
         askChild: ctx.askChild,
     });
-    settingsCard.appendChild(buildItem(buildRow('reset all my settings', reset.button)));
+    settingsCard.appendChild(buildItem(buildRow(t('server.resetAll'), reset.button)));
 
     // 1b. change password — user-level, only shown when auth is enabled
     //     (in open mode there is no password to change). Reveals an inline
@@ -750,7 +743,7 @@ export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTM
         curRow.style.cssText = 'display:flex; align-items:center; gap:4px;';
         const curInput = document.createElement('input');
         curInput.type = 'password';
-        curInput.placeholder = 'current password';
+        curInput.placeholder = t('server.currentPassword');
         curInput.className = 'settings-input';
         curInput.setAttribute('data-field', 'cp-current');
         const curEye = document.createElement('button');
@@ -770,7 +763,7 @@ export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTM
         newRow.style.cssText = 'display:flex; align-items:center; gap:4px;';
         const newInput = document.createElement('input');
         newInput.type = 'password';
-        newInput.placeholder = 'new password';
+        newInput.placeholder = t('server.newPassword');
         newInput.className = 'settings-input';
         newInput.setAttribute('data-field', 'cp-new');
         const newEye = document.createElement('button');
@@ -795,7 +788,7 @@ export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTM
         saveBtn.addEventListener('click', () => {
             void (async () => {
                 if (!curInput.value || !newInput.value) {
-                    cpStatus.textContent = 'enter your current and new password';
+                    cpStatus.textContent = t('server.enterPasswords');
                     cpStatus.hidden = false;
                     return;
                 }
@@ -805,16 +798,16 @@ export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTM
                 try {
                     const ok = await authClient.changePassword(curInput.value, newInput.value);
                     if (ok) {
-                        tabAlert.show('success', 'password changed');
+                        tabAlert.show('success', t('server.passwordChanged'));
                         cpForm.style.display = 'none';
                         cpBtn.style.display = '';
                         curInput.value = '';
                         newInput.value = '';
                     } else {
-                        tabAlert.show('error', 'current password incorrect');
+                        tabAlert.show('error', t('server.passwordIncorrect'));
                     }
                 } catch {
-                    tabAlert.show('error', 'could not reach server');
+                    tabAlert.show('error', t('server.unreachable'));
                 }
                 saveBtn.disabled = false;
             })();
@@ -838,7 +831,7 @@ export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTM
         const cpBtn = document.createElement('button');
         cpBtn.type = 'button';
         cpBtn.className = 'modal-button';
-        cpBtn.textContent = 'change password';
+        cpBtn.textContent = t('server.changePassword');
         cpBtn.setAttribute('data-action', 'change-password');
         cpBtn.addEventListener('click', () => {
             cpBtn.style.display = 'none';
@@ -856,14 +849,14 @@ export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTM
         const logoutBtn = document.createElement('button');
         logoutBtn.type = 'button';
         logoutBtn.className = 'modal-button';
-        logoutBtn.textContent = 'log out';
+        logoutBtn.textContent = t('server.logout');
         logoutBtn.setAttribute('data-action', 'logout');
         logoutBtn.addEventListener('click', () => {
             void (async () => {
                 try {
                     await authClient.logout();
                 } catch {
-                    tabAlert.show('error', 'logout request failed — reloading anyway.');
+                    tabAlert.show('error', t('server.logoutFailed'));
                 }
                 ctx.reload();
             })();
@@ -893,7 +886,7 @@ export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTM
         // about either one. Hidden whole until the dialog knows it is on a
         // host (applyHostMode), with its heading: rows hidden inside a showing
         // card would leave an empty box (M6, see the end of this block).
-        const ports = addCard(section, 'Ports');
+        const ports = addCard(section, t('server.cardPorts'));
         portsCard = ports;
 
         // 2. http port — a number input, and nothing else. Editing it STAGES the
@@ -921,7 +914,7 @@ export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTM
         // fill-in from being reported as a change the user never made.
         store.register({ id: WEB_PORT_ID, label: WEB_PORT_LABEL, initial: null });
 
-        webPortRow = buildRow('http port', input);
+        webPortRow = buildRow(t('server.httpPortRow'), input);
         labelInputByRow(webPortRow, input);
 
         const status = document.createElement('p');
@@ -953,7 +946,7 @@ export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTM
         // port arrives later, on the /api/tls/state read refreshServerHttps makes.
         store.register({ id: HTTPS_PORT_ID, label: HTTPS_PORT_LABEL, initial: null });
 
-        httpsPortRow = buildRow('https port', httpsInput);
+        httpsPortRow = buildRow(t('server.httpsPortRow'), httpsInput);
         labelInputByRow(httpsPortRow, httpsInput);
 
         const httpsStatus = document.createElement('p');
@@ -1024,7 +1017,7 @@ export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTM
     if (canSeeSection(ctx.role, 'serverControls')) {
         // The Application card: the install lifecycle. "restart server" and
         // "stop server & exit" always show, so the card is never empty.
-        const application = addCard(section, 'Application');
+        const application = addCard(section, t('server.cardApplication'));
         applicationCard = application;
 
         // 2c. restart the server — first in the card (user, 0.5.9). Exit 75
@@ -1034,7 +1027,7 @@ export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTM
         const restartBtn = document.createElement('button');
         restartBtn.type = 'button';
         restartBtn.className = 'settings-btn settings-btn-primary';
-        restartBtn.textContent = 'restart server';
+        restartBtn.textContent = t('server.restart');
         restartBtn.setAttribute('data-action', 'restart-server');
         restartBtn.addEventListener(
             'click',
@@ -1048,7 +1041,7 @@ export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTM
                 ),
         );
         restartServerButton = restartBtn;
-        application.appendChild(buildItem(buildRow('restart the server', restartBtn)));
+        application.appendChild(buildItem(buildRow(t('server.restartRow'), restartBtn)));
 
         // 3. install for all users (Linux-only) — hidden until
         //    applyServerServiceStatus reveals it on Linux. POSTs
@@ -1057,7 +1050,7 @@ export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTM
         const install = buildInstallAllUsersControl({ reload: () => ctx.reload(), alert: tabAlert });
         installAllUsersButton = install.button;
         installAllUsersNote = install.note;
-        const installRow = buildRow('install for all users', install.button);
+        const installRow = buildRow(t('server.installAllRow'), install.button);
         setRowShown(installRow, false);
         installAllUsersRow = installRow;
         application.appendChild(buildItem(installRow, install.note));
@@ -1068,7 +1061,7 @@ export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTM
         const stopBtn = document.createElement('button');
         stopBtn.type = 'button';
         stopBtn.className = 'settings-btn settings-btn-primary';
-        stopBtn.textContent = 'stop server & exit';
+        stopBtn.textContent = t('server.stopExit');
         stopBtn.addEventListener('click', () => void onStopServerExit(stopBtn, ctx.askChild));
         stopServerButton = stopBtn;
 
@@ -1077,7 +1070,7 @@ export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTM
         stopNote.style.gridColumn = '1 / -1';
         stopNote.hidden = true;
         stopServerNote = stopNote;
-        application.appendChild(buildItem(buildRow('stop the server and close the app', stopBtn), stopNote));
+        application.appendChild(buildItem(buildRow(t('server.stopRow'), stopBtn), stopNote));
 
         // 5. uninstall ws-scrcpy-web (Linux + win32) — hidden until revealed.
         //    Always enabled when shown (uninstalling is how you remove a
@@ -1090,7 +1083,7 @@ export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTM
             askChild: ctx.askChild,
         });
         uninstallButton = uninstall.button;
-        const row = buildRow('uninstall ws-scrcpy-web', uninstall.button);
+        const row = buildRow(t('server.uninstallRow'), uninstall.button);
         setRowShown(row, false);
         uninstallRow = row;
         application.appendChild(buildItem(row));
@@ -1148,7 +1141,7 @@ export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTM
         if (!input) return false;
         const port = Number(input.value);
         if (!Number.isInteger(port) || port < 1024 || port > 65535) {
-            setServerStatus('port must be between 1024 and 65535', true);
+            setServerStatus(t('server.webPortRange'), true);
             return false;
         }
         // Compared with the https port as staged, so a pair of edits that swap
@@ -1171,7 +1164,7 @@ export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTM
         if (!input) return false;
         const port = Number(input.value);
         if (!Number.isInteger(port) || port < 1 || port > 65535) {
-            setHttpsStatus('port must be between 1 and 65535', true);
+            setHttpsStatus(t('server.httpsPortRange'), true);
             return false;
         }
         if (portsCollide(store.get(WEB_PORT_ID), port)) {
@@ -1304,7 +1297,7 @@ export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTM
         try {
             const r = await fetch('/api/config');
             if (!r.ok) {
-                setServerStatus("couldn't reach server", true);
+                setServerStatus(t('server.couldntReach'), true);
                 return;
             }
             const env = (await r.json()) as AppConfigEnvelope;
@@ -1317,7 +1310,7 @@ export function buildServerTab(ctx: TabContext, store: StagedSettingsStore): HTM
             // No at-rest hint: the status line below the http port row stays empty
             // unless the read itself fails.
         } catch {
-            setServerStatus("couldn't reach server", true);
+            setServerStatus(t('server.couldntReach'), true);
         }
     }
 

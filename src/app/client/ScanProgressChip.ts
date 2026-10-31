@@ -1,3 +1,4 @@
+import { t } from '../i18n';
 export type ChipState = 'scanning' | 'draining' | 'complete' | 'cancelled';
 
 export interface ScanProgressChipOptions {
@@ -27,14 +28,14 @@ export class ScanProgressChip {
         this.el.appendChild(this.label);
 
         this.cancelBtn = document.createElement('button');
-        this.cancelBtn.textContent = 'cancel';
+        this.cancelBtn.textContent = t('common.cancel');
         this.cancelBtn.className = 'btn btn-sm scan-progress-chip-cancel';
         this.cancelBtn.addEventListener('click', () => this.opts.onCancel());
         this.el.appendChild(this.cancelBtn);
 
         this.dismissBtn = document.createElement('button');
         this.dismissBtn.textContent = '×';
-        this.dismissBtn.setAttribute('aria-label', 'dismiss');
+        this.dismissBtn.setAttribute('aria-label', t('admin.dismissLower'));
         this.dismissBtn.className = 'btn btn-icon scan-progress-chip-dismiss';
         this.dismissBtn.addEventListener('click', () => this.dismiss());
         this.dismissBtn.hidden = true;
@@ -50,19 +51,19 @@ export class ScanProgressChip {
         if (this.state !== 'scanning') return;
         this.setState('scanning');
         const counter = total > 0 ? ` · ${checked} / ${total}` : '';
-        const found = foundSoFar > 0 ? ` · ${foundSoFar} found` : '';
-        this.label.textContent = `Scanning network${counter}${found}`;
+        const found = foundSoFar > 0 ? t('chip.found', { count: foundSoFar }) : '';
+        this.label.textContent = t('chip.scanning', { progress: counter + found });
     }
 
     setDraining(): void {
         this.setState('draining');
-        this.label.textContent = 'Finishing active scans…';
+        this.label.textContent = t('chip.draining');
         this.drainStartedAt = Date.now();
     }
 
     setComplete(found: number): void {
         this.setState('complete');
-        this.label.textContent = `Scan complete · ${found} device${found === 1 ? '' : 's'} found`;
+        this.label.textContent = t('chip.complete', { count: found });
         this.scheduleAutoHide(5000);
     }
 
@@ -79,7 +80,7 @@ export class ScanProgressChip {
 
     private applyCancelled(found: number): void {
         this.setState('cancelled');
-        this.label.textContent = `Scan canceled · ${found} device${found === 1 ? '' : 's'} found`;
+        this.label.textContent = t('chip.canceled', { count: found });
         this.scheduleAutoHide(10000);
     }
 

@@ -1,5 +1,6 @@
 import type { FirstRunStatus } from '../../common/ConfigEvents';
 import { OPERATOR_REFUSAL_ERROR } from '../../common/remoteAdmin';
+import { t } from '../i18n';
 import type { Role } from './AuthClient';
 
 // Settings areas that only an admin may see/use. Everything NOT listed here is
@@ -57,7 +58,7 @@ export function adminApiReachable(runtime: Pick<FirstRunStatus, 'adminScope' | '
  * when the server refuses its read: every one of those controls would only be
  * refused (0.5.5).
  */
-export const ADMIN_UNREACHABLE_NOTE = 'admin changes are limited to the machine running the server.';
+export const ADMIN_UNREACHABLE_NOTE = t('gate.unreachable');
 
 /**
  * Said in place of a tab's controls when the server refused its read because
@@ -65,7 +66,7 @@ export const ADMIN_UNREACHABLE_NOTE = 'admin changes are limited to the machine 
  * not normally shown to such a user at all: this is the role check that
  * failed open (`SettingsModal`), met by the server's own.
  */
-export const ADMIN_ONLY_NOTE = 'only an admin can change these settings.';
+export const ADMIN_ONLY_NOTE = t('gate.adminOnly');
 
 /** Which refusal a 403 was: see `adminRefusal`. */
 export type AdminRefusal = 'operator' | 'role';

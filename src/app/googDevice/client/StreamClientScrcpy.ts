@@ -12,6 +12,7 @@ import { CommandControlMessage } from '../../controlMessage/CommandControlMessag
 import { ControlMessage } from '../../controlMessage/ControlMessage';
 import type { KeyCodeControlMessage } from '../../controlMessage/KeyCodeControlMessage';
 import type { DisplayInfo } from '../../DisplayInfo';
+import { t } from '../../i18n';
 import {
     FeaturedInteractionHandler,
     type InteractionHandlerListener,
@@ -563,7 +564,7 @@ export class StreamClientScrcpy
         this.lockedNotice = document.createElement('div');
         this.lockedNotice.className = 'stream-locked-notice';
         this.lockedNotice.hidden = true;
-        this.lockedNotice.textContent = 'device is locked — unlock it to see the screen';
+        this.lockedNotice.textContent = t('stream.locked');
         // The prompt goes first: ws-scrcpy.css moves the notice out of its way
         // with a `prompt ~ notice` sibling rule, which only looks forward.
         video.appendChild(this.clipboardPrompt.element);

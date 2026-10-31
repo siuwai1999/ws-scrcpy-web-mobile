@@ -26,6 +26,7 @@ import type { Tool } from './client/Tool';
 import { createUpdateButton } from './client/UpdateButton';
 import { WelcomeModal } from './client/WelcomeModal';
 import { StreamClientScrcpy } from './googDevice/client/StreamClientScrcpy';
+import { applyStoredLanguage } from './i18n/boot';
 import { installThemeEmbedListener, notifyThemeReady } from './public/themeEmbed';
 import { onPageTeardown } from './util/onPageTeardown';
 import { installOnScreenConsole } from './util/onScreenConsole';
@@ -255,6 +256,7 @@ window.onload = async (): Promise<void> => {
     // synchronous OS first paint at module-eval, and the .catch keeps a boot-time
     // /api/settings failure from rejecting onload.
     await applyStoredTheme().catch((e) => console.error('[boot] applyStoredTheme failed', e));
+    await applyStoredLanguage().catch((e) => console.error('[boot] applyStoredLanguage failed', e));
 
     // WebCodecs player must be registered so ConnectModal can find it
     const { WebCodecsPlayer } = await import('./player/WebCodecsPlayer');

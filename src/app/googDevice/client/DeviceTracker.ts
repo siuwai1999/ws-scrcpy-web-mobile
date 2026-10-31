@@ -10,6 +10,7 @@ import { AudioSettingsStore } from '../../client/AudioSettingsStore';
 import { BaseDeviceTracker } from '../../client/BaseDeviceTracker';
 import { settingsService } from '../../client/SettingsService';
 import type { Tool } from '../../client/Tool';
+import { t } from '../../i18n';
 import { insecureOriginNotice } from '../../secureContext';
 import Util from '../../Util';
 import { html } from '../../ui/HtmlTag';
@@ -49,12 +50,12 @@ function shellReasonTooltip(reason?: string): string {
     switch (reason) {
         case 'no-seed-package':
         case 'seed-stage-failed':
-            return 'shell unavailable — node-pty seed not staged. reinstall the app or check server logs.';
+            return t('device.shellUnavailable.seed');
         case 'download-failed':
         case 'load-failed-after-download':
-            return 'shell unavailable — no node-pty prebuilt matches your Node version. update Node in the dependencies panel or wait for the next prebuild release.';
+            return t('device.shellUnavailable.prebuilt');
         default:
-            return 'shell unavailable. see server logs for details.';
+            return t('device.shellUnavailable.default');
     }
 }
 
@@ -191,11 +192,11 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
         const isNetworkDevice = device.udid.includes(':');
         const row = html`<div class="device ${isActive ? 'active' : 'not-active'}">
             <table class="device-info">
-                <tr class="device-name-row"><td class="device-label">Device Name:</td><td></td></tr>
-                <tr><td class="device-label">Model:</td><td>${deviceName}</td></tr>
-                <tr><td class="device-label">Device ID:</td><td class="device-serial">${device.udid}</td></tr>
-                <tr><td class="device-label">Android:</td><td>${(device['ro.build.version.release'] || '').split('.')[0]}</td></tr>
-                <tr><td class="device-label">SDK:</td><td>${device['ro.build.version.sdk']}</td></tr>
+                <tr class="device-name-row"><td class="device-label">${t('device.name')}</td><td></td></tr>
+                <tr><td class="device-label">${t('device.model')}</td><td>${deviceName}</td></tr>
+                <tr><td class="device-label">${t('device.id')}</td><td class="device-serial">${device.udid}</td></tr>
+                <tr><td class="device-label">${t('device.android')}</td><td>${(device['ro.build.version.release'] || '').split('.')[0]}</td></tr>
+                <tr><td class="device-label">${t('device.sdk')}</td><td>${device['ro.build.version.sdk']}</td></tr>
             </table>
             <div id="${overlayId}" class="services"></div>
             <div class="device-actions"></div>
@@ -236,7 +237,7 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
             if (isNetworkDevice) {
                 const disconnectBtn = document.createElement('button');
                 disconnectBtn.className = 'disconnect-btn';
-                disconnectBtn.textContent = 'disconnect';
+                disconnectBtn.textContent = t('device.disconnect');
                 disconnectBtn.addEventListener('click', async () => {
                     disconnectBtn.disabled = true;
                     try {
@@ -263,12 +264,12 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
 
             if (screenState === 'unknown') {
                 sleepBtn.className = 'sleep-wake-btn state-unknown';
-                sleepBtn.textContent = 'checking...';
+                sleepBtn.textContent = t('device.checking');
                 sleepBtn.disabled = true;
             } else {
                 const isAwake = screenState === 'awake';
                 sleepBtn.className = `sleep-wake-btn ${isAwake ? 'state-on' : 'state-off'}`;
-                sleepBtn.textContent = isAwake ? 'turn off' : 'turn on';
+                sleepBtn.textContent = isAwake ? t('device.turnOff') : t('device.turnOn');
                 sleepBtn.dataset['awake'] = String(isAwake);
             }
 
@@ -288,11 +289,11 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
                     });
                     const result = await res.json();
                     sleepBtn.dataset['awake'] = String(result.awake);
-                    sleepBtn.textContent = result.awake ? 'turn off' : 'turn on';
+                    sleepBtn.textContent = result.awake ? t('device.turnOff') : t('device.turnOn');
                     sleepBtn.className = `sleep-wake-btn ${result.awake ? 'state-on' : 'state-off'}`;
                 } catch {
                     sleepBtn.dataset['awake'] = String(isAwake);
-                    sleepBtn.textContent = isAwake ? 'turn off' : 'turn on';
+                    sleepBtn.textContent = isAwake ? t('device.turnOff') : t('device.turnOn');
                     sleepBtn.className = `sleep-wake-btn ${isAwake ? 'state-on' : 'state-off'}`;
                 }
             });
@@ -488,8 +489,8 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
         if (shell) secondary.appendChild(shell);
         if (files) secondary.appendChild(files);
         if (disconnect) {
-            disconnect.setAttribute('aria-label', 'Disconnect device');
-            disconnect.setAttribute('title', 'Disconnect device');
+            disconnect.setAttribute('aria-label', t('device.disconnectDevice'));
+            disconnect.setAttribute('title', t('device.disconnectDevice'));
             secondary.appendChild(disconnect);
         }
         if (config) {
@@ -545,14 +546,14 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
 
             const span = document.createElement('span');
             span.className = label ? 'device-name-text' : 'device-name-text unnamed';
-            span.textContent = label || 'Unnamed Device';
+            span.textContent = label || t('device.unnamed');
             cell.appendChild(span);
 
             const pencilBtn = document.createElement('button');
             pencilBtn.className = 'device-name-edit-btn';
             pencilBtn.innerHTML =
                 '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.85 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>';
-            pencilBtn.title = 'Edit device name';
+            pencilBtn.title = t('device.editName');
             pencilBtn.addEventListener('click', () => renderEdit(label));
             cell.appendChild(pencilBtn);
         };
@@ -564,14 +565,14 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
             input.type = 'text';
             input.className = 'device-name-input';
             input.value = currentLabel;
-            input.placeholder = 'Name this device...';
+            input.placeholder = t('device.namePlaceholder');
             cell.appendChild(input);
 
             const saveBtn = document.createElement('button');
             saveBtn.className = 'device-name-edit-btn';
             saveBtn.innerHTML =
                 '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
-            saveBtn.title = 'Save';
+            saveBtn.title = t('common.save');
             const save = async () => {
                 const newLabel = input.value.trim();
                 if (serial) {

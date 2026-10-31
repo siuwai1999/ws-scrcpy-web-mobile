@@ -1,5 +1,6 @@
 import type { UpdateChannel } from '../../../../common/ConfigEvents';
 import type { UpdatesStatusResponse } from '../../../../common/UpdateEvents';
+import { t } from '../../../i18n';
 import { type AdminRefusal, adminRefusal } from '../../adminGate';
 import { reasonToUserMessage } from '../../serviceFailureMessage';
 import { runUpgradingHandoff } from '../../UpgradingOverlay';
@@ -70,19 +71,19 @@ interface UpdatesBaseline {
  * refused for an id the server does not allow.
  */
 function registerUpdatesFields(store: StagedSettingsStore, initial: UpdatesBaseline): void {
-    store.register({ id: CHANNEL_ID, label: 'Update channel', initial: initial.channel });
+    store.register({ id: CHANNEL_ID, label: t('upd.channel'), initial: initial.channel });
     store.register({
         id: AUTO_UPDATE_ID,
-        label: 'Automatic updates',
+        label: t('upd.auto'),
         initial: initial.autoUpdate,
-        format: (v) => (v ? 'on' : 'off'),
+        format: (v) => (v ? t('common.on') : t('common.off')),
     });
     store.register({
         id: INTERVAL_ID,
-        label: 'Check interval (minutes)',
+        label: t('upd.intervalLabel'),
         initial: initial.updateCheckIntervalMinutes,
     });
-    store.register({ id: OWNER_ID, label: 'GitHub owner', initial: initial.githubOwner });
+    store.register({ id: OWNER_ID, label: t('upd.owner'), initial: initial.githubOwner });
 }
 
 /**
@@ -121,14 +122,14 @@ const refreshers = new WeakMap<HTMLElement, () => Promise<void>>();
  */
 export function buildUpdatesTab(ctx: TabContext, store: StagedSettingsStore): HTMLElement {
     // `body` is the tab's card: everything below renders into it, one item per setting.
-    const { section, card: body } = buildSection('Updates');
+    const { section, card: body } = buildSection(t('settings.tab.updates'));
     // The tab's one status line. Built now, but below the card all the same:
     // `body` is the section's only card, and only its contents are redrawn.
     const tabAlert = buildTabAlert(section);
     const placeholder = document.createElement('p');
     placeholder.className = 'settings-status';
     placeholder.style.gridColumn = '1 / -1';
-    placeholder.textContent = 'loading…';
+    placeholder.textContent = t('common.loading');
     body.appendChild(buildItem(placeholder));
 
     // Registered with null baselines because the real values are not knowable
@@ -200,7 +201,7 @@ export function buildUpdatesTab(ctx: TabContext, store: StagedSettingsStore): HT
         const retryBtn = document.createElement('button');
         retryBtn.type = 'button';
         retryBtn.className = 'settings-btn';
-        retryBtn.textContent = 'retry';
+        retryBtn.textContent = t('update.retry');
         retryBtn.addEventListener('click', () => {
             void runRefresh();
         });
@@ -231,8 +232,8 @@ export function buildUpdatesTab(ctx: TabContext, store: StagedSettingsStore): HT
             const devNote = document.createElement('p');
             devNote.className = 'settings-stub-note';
             devNote.style.gridColumn = '1 / -1';
-            const versionStr = s.currentVersion ? `current: v${s.currentVersion} — ` : '';
-            devNote.textContent = `${versionStr}dev mode — packaging features disabled`;
+            const versionStr = s.currentVersion ? t('upd.current', { version: s.currentVersion }) : '';
+            devNote.textContent = t('upd.devMode', { version: versionStr });
             body.appendChild(buildItem(devNote));
             return;
         }
@@ -244,7 +245,7 @@ export function buildUpdatesTab(ctx: TabContext, store: StagedSettingsStore): HT
         auto.addEventListener('change', () => {
             store.set(AUTO_UPDATE_ID, auto.checked);
         });
-        body.appendChild(buildItem(buildRow('automatically download updates', auto)));
+        body.appendChild(buildItem(buildRow(t('upd.autoRow'), auto)));
 
         // Row 2: check interval. STAGED, behind the range guard below.
         const interval = document.createElement('input');
@@ -272,7 +273,7 @@ export function buildUpdatesTab(ctx: TabContext, store: StagedSettingsStore): HT
         });
         const intervalNote = buildFieldNote();
         intervalNote.setAttribute('data-updates-interval-note', '');
-        body.appendChild(buildItem(buildRow('check interval (minutes)', interval), intervalNote));
+        body.appendChild(buildItem(buildRow(t('upd.intervalRow'), interval), intervalNote));
 
         // Row 3: channel radios. STAGED.
         const channelFrag = document.createDocumentFragment();
@@ -289,7 +290,7 @@ export function buildUpdatesTab(ctx: TabContext, store: StagedSettingsStore): HT
             }
         });
         stableLabel.appendChild(stableRadio);
-        stableLabel.appendChild(document.createTextNode('stable'));
+        stableLabel.appendChild(document.createTextNode(t('upd.stable')));
         channelFrag.appendChild(stableLabel);
 
         const betaLabel = document.createElement('label');
@@ -305,10 +306,10 @@ export function buildUpdatesTab(ctx: TabContext, store: StagedSettingsStore): HT
             }
         });
         betaLabel.appendChild(betaRadio);
-        betaLabel.appendChild(document.createTextNode('beta'));
+        betaLabel.appendChild(document.createTextNode(t('upd.beta')));
         channelFrag.appendChild(betaLabel);
 
-        body.appendChild(buildItem(buildRow('update channel', channelFrag)));
+        body.appendChild(buildItem(buildRow(t('upd.channelRow'), channelFrag)));
 
         // Row 4: github owner. STAGED, behind the non-empty guard below.
         const owner = document.createElement('input');
@@ -320,7 +321,7 @@ export function buildUpdatesTab(ctx: TabContext, store: StagedSettingsStore): HT
         });
         const ownerNote = buildFieldNote();
         ownerNote.setAttribute('data-updates-owner-note', '');
-        body.appendChild(buildItem(buildRow('github owner', owner), ownerNote));
+        body.appendChild(buildItem(buildRow(t('upd.ownerRow'), owner), ownerNote));
 
         // Action row: label = live status text (idle: "up to date (vX)", ready:
         // "vX ready to apply", checking/downloading: progress, error: failure
@@ -334,7 +335,7 @@ export function buildUpdatesTab(ctx: TabContext, store: StagedSettingsStore): HT
         const action = document.createElement('button');
         action.type = 'button';
         action.className = 'settings-btn settings-btn-primary';
-        action.textContent = 'check for updates now';
+        action.textContent = t('upd.checkNow');
         action.addEventListener('click', () => {
             if (lastStatus && lastStatus.status === 'ready') {
                 void onApplyClick(action);
@@ -360,28 +361,28 @@ export function buildUpdatesTab(ctx: TabContext, store: StagedSettingsStore): HT
         let isReady = false;
         switch (s.status) {
             case 'idle':
-                text = `up to date: v${s.currentVersion}`;
+                text = t('upd.upToDate', { version: s.currentVersion });
                 break;
             case 'checking':
-                text = 'checking for updates…';
+                text = t('update.checkingTitle');
                 break;
             case 'downloading': {
                 const pct = typeof s.progress === 'number' ? Math.round(s.progress) : 0;
-                text = `downloading v${s.availableVersion ?? '?'} — ${pct}%`;
+                text = t('upd.downloadingVersion', { version: s.availableVersion ?? '?', pct });
                 break;
             }
             case 'ready':
                 if (s.lastApplyError !== undefined) {
                     // The last install of this update failed; the button retries it.
-                    text = `apply failed: ${s.lastApplyError}`;
+                    text = t('upd.applyFailed', { reason: s.lastApplyError });
                     isError = true;
                 } else {
-                    text = `update: v${s.availableVersion ?? '?'}`;
+                    text = t('upd.available', { version: s.availableVersion ?? '?' });
                     isReady = true;
                 }
                 break;
             case 'error':
-                text = `check failed: ${s.errorMessage ?? 'unknown error'}`;
+                text = t('upd.checkFailed', { reason: s.errorMessage ?? t('common.unknownError') });
                 isError = true;
                 break;
             default:
@@ -414,11 +415,13 @@ export function buildUpdatesTab(ctx: TabContext, store: StagedSettingsStore): HT
         const busy = s.status === 'checking' || s.status === 'downloading';
         btn.disabled = busy || run !== null || restarting;
         if (s.status === 'ready') {
-            btn.textContent = s.availableVersion ? `apply v${s.availableVersion}` : 'apply update';
+            btn.textContent = s.availableVersion
+                ? t('upd.applyVersion', { version: s.availableVersion })
+                : t('update.apply');
             btn.classList.remove('settings-btn-primary');
             btn.classList.add('settings-btn-ready');
         } else {
-            btn.textContent = 'check for updates now';
+            btn.textContent = t('upd.checkNow');
             btn.classList.remove('settings-btn-ready');
             btn.classList.add('settings-btn-primary');
         }
@@ -464,7 +467,7 @@ export function buildUpdatesTab(ctx: TabContext, store: StagedSettingsStore): HT
         if (!Number.isInteger(n) || n < INTERVAL_MIN || n > INTERVAL_MAX) {
             // Refuse the stage: whatever was last staged stands, and the message
             // stays up until a valid interval replaces it.
-            setFieldNote(note, `interval must be between ${INTERVAL_MIN} and ${INTERVAL_MAX} minutes`);
+            setFieldNote(note, t('upd.intervalRange', { min: INTERVAL_MIN, max: INTERVAL_MAX }));
             return;
         }
         // Clear the refusal before staging, the way ServerTab's guard clears its
@@ -504,7 +507,7 @@ export function buildUpdatesTab(ctx: TabContext, store: StagedSettingsStore): HT
     function commitOwnerChange(input: HTMLInputElement, note: HTMLElement): void {
         const next = input.value.trim();
         if (next.length === 0) {
-            setFieldNote(note, 'github owner cannot be empty');
+            setFieldNote(note, t('upd.ownerEmpty'));
             return;
         }
         // Clear the refusal message before staging, for the reason spelled out
@@ -537,8 +540,8 @@ export function buildUpdatesTab(ctx: TabContext, store: StagedSettingsStore): HT
         const me: ApplyRun = { btn, prevText: btn.textContent, timer: undefined, lost: null };
         run = me;
         btn.disabled = true;
-        btn.textContent = 'applying…';
-        showApplyLine('installing update…');
+        btn.textContent = t('update.applying');
+        showApplyLine(t('update.installing'));
         void readApplyStatus(me);
         me.timer = window.setInterval(() => {
             void readApplyStatus(me);
@@ -558,7 +561,7 @@ export function buildUpdatesTab(ctx: TabContext, store: StagedSettingsStore): HT
         }
         const failure = await classifyFailedApply(r);
         if (failure.kind === 'lost') {
-            followLostApply(me, `apply failed (${r.status})`);
+            followLostApply(me, t('upd.applyFailedStatus', { status: r.status }));
             return;
         }
         if (failure.kind === 'declined') {
@@ -571,7 +574,12 @@ export function buildUpdatesTab(ctx: TabContext, store: StagedSettingsStore): HT
             tabAlert.show('error', reasonToUserMessage('uac-declined', ''));
             return;
         }
-        failApply(me, failure.reason !== undefined ? `apply failed: ${failure.reason}` : `apply failed (${r.status})`);
+        failApply(
+            me,
+            failure.reason !== undefined
+                ? t('upd.applyFailed', { reason: failure.reason })
+                : t('upd.applyFailedStatus', { status: r.status }),
+        );
     }
 
     function showApplyLine(text: string): void {
@@ -582,7 +590,7 @@ export function buildUpdatesTab(ctx: TabContext, store: StagedSettingsStore): HT
 
     function downloadingLine(progress: number | undefined): string {
         const pct = typeof progress === 'number' ? Math.max(0, Math.min(100, Math.round(progress))) : 0;
-        return `downloading update… ${pct}%`;
+        return t('update.downloading', { pct });
     }
 
     /** One status read for the apply in flight. */
@@ -612,10 +620,10 @@ export function buildUpdatesTab(ctx: TabContext, store: StagedSettingsStore): HT
                 showApplyLine(downloadingLine(view.progress));
                 return;
             case 'installing':
-                showApplyLine('installing update…');
+                showApplyLine(t('update.installing'));
                 return;
             case 'failed':
-                failApply(me, `apply failed: ${view.reason}`);
+                failApply(me, t('upd.applyFailed', { reason: view.reason }));
                 return;
             default:
                 // 'gave-up' or 'ended': it did not happen.
@@ -630,7 +638,7 @@ export function buildUpdatesTab(ctx: TabContext, store: StagedSettingsStore): HT
      * leaves the apply's own answer ("apply failed (504)").
      */
     function lostApplyEndLine(s: UpdatesStatusResponse, fallback: string): string {
-        if (s.lastApplyError) return `apply failed: ${s.lastApplyError}`;
+        if (s.lastApplyError) return t('upd.applyFailed', { reason: s.lastApplyError });
         if (s.status === 'error' && s.errorMessage) return `apply failed: ${s.errorMessage}`;
         return fallback;
     }
@@ -714,8 +722,8 @@ export function buildUpdatesTab(ctx: TabContext, store: StagedSettingsStore): HT
         // a page reload after a 5s grace period. The reload will fail until
         // Velopack finishes the swap and relaunches the server; that's
         // expected — leave the message visible.
-        showApplyLine('server restarting to apply update — page will reload…');
-        if (me) me.btn.textContent = 'restarting…';
+        showApplyLine(t('upd.serverRestarting'));
+        if (me) me.btn.textContent = t('update.restarting');
         window.setTimeout(() => {
             try {
                 ctx.reload();
@@ -729,9 +737,9 @@ export function buildUpdatesTab(ctx: TabContext, store: StagedSettingsStore): HT
         if (!actionBtn) return;
         const btn = actionBtn;
         btn.disabled = true;
-        btn.textContent = 'checking…';
+        btn.textContent = t('update.checking');
         if (statusEl) {
-            statusEl.textContent = 'checking for updates…';
+            statusEl.textContent = t('update.checkingTitle');
             statusEl.classList.remove('settings-status-error');
         }
         // §25b using-declaration replaces the prior try/finally. The dispose
@@ -758,8 +766,8 @@ export function buildUpdatesTab(ctx: TabContext, store: StagedSettingsStore): HT
                 // The label goes back to the state it showed; the failure is
                 // the click's result, so it goes on the tab's line.
                 if (lastStatus) applyStatusText(lastStatus);
-                tabAlert.show('error', `check failed (${r.status})`);
-                btn.textContent = 'check for updates now';
+                tabAlert.show('error', t('upd.checkFailedStatus', { status: r.status }));
+                btn.textContent = t('upd.checkNow');
                 return;
             }
             const s = (await r.json()) as UpdatesStatusResponse;
@@ -777,7 +785,7 @@ export function buildUpdatesTab(ctx: TabContext, store: StagedSettingsStore): HT
         } catch {
             if (lastStatus) applyStatusText(lastStatus);
             tabAlert.show('error', "couldn't reach server");
-            btn.textContent = 'check for updates now';
+            btn.textContent = t('upd.checkNow');
         }
     }
 

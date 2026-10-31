@@ -1,4 +1,5 @@
 import type { UpdatesStatusResponse } from '../../common/UpdateEvents';
+import { t } from '../i18n';
 import { onAdminAccessLost } from './adminAccess';
 import { reasonToUserMessage } from './serviceFailureMessage';
 import { runUpgradingHandoff } from './UpgradingOverlay';
@@ -62,7 +63,7 @@ export function createUpdateButton(): HTMLElement {
     let stopped = false;
 
     function installFailedNote(reason: string): string {
-        return `install failed: ${reason} — click to retry`;
+        return t('update.installFailedRetry', { reason });
     }
 
     function clearTimer(): void {
@@ -96,7 +97,7 @@ export function createUpdateButton(): HTMLElement {
         container.replaceChildren();
         setState('state-checking');
         container.style.display = 'flex';
-        container.title = 'checking for updates…';
+        container.title = t('update.checkingTitle');
 
         const spinner = document.createElement('span');
         spinner.className = 'update-button-spinner';
@@ -105,7 +106,7 @@ export function createUpdateButton(): HTMLElement {
 
         const label = document.createElement('span');
         label.className = 'update-button-label';
-        label.textContent = 'checking…';
+        label.textContent = t('update.checking');
         container.appendChild(label);
     }
 
@@ -113,12 +114,12 @@ export function createUpdateButton(): HTMLElement {
         container.replaceChildren();
         setState('state-downloading');
         container.style.display = 'flex';
-        container.title = 'downloading update';
+        container.title = t('update.downloadingTitle');
 
         const label = document.createElement('span');
         label.className = 'update-button-label';
         const pct = typeof progress === 'number' ? Math.max(0, Math.min(100, Math.round(progress))) : 0;
-        label.textContent = `downloading update… ${pct}%`;
+        label.textContent = t('update.downloading', { pct });
         container.appendChild(label);
     }
 
@@ -127,11 +128,11 @@ export function createUpdateButton(): HTMLElement {
         container.replaceChildren();
         setState('state-downloading');
         container.style.display = 'flex';
-        container.title = 'installing update';
+        container.title = t('update.installingTitle');
 
         const label = document.createElement('span');
         label.className = 'update-button-label';
-        label.textContent = 'installing update…';
+        label.textContent = t('update.installing');
         container.appendChild(label);
     }
 
@@ -140,7 +141,7 @@ export function createUpdateButton(): HTMLElement {
         setState('state-ready');
         container.style.display = 'flex';
         // Not "downloaded": with automatic download off, the click downloads it first.
-        container.title = note ?? 'click to install update';
+        container.title = note ?? t('update.clickToInstall');
 
         if (note) {
             const label = document.createElement('span');
@@ -153,7 +154,9 @@ export function createUpdateButton(): HTMLElement {
         btn.type = 'button';
         btn.className = 'update-button-action';
         // textContent is the safe path for the dynamic version string.
-        btn.textContent = availableVersion ? `apply update v${availableVersion}` : 'apply update';
+        btn.textContent = availableVersion
+            ? t('update.applyVersion', { version: availableVersion })
+            : t('update.apply');
         btn.addEventListener('click', () => {
             void onApplyClick(btn);
         });
@@ -172,21 +175,22 @@ export function createUpdateButton(): HTMLElement {
         setState('state-error');
         container.style.display = 'flex';
         if (applyError !== undefined) {
-            container.title = `install failed: ${applyError} — retry checks for the update again`;
+            container.title = t('update.installFailedCheckAgain', { reason: applyError });
         } else {
-            container.title = message ? `update check failed: ${message}` : 'update check failed';
+            container.title = message ? t('update.checkFailedWith', { message }) : t('update.checkFailed');
         }
 
         const caption = document.createElement('span');
         caption.className = 'update-button-label';
-        caption.textContent = applyError !== undefined ? `install failed: ${applyError}` : 'update check failed';
+        caption.textContent =
+            applyError !== undefined ? t('update.installFailed', { reason: applyError }) : t('update.checkFailed');
         container.appendChild(caption);
 
         const retryBtn = document.createElement('button');
         retryBtn.type = 'button';
         retryBtn.className = 'update-button-retry';
-        retryBtn.title = 'check for updates again';
-        retryBtn.textContent = 'retry';
+        retryBtn.title = t('update.checkAgain');
+        retryBtn.textContent = t('update.retry');
         retryBtn.addEventListener('click', () => {
             void onRetryClick(retryBtn);
         });
@@ -197,11 +201,11 @@ export function createUpdateButton(): HTMLElement {
         container.replaceChildren();
         setState('state-ready');
         container.style.display = 'flex';
-        container.title = 'server is restarting to apply the update';
+        container.title = t('update.restartingTitle');
 
         const label = document.createElement('span');
         label.className = 'update-button-label';
-        label.textContent = 'restarting…';
+        label.textContent = t('update.restarting');
         container.appendChild(label);
     }
 
@@ -391,7 +395,7 @@ export function createUpdateButton(): HTMLElement {
         applyInFlight = true;
         epoch++;
         btn.disabled = true;
-        btn.textContent = 'applying…';
+        btn.textContent = t('update.applying');
         // On Windows the request stays open while the server downloads the
         // update: read the status now and every 2 s, so the progress shows.
         scheduleTimer(FAST_POLL_MS);

@@ -5,6 +5,7 @@ import {
     FRAME_ANCESTORS_ADD_ID,
     isEmbedderScheme,
 } from '../../../../common/embedderOrigin';
+import { t } from '../../../i18n';
 import type { Role } from '../../AuthClient';
 import { refusalFromBody } from '../../adminGate';
 import { ConfirmModal } from '../../ConfirmModal';
@@ -67,11 +68,10 @@ export type AskChild = <T>(ask: () => Promise<T>, unanswered: T) => Promise<T>;
 export const askUnbound: AskChild = (ask) => ask();
 
 /** The staged field's summary label: `Allowed embedders: none added → add http://…`. */
-export const EMBED_ADD_LABEL = 'Allowed embedders';
+export const EMBED_ADD_LABEL = t('embed.allowed');
 
 /** Under the add row while `http & https` is chosen, whose port box is then disabled. */
-export const EMBED_BOTH_SCHEMES_NOTE =
-    'uses 80 for http and 443 for https; for other ports, add each scheme separately.';
+export const EMBED_BOTH_SCHEMES_NOTE = t('embed.bothNote');
 
 /**
  * Under the add row, always: an https page cannot frame this app over http
@@ -80,17 +80,11 @@ export const EMBED_BOTH_SCHEMES_NOTE =
  * sentence names the way to get there, which differs in a container, where
  * Local HTTPS is not supported (`embedHttpsNote`).
  */
-const EMBED_HTTPS_NOTE_LEAD =
-    'an https page can only embed this app when this app is served over https too; browsers block an http frame inside an https page. ';
+const EMBED_HTTPS_NOTE_LEAD = t('embed.httpsLead');
 
 /** The https note for a host install, or for a container (`container`), where only a reverse proxy can serve https. */
 export function embedHttpsNote(container: boolean): string {
-    return (
-        EMBED_HTTPS_NOTE_LEAD +
-        (container
-            ? 'serve this app over https from your reverse proxy first.'
-            : 'set up local https or a reverse proxy first.')
-    );
+    return EMBED_HTTPS_NOTE_LEAD + (container ? t('embed.httpsProxy') : t('embed.httpsLocal'));
 }
 
 /**
@@ -143,7 +137,9 @@ const NONE_PENDING: readonly string[] = Object.freeze([]);
 
 /** Summary text for the staged additions. */
 export function formatEmbedAdditions(value: unknown): string {
-    return Array.isArray(value) && value.length > 0 ? `add ${value.join(', ')}` : 'none added';
+    return Array.isArray(value) && value.length > 0
+        ? t('embed.addList', { list: value.join(', ') })
+        : t('embed.noneAdded');
 }
 
 function registerEmbedAddField(store: StagedSettingsStore): void {
@@ -209,7 +205,7 @@ interface EmbeddingView {
  *   dialog's ordinary unsaved-changes prompt.
  */
 export function buildEmbeddingTab(ctx: TabContext, store: StagedSettingsStore): HTMLElement {
-    const { section, card } = buildSection('Embedding');
+    const { section, card } = buildSection(t('settings.tab.embedding'));
     registerEmbedAddField(store);
 
     // One item for the whole list, as the add row below is another: the
@@ -281,14 +277,14 @@ async function refreshEmbedOrigins(view: EmbeddingView): Promise<void> {
             // and that reads as the failure below.
             view.heldBack = true;
         } else if (!res.ok) {
-            view.error = 'could not read the list — see server logs.';
+            view.error = t('embed.readFailed');
         } else {
             const data = (await res.json()) as { origins?: string[] };
             view.approved = data.origins ?? [];
             view.error = null;
         }
     } catch {
-        view.error = 'could not reach the server.';
+        view.error = t('embed.unreachable');
     }
     renderEmbedOrigins(view);
 }
@@ -323,10 +319,10 @@ function renderEmbedOrigins(view: EmbeddingView): void {
     if (view.error) {
         list.appendChild(buildRow(view.error, null));
     } else if (view.approved === null) {
-        list.appendChild(buildRow('loading…', null));
+        list.appendChild(buildRow(t('common.loading'), null));
         return;
     } else if (view.approved.length === 0 && pending.length === 0) {
-        list.appendChild(buildRow('No other origins may embed this app.', null));
+        list.appendChild(buildRow(t('embed.none'), null));
         return;
     } else {
         approved = view.approved;
@@ -336,7 +332,7 @@ function renderEmbedOrigins(view: EmbeddingView): void {
         const revokeBtn = document.createElement('button');
         revokeBtn.type = 'button';
         revokeBtn.className = 'modal-button';
-        revokeBtn.textContent = 'revoke';
+        revokeBtn.textContent = t('embed.revoke');
         revokeBtn.addEventListener('click', () => {
             void (async () => {
                 // Confirm first: revoking silently breaks a working embed in the other app,
@@ -345,11 +341,8 @@ function renderEmbedOrigins(view: EmbeddingView): void {
                 const sure = await askChild(
                     () =>
                         ConfirmModal.confirm({
-                            title: 'revoke embedding permission?',
-                            message:
-                                `${origin} will no longer be able to display this app in a frame. ` +
-                                'Anything it is currently showing will stop working immediately. ' +
-                                'It can ask again.',
+                            title: t('embed.revokeTitle'),
+                            message: t('embed.revokeMessage', { origin }),
                         }),
                     false,
                 );
@@ -374,7 +367,7 @@ function renderEmbedOrigins(view: EmbeddingView): void {
                 } catch {
                     // An action's result, so on the tab's line; the list is
                     // drawn again as it was, which also gives the button back.
-                    view.alert.show('error', 'could not reach the server.');
+                    view.alert.show('error', t('embed.unreachable'));
                     renderEmbedOrigins(view);
                 }
             })();
@@ -388,8 +381,8 @@ function renderEmbedOrigins(view: EmbeddingView): void {
         const removeBtn = document.createElement('button');
         removeBtn.type = 'button';
         removeBtn.className = 'modal-button';
-        removeBtn.textContent = 'remove';
-        removeBtn.setAttribute('aria-label', `remove ${origin} before saving`);
+        removeBtn.textContent = t('embed.remove');
+        removeBtn.setAttribute('aria-label', t('embed.removeAria', { origin }));
         removeBtn.addEventListener('click', () => {
             const rest = pendingEmbedOrigins(store).filter((o) => o !== origin);
             // Back to the baseline instance itself when nothing is left, so the
@@ -401,7 +394,7 @@ function renderEmbedOrigins(view: EmbeddingView): void {
         row.setAttribute('data-embed-pending', origin);
         const tag = document.createElement('span');
         tag.className = 'settings-pending-tag';
-        tag.textContent = 'pending — saved when you click save';
+        tag.textContent = t('embed.pending');
         row.querySelector('.settings-label')?.appendChild(tag);
         list.appendChild(row);
     }
@@ -440,8 +433,8 @@ function buildAddRow(view: EmbeddingView): HTMLElement {
     const address = document.createElement('input');
     address.type = 'text';
     address.className = 'settings-input';
-    address.placeholder = 'ip address or hostname';
-    address.setAttribute('aria-label', 'embedder address');
+    address.placeholder = t('embed.addressPlaceholder');
+    address.setAttribute('aria-label', t('embed.addressAria'));
     address.setAttribute('data-embed-address', '');
     address.autocomplete = 'off';
     address.spellcheck = false;
@@ -465,7 +458,7 @@ function buildAddRow(view: EmbeddingView): HTMLElement {
     port.style.maxWidth = '80px';
     port.style.flexShrink = '0';
     port.placeholder = '80';
-    port.setAttribute('aria-label', 'embedder port');
+    port.setAttribute('aria-label', t('embed.portAria'));
     port.setAttribute('data-embed-port', '');
     port.autocomplete = 'off';
 
@@ -477,9 +470,9 @@ function buildAddRow(view: EmbeddingView): HTMLElement {
     scheme.style.width = 'auto';
     scheme.style.maxWidth = 'none';
     scheme.style.flexShrink = '0';
-    scheme.setAttribute('aria-label', 'embedder scheme');
+    scheme.setAttribute('aria-label', t('embed.schemeAria'));
     scheme.setAttribute('data-embed-scheme', '');
-    const schemeText: Record<EmbedderScheme, string> = { http: 'http', https: 'https', both: 'http & https' };
+    const schemeText: Record<EmbedderScheme, string> = { http: 'http', https: 'https', both: t('embed.bothSchemes') };
     for (const value of EMBEDDER_SCHEMES) {
         const opt = document.createElement('option');
         opt.value = value;
@@ -491,14 +484,14 @@ function buildAddRow(view: EmbeddingView): HTMLElement {
     const addBtn = document.createElement('button');
     addBtn.type = 'button';
     addBtn.className = 'modal-button';
-    addBtn.textContent = 'add';
+    addBtn.textContent = t('embed.add');
     addBtn.setAttribute('data-embed-add-button', '');
     addBtn.disabled = true;
     addBtn.style.flexShrink = '0';
 
     const controls = document.createDocumentFragment();
     controls.append(address, port, scheme, addBtn);
-    const addRow = buildRow('add an embedder', controls);
+    const addRow = buildRow(t('embed.addRow'), controls);
     // Only on a genuinely narrow dialog, where even the address box at its
     // 9rem minimum does not fit, do the controls wrap onto a second line
     // rather than overflow.
@@ -589,7 +582,7 @@ function buildAddRow(view: EmbeddingView): HTMLElement {
         const fresh = result.origins.filter((o) => !approved.includes(o) && !pending.includes(o));
         const skipped = result.origins.filter((o) => !fresh.includes(o));
         const describe = (o: string): string =>
-            approved.includes(o) ? `${o} is already allowed` : `${o} is already waiting to be saved`;
+            approved.includes(o) ? t('embed.alreadyAllowed', { origin: o }) : t('embed.alreadyPending', { origin: o });
 
         if (fresh.length === 0) {
             // Nothing new: refuse, keep what was typed so it can be corrected.
@@ -602,7 +595,12 @@ function buildAddRow(view: EmbeddingView): HTMLElement {
         addBtn.disabled = true;
         address.setAttribute('aria-invalid', 'false');
         port.setAttribute('aria-invalid', 'false');
-        say(skipped.length > 0 ? `${skipped.map(describe).join('; ')}; added ${fresh.join(', ')}.` : '', false);
+        say(
+            skipped.length > 0
+                ? t('embed.skippedAdded', { skipped: skipped.map(describe).join('; '), added: fresh.join(', ') })
+                : '',
+            false,
+        );
     };
     addBtn.addEventListener('click', add);
     // Enter in either box adds, like a one-line form.

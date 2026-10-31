@@ -1,5 +1,6 @@
 import { type DependencyInfo, DependencyStatus, type UpdateResult } from '../../common/DependencyTypes';
 import { escapeHtml } from '../htmlEscape';
+import { t } from '../i18n';
 import { onAdminAccessLost } from './adminAccess';
 import { ADMIN_UNREACHABLE_NOTE } from './adminGate';
 import type { TabAlert } from './settings/settingsLayout';
@@ -52,8 +53,8 @@ export class DependencyPanel {
         this.container.className = 'home-section';
         this.container.innerHTML = `
             <div class="dep-header">
-                <h2>Dependencies</h2>
-                <button class="dep-btn dep-check-all">check for updates</button>
+                <h2>${t('settings.tab.dependencies')}</h2>
+                <button class="dep-btn dep-check-all">${t('dep.checkAll')}</button>
             </div>
             <div class="section-card">
                 <table class="dep-table">
@@ -133,7 +134,7 @@ export class DependencyPanel {
     private async checkAll(): Promise<void> {
         const btn = this.container.querySelector('.dep-check-all') as HTMLButtonElement;
         btn.disabled = true;
-        btn.textContent = 'Checking...';
+        btn.textContent = t('dep.checking');
         this.busy = true;
         // §25b — using-declaration replaces the prior try/finally restoring
         // instance busy-flag + button state. Captures `this` and `btn`.
@@ -141,7 +142,7 @@ export class DependencyPanel {
             [Symbol.dispose]: (): void => {
                 this.busy = false;
                 btn.disabled = false;
-                btn.textContent = 'check for updates';
+                btn.textContent = t('dep.checkAll');
             },
         };
         try {
@@ -162,7 +163,7 @@ export class DependencyPanel {
         const btn = this.container.querySelector(`[data-update="${name}"]`) as HTMLButtonElement;
         if (btn) {
             btn.disabled = true;
-            btn.textContent = install ? 'installing...' : 'Updating...';
+            btn.textContent = install ? t('dep.installing') : t('dep.updating');
         }
         this.busy = true;
         // §25b — using-declaration replaces the prior try/finally clearing
@@ -186,11 +187,14 @@ export class DependencyPanel {
                     this.showRestartPrompt();
                 }
             } else {
-                this.alert.show('error', `${install ? 'install' : 'update'} failed: ${result.errorMessage}`);
+                this.alert.show(
+                    'error',
+                    t(install ? 'dep.installFailed' : 'dep.updateFailed', { error: result.errorMessage ?? '' }),
+                );
                 await this.load();
             }
         } catch {
-            this.alert.show('error', `${install ? 'install' : 'update'} failed: could not reach the server.`);
+            this.alert.show('error', t(install ? 'dep.installUnreachable' : 'dep.updateUnreachable'));
             await this.load();
         }
     }
@@ -205,8 +209,8 @@ export class DependencyPanel {
         }
         this.container.innerHTML = `
             <div class="dep-restarting">
-                <h2>Restarting...</h2>
-                <p>The server is restarting. This page will reload automatically.</p>
+                <h2>${t('dep.restartingTitle')}</h2>
+                <p>${t('dep.restartingBody')}</p>
             </div>
         `;
         this.pollForRestart();
@@ -237,8 +241,8 @@ export class DependencyPanel {
         const prompt = document.createElement('div');
         prompt.className = 'dep-restart-prompt';
         prompt.innerHTML = `
-            <p>A dependency was updated that requires a restart.</p>
-            <button class="dep-btn dep-restart-btn">Restart Now</button>
+            <p>${t('dep.restartPrompt')}</p>
+            <button class="dep-btn dep-restart-btn">${t('dep.restartNow')}</button>
         `;
         prompt.querySelector('.dep-restart-btn')!.addEventListener('click', () => this.requestRestart());
         this.container.querySelector('.dep-header')!.after(prompt);
@@ -259,7 +263,7 @@ export class DependencyPanel {
                     ${dep.pairedWith ? `<span class="dep-paired">+ ${escapeHtml(dep.pairedWith)}</span>` : ''}
                     <div class="dep-description">${escapeHtml(dep.description)}</div>
                 </td>
-                <td class="dep-version">${escapeHtml(dep.installedVersion || 'Not installed')}</td>
+                <td class="dep-version">${escapeHtml(dep.installedVersion || t('dep.notInstalledCap'))}</td>
                 ${this.latestCell(dep)}
                 <td class="dep-status">${this.statusLabel(dep)}</td>
                 <td class="dep-action">${this.actionButton(dep)}</td>
@@ -282,12 +286,9 @@ export class DependencyPanel {
     private latestCell(dep: DependencyInfo): string {
         const lookup = dep.latestLookup;
         if (!dep.latestVersion && lookup?.outcome === 'refused') {
-            const status = lookup.httpStatus !== undefined ? `HTTP ${lookup.httpStatus}` : 'HTTP error';
-            const title =
-                `The version lookup was refused (${status}), e.g. by GitHub's rate limit. ` +
-                (dep.installedVersion ? 'The installed version still works. ' : '') +
-                'Check for updates again later.';
-            return `<td class="dep-version dep-latest-refused" title="${escapeHtml(title)}">${escapeHtml(`refused (${status})`)}</td>`;
+            const status = lookup.httpStatus !== undefined ? `HTTP ${lookup.httpStatus}` : t('dep.httpError');
+            const title = t('dep.refusedTitle', { status, installed: dep.installedVersion ? t('dep.stillWorks') : '' });
+            return `<td class="dep-version dep-latest-refused" title="${escapeHtml(title)}">${escapeHtml(t('dep.refused', { status }))}</td>`;
         }
         return `<td class="dep-version">${escapeHtml(dep.latestVersion || '\u2014')}</td>`;
     }
@@ -295,46 +296,44 @@ export class DependencyPanel {
     private statusLabel(dep: DependencyInfo): string {
         switch (dep.status) {
             case 'up-to-date':
-                return '<span class="dep-badge dep-ok">Up to date</span>';
+                return `<span class="dep-badge dep-ok">${t('dep.upToDate')}</span>`;
             case 'update-available':
-                return '<span class="dep-badge dep-warn">Update available</span>';
+                return `<span class="dep-badge dep-warn">${t('dep.updateAvailable')}</span>`;
             case 'checking':
-                return '<span class="dep-badge dep-info">Checking...</span>';
+                return `<span class="dep-badge dep-info">${t('dep.checking')}</span>`;
             case 'updating':
                 return dep.installedVersion === null
-                    ? '<span class="dep-badge dep-info">Installing...</span>'
-                    : '<span class="dep-badge dep-info">Updating...</span>';
+                    ? `<span class="dep-badge dep-info">${t('dep.installingCap')}</span>`
+                    : `<span class="dep-badge dep-info">${t('dep.updating')}</span>`;
             case 'error':
-                return `<span class="dep-badge dep-error" title="${escapeHtml(dep.errorMessage || '')}">Error</span>`;
+                return `<span class="dep-badge dep-error" title="${escapeHtml(dep.errorMessage || '')}">${t('dep.error')}</span>`;
             case 'not-installed':
                 // Neutral, not a warning: a first-use dependency nothing has
                 // needed yet. The install button beside it is the action.
-                return '<span class="dep-badge dep-not-installed">Not installed</span>';
+                return `<span class="dep-badge dep-not-installed">${t('dep.notInstalledCap')}</span>`;
             default:
-                return '<span class="dep-badge dep-unknown">Unknown</span>';
+                return `<span class="dep-badge dep-unknown">${t('dep.unknown')}</span>`;
         }
     }
 
     private actionButton(dep: DependencyInfo): string {
-        const devTooltip =
-            'In-app updates require an installed build. ' +
-            'In dev mode, populate dependencies/ via scripts/fetch-node.mjs.';
+        const devTooltip = t('dep.devTooltip');
         if (dep.status === 'update-available') {
             if (!dep.canUpdate) {
-                return `<button class="dep-btn dep-update" disabled title="${devTooltip}">update (dev)</button>`;
+                return `<button class="dep-btn dep-update" disabled title="${devTooltip}">${t('dep.updateDev')}</button>`;
             }
-            return `<button class="dep-btn dep-update" data-update="${escapeHtml(dep.name)}">update</button>`;
+            return `<button class="dep-btn dep-update" data-update="${escapeHtml(dep.name)}">${t('dep.update')}</button>`;
         }
         if (offersInstall(dep)) {
             if (!dep.canUpdate) {
-                return `<button class="dep-btn dep-update" disabled title="${devTooltip}">install (dev)</button>`;
+                return `<button class="dep-btn dep-update" disabled title="${devTooltip}">${t('dep.installDev')}</button>`;
             }
             // `data-update` wires it to the same request as update (see
             // `updateDep`); `data-install` is what tells the two apart.
-            return `<button class="dep-btn dep-update" data-update="${escapeHtml(dep.name)}" data-install>install</button>`;
+            return `<button class="dep-btn dep-update" data-update="${escapeHtml(dep.name)}" data-install>${t('server.install')}</button>`;
         }
         if (dep.status === 'updating') {
-            return `<button class="dep-btn" disabled>${dep.installedVersion === null ? 'installing...' : 'updating...'}</button>`;
+            return `<button class="dep-btn" disabled>${dep.installedVersion === null ? t('dep.installing') : t('dep.updatingLower')}</button>`;
         }
         return '';
     }

@@ -6,6 +6,7 @@ import type { DeviceTrackerEvent } from '../../types/DeviceTrackerEvent';
 import type { DeviceTrackerEventList } from '../../types/DeviceTrackerEventList';
 import type { Message } from '../../types/Message';
 import type { ParamsDeviceTracker } from '../../types/ParamsDeviceTracker';
+import { t } from '../i18n';
 import Util from '../Util';
 import { html } from '../ui/HtmlTag';
 import { isInstallHandoffInProgress } from './installHandoffPoll';
@@ -183,7 +184,7 @@ export abstract class BaseDeviceTracker<DD extends BaseDeviceDescriptor, TE exte
             if (!block.querySelector('.empty-state-card')) {
                 const empty = document.createElement('div');
                 empty.className = 'empty-state-card';
-                empty.textContent = 'No devices connected.';
+                empty.textContent = t('device.none');
                 block.appendChild(empty);
             }
             return;

@@ -1,3 +1,4 @@
+import { t } from '../i18n';
 import { SettingsModal } from './SettingsModal';
 
 // Hardcoded gear icon SVG (constant string, no user input). 24x24 viewBox; uses
@@ -20,8 +21,8 @@ const GEAR_SVG_MARKUP = [
 export function createSettingsHeader(): HTMLElement {
     const btn = document.createElement('button');
     btn.className = 'settings-header';
-    btn.title = 'Settings';
-    btn.setAttribute('aria-label', 'Open settings');
+    btn.title = t('settings.title');
+    btn.setAttribute('aria-label', t('settings.open'));
     // Safe: GEAR_SVG_MARKUP is a hardcoded constant with no interpolation.
     btn.innerHTML = GEAR_SVG_MARKUP;
 

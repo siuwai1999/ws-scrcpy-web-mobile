@@ -1,4 +1,5 @@
 import type { FirstRunStatus } from '../../common/ConfigEvents';
+import { t } from '../i18n';
 import { onRemoteAdminChanged } from './adminAccess';
 
 const POLL_INTERVAL_MS = 30_000;
@@ -152,10 +153,8 @@ export class AdminScopeBanner {
         const body = document.createElement('p');
 
         if (state === 'local-readonly') {
-            title.textContent = 'Admin actions are disabled for remote clients.';
-            body.textContent =
-                'This server has no sign-in configured. To manage it, open this page on the machine ' +
-                'running the server — or set WS_SCRCPY_ALLOW_REMOTE_ADMIN=1.';
+            title.textContent = t('admin.remoteDisabledTitle');
+            body.textContent = t('admin.remoteDisabledBody');
             // Instructions, never buttons: in open mode there is no auth, so a
             // working "enable" control here would render for an attacker too —
             // a switch that turns off the lock, mounted outside the door.
@@ -166,10 +165,8 @@ export class AdminScopeBanner {
             return;
         }
 
-        title.textContent = 'Admin actions are limited to this machine.';
-        body.textContent =
-            'No sign-in is configured, so anyone on your network can reach this server. Admin ' +
-            'actions — users, configuration, shutdown — are restricted to this machine as a result.';
+        title.textContent = t('admin.limitedTitle');
+        body.textContent = t('admin.limitedBody');
 
         const actions = document.createElement('div');
         actions.className = 'admin-scope-banner__actions';
@@ -177,7 +174,7 @@ export class AdminScopeBanner {
         const signIn = document.createElement('button');
         signIn.type = 'button';
         signIn.className = 'admin-scope-banner__primary';
-        signIn.textContent = 'Set up sign-in';
+        signIn.textContent = t('admin.setupSignIn');
 
         signIn.addEventListener('click', () => {
             void this.onSetUpSignIn();
@@ -186,7 +183,7 @@ export class AdminScopeBanner {
         const allow = document.createElement('button');
         allow.type = 'button';
         allow.className = 'admin-scope-banner__secondary';
-        allow.textContent = 'Allow remote admin without sign-in';
+        allow.textContent = t('admin.allowRemote');
         allow.addEventListener('click', () => {
             void this.onAllowRemoteAdmin();
         });
@@ -199,7 +196,7 @@ export class AdminScopeBanner {
         const dismiss = document.createElement('button');
         dismiss.type = 'button';
         dismiss.className = 'admin-scope-banner__dismiss';
-        dismiss.textContent = 'Dismiss';
+        dismiss.textContent = t('admin.dismiss');
         dismiss.addEventListener('click', () => {
             void this.dismiss();
         });

@@ -1,3 +1,4 @@
+import { t } from '../i18n';
 import { Modal } from '../ui/Modal';
 
 export interface ConfirmModalOptions {
@@ -51,14 +52,14 @@ export class ConfirmModal extends Modal {
         const cancelBtn = document.createElement('button');
         cancelBtn.type = 'button';
         cancelBtn.className = 'modal-button';
-        cancelBtn.textContent = 'cancel';
+        cancelBtn.textContent = t('common.cancel');
         cancelBtn.addEventListener('click', () => this.resolveAndClose(false));
         footer.appendChild(cancelBtn);
 
         const okBtn = document.createElement('button');
         okBtn.type = 'button';
         okBtn.className = 'modal-button modal-button-primary';
-        okBtn.textContent = 'ok';
+        okBtn.textContent = t('common.ok');
         okBtn.addEventListener('click', () => this.resolveAndClose(true));
         footer.appendChild(okBtn);
 

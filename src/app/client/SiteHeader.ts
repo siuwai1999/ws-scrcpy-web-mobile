@@ -1,13 +1,25 @@
 const REPO_URL = 'https://github.com/siuwai1999/ws-scrcpy-web-mobile';
 
+import { t } from '../i18n';
+
 interface NavTarget {
     label: string;
     targetId: string;
 }
 
 const NAV: NavTarget[] = [
-    { label: 'Devices', targetId: 'devices' },
-    { label: 'Network', targetId: 'network' },
+    {
+        get label() {
+            return t('nav.devices');
+        },
+        targetId: 'devices',
+    },
+    {
+        get label() {
+            return t('nav.network');
+        },
+        targetId: 'network',
+    },
 ];
 
 const TAB_KEY = 'wsScrcpyHomeTab';
@@ -51,7 +63,7 @@ export function createSiteHeader(actions: HTMLElement[]): HTMLElement {
 
     const nav = document.createElement('nav');
     nav.className = 'site-nav';
-    nav.setAttribute('aria-label', 'Pages');
+    nav.setAttribute('aria-label', t('nav.pages'));
     const items = new Map<string, HTMLButtonElement>();
     const select = (id: string): void => {
         document.body.dataset['tab'] = id;

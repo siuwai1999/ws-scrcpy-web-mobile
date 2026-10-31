@@ -1,3 +1,4 @@
+import { t } from '../i18n';
 import { Modal } from '../ui/Modal';
 
 export interface ServiceOperationModalOptions {
@@ -10,10 +11,10 @@ const OPERATION_TEXT: Record<ServiceOperationModalOptions['operation'], { title:
     // most of it Defender checking Servy's unpacked DLLs for the first time.
     // Without saying so, a spinner that long reads as a hang.
     install: {
-        title: 'installing service',
-        body: 'please wait while the service is installed. the first install on a machine can take a couple of minutes.',
+        title: t('svcOp.installTitle'),
+        body: t('svcOp.installBody'),
     },
-    uninstall: { title: 'uninstalling service', body: 'please wait while the service is uninstalled...' },
+    uninstall: { title: t('svcOp.uninstallTitle'), body: t('svcOp.uninstallBody') },
 };
 
 // Module-scoped staging variable. buildBody() runs during super() — before

@@ -1,3 +1,4 @@
+import { t } from '../i18n';
 import { Modal } from '../ui/Modal';
 
 /**
@@ -33,18 +34,14 @@ export class ResetConfirmModal extends Modal {
     }
 
     private constructor(resolve: (value: boolean) => void) {
-        super({ title: 'reset prompts' });
+        super({ title: t('resetPrompts.title') });
         this.resolveFn = resolve;
         this.dialog.classList.add('reset-confirm-modal');
     }
 
     protected buildBody(container: HTMLElement): void {
         const description = document.createElement('p');
-        description.textContent =
-            'this resets the welcome modal, the service-mode reminder, the per-port bookmark ' +
-            'reminder, and the global bookmark dismissal. the page will reload so the ' +
-            'appropriate prompt can re-fire. it does not affect install mode, audio ' +
-            'preferences, or scan history.';
+        description.textContent = t('resetPrompts.body');
         container.appendChild(description);
     }
 
@@ -55,14 +52,14 @@ export class ResetConfirmModal extends Modal {
         const cancelBtn = document.createElement('button');
         cancelBtn.type = 'button';
         cancelBtn.className = 'modal-button reset-cancel';
-        cancelBtn.textContent = 'cancel';
+        cancelBtn.textContent = t('common.cancel');
         cancelBtn.addEventListener('click', () => this.resolveAndClose(false));
         footer.appendChild(cancelBtn);
 
         const confirmBtn = document.createElement('button');
         confirmBtn.type = 'button';
         confirmBtn.className = 'modal-button modal-button-primary reset-confirm';
-        confirmBtn.textContent = 'confirm reset';
+        confirmBtn.textContent = t('resetPrompts.confirm');
         confirmBtn.addEventListener('click', () => this.resolveAndClose(true));
         footer.appendChild(confirmBtn);
 

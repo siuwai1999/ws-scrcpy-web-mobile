@@ -1,5 +1,6 @@
 import type { FirstRunStatus } from '../../common/ConfigEvents';
 import { type DependencyInfo, DependencyStatus } from '../../common/DependencyTypes';
+import { t } from '../i18n';
 import type { Role } from './AuthClient';
 import { onAdminAccessLost } from './adminAccess';
 import { adminApiReachable, canSeeSection } from './adminGate';
@@ -200,7 +201,7 @@ export class DependencyAlertCard {
             return;
         }
         const names = pending.map((d) => d.displayName).join(', ');
-        const label = pending.length === 1 ? `${names} has an update available` : `${names} have updates available`;
+        const label = t('depAlert.updates', { count: pending.length, names });
         // textContent and setAttribute, never innerHTML: displayName is
         // server-supplied. (The icon above is the only markup here, and it is a
         // constant.)

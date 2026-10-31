@@ -13,6 +13,7 @@ import { AudioSettingsStore } from '../../client/AudioSettingsStore';
 import { DeviceProbeClient } from '../../client/DeviceProbeClient';
 import { settingsService } from '../../client/SettingsService';
 import { DisplayInfo } from '../../DisplayInfo';
+import { t } from '../../i18n';
 import type { PlayerClass } from '../../player/BasePlayer';
 import { CODEC_PROBE_STRINGS, probeDecodeSupport } from '../../player/webCodecsConfig';
 import Size from '../../Size';
@@ -561,7 +562,7 @@ export class ConfigureScrcpy extends Modal {
         // Display dropdown
         const displayIdLabel = document.createElement('label');
         displayIdLabel.classList.add('label');
-        displayIdLabel.textContent = 'display:';
+        displayIdLabel.textContent = t('cfg.display');
         controls.appendChild(displayIdLabel);
         if (!this.displayIdSelectElement) {
             this.displayIdSelectElement = document.createElement('select');
@@ -575,7 +576,7 @@ export class ConfigureScrcpy extends Modal {
         // Video codec dropdown
         const videoCodecLabel = document.createElement('label');
         videoCodecLabel.classList.add('label');
-        videoCodecLabel.textContent = 'video codec:';
+        videoCodecLabel.textContent = t('cfg.videoCodec');
         controls.appendChild(videoCodecLabel);
         const videoCodecSelect = (this.videoCodecSelect = document.createElement('select'));
         videoCodecSelect.classList.add('input');
@@ -586,7 +587,7 @@ export class ConfigureScrcpy extends Modal {
         // Encoder dropdown
         const encoderLabel = document.createElement('label');
         encoderLabel.classList.add('label');
-        encoderLabel.textContent = 'encoder:';
+        encoderLabel.textContent = t('cfg.encoder');
         controls.appendChild(encoderLabel);
         if (!this.encoderSelectElement) {
             this.encoderSelectElement = document.createElement('select');
@@ -597,7 +598,7 @@ export class ConfigureScrcpy extends Modal {
 
         // Max FPS slider
         this.appendBasicInput(controls, {
-            label: 'max fps',
+            label: t('cfg.maxFps'),
             id: 'maxFps',
             range: { min: 1, max: 60, step: 1 },
         });
@@ -606,7 +607,7 @@ export class ConfigureScrcpy extends Modal {
         // Audio codec dropdown
         const audioCodecLabel = document.createElement('label');
         audioCodecLabel.classList.add('label');
-        audioCodecLabel.textContent = 'audio codec:';
+        audioCodecLabel.textContent = t('cfg.audioCodec');
         controls.appendChild(audioCodecLabel);
         const audioCodecSelect = (this.audioCodecSelect = document.createElement('select'));
         audioCodecSelect.classList.add('input');
@@ -619,7 +620,7 @@ export class ConfigureScrcpy extends Modal {
         //   mic      — capture the device microphone
         const audioSourceLabel = document.createElement('label');
         audioSourceLabel.classList.add('label');
-        audioSourceLabel.textContent = 'audio source:';
+        audioSourceLabel.textContent = t('cfg.audioSource');
         controls.appendChild(audioSourceLabel);
         const audioSourceSelect = (this.audioSourceSelect = document.createElement('select'));
         audioSourceSelect.classList.add('input');
@@ -631,15 +632,15 @@ export class ConfigureScrcpy extends Modal {
         // like `output` does, so it's not worth offering separately.
         const dupOk = audioDupSupported(this.sdkInt);
         const audioSourceOptions: Array<{ value: AudioSource; label: string }> = [
-            { value: 'output', label: 'output — silences device during session (default)' },
+            { value: 'output', label: t('cfg.audioOutput') },
         ];
         if (dupOk) {
             audioSourceOptions.push({
                 value: 'playback',
-                label: 'playback — keeps device audio (Android 13+)',
+                label: t('cfg.audioPlayback'),
             });
         }
-        audioSourceOptions.push({ value: 'mic', label: 'mic — captures device microphone' });
+        audioSourceOptions.push({ value: 'mic', label: t('cfg.audioMic') });
         for (const { value, label } of audioSourceOptions) {
             const opt = document.createElement('option');
             opt.value = value;
@@ -659,7 +660,7 @@ export class ConfigureScrcpy extends Modal {
         const captureOk = audioCaptureSupported(this.sdkInt);
         const audioEnabledLabel = document.createElement('label');
         audioEnabledLabel.classList.add('label');
-        audioEnabledLabel.textContent = 'enable audio:';
+        audioEnabledLabel.textContent = t('cfg.enableAudio');
         controls.appendChild(audioEnabledLabel);
         const audioEnabledCheckbox = (this.audioEnabledCheckbox = document.createElement('input'));
         audioEnabledCheckbox.type = 'checkbox';
@@ -686,7 +687,7 @@ export class ConfigureScrcpy extends Modal {
 
         // ── Overall bitrate (covers video + audio + control) ─────────────
         this.appendBasicInput(controls, {
-            label: 'bitrate',
+            label: t('cfg.bitrate'),
             id: 'bitrate',
             range: { min: 524288, max: 8388608, step: 524288, formatter: Util.prettyBytes },
         });
@@ -706,11 +707,11 @@ export class ConfigureScrcpy extends Modal {
         this.advancedSection = advancedSection;
 
         // I-Frame interval
-        this.appendBasicInput(advancedSection, { label: 'i-frame interval', id: 'iFrameInterval' });
+        this.appendBasicInput(advancedSection, { label: t('cfg.iFrameInterval'), id: 'iFrameInterval' });
 
         // Fit to screen toggle
         const fitLabel = document.createElement('label');
-        fitLabel.textContent = 'fit to screen';
+        fitLabel.textContent = t('cfg.fit');
         fitLabel.classList.add('label');
         advancedSection.appendChild(fitLabel);
         const fitCheckbox = (this.fitToScreenCheckbox = document.createElement('input'));
@@ -722,11 +723,11 @@ export class ConfigureScrcpy extends Modal {
         advancedSection.appendChild(fitCheckbox);
 
         // Max width / Max height
-        this.appendBasicInput(advancedSection, { label: 'max width', id: 'maxWidth' });
-        this.appendBasicInput(advancedSection, { label: 'max height', id: 'maxHeight' });
+        this.appendBasicInput(advancedSection, { label: t('cfg.maxWidth'), id: 'maxWidth' });
+        this.appendBasicInput(advancedSection, { label: t('cfg.maxHeight'), id: 'maxHeight' });
 
         // Codec options
-        this.appendBasicInput(advancedSection, { label: 'codec options', id: 'codecOptions' });
+        this.appendBasicInput(advancedSection, { label: t('cfg.codecOptions'), id: 'codecOptions' });
 
         // Settings row
         const settingsRow = document.createElement('div');
@@ -734,19 +735,19 @@ export class ConfigureScrcpy extends Modal {
 
         const resetSettingsButton = document.createElement('button');
         resetSettingsButton.classList.add('button');
-        resetSettingsButton.textContent = 'reset';
+        resetSettingsButton.textContent = t('cfg.reset');
         resetSettingsButton.addEventListener('click', this.resetSettings);
         settingsRow.appendChild(resetSettingsButton);
 
         const loadSettingsButton = document.createElement('button');
         loadSettingsButton.classList.add('button');
-        loadSettingsButton.textContent = 'load';
+        loadSettingsButton.textContent = t('cfg.load');
         loadSettingsButton.addEventListener('click', this.loadSettings);
         settingsRow.appendChild(loadSettingsButton);
 
         const saveSettingsButton = (this.saveSettingsButton = document.createElement('button'));
         saveSettingsButton.classList.add('button');
-        saveSettingsButton.textContent = 'save';
+        saveSettingsButton.textContent = t('common.save');
         saveSettingsButton.addEventListener('click', this.saveSettings);
         settingsRow.appendChild(saveSettingsButton);
 
@@ -762,7 +763,7 @@ export class ConfigureScrcpy extends Modal {
 
             const connectButton = (this.connectButton = document.createElement('button'));
             connectButton.classList.add('connect-btn');
-            connectButton.textContent = 'connect';
+            connectButton.textContent = t('cfg.connect');
             connectButton.disabled = true;
             connectButton.addEventListener('click', this.openStream);
             footer.appendChild(connectButton);
@@ -804,7 +805,7 @@ export class ConfigureScrcpy extends Modal {
         }
         if (this.saveSettingsButton) {
             const original = this.saveSettingsButton.textContent;
-            this.saveSettingsButton.textContent = 'saved';
+            this.saveSettingsButton.textContent = t('cfg.saved');
             setTimeout(() => {
                 if (this.saveSettingsButton) {
                     this.saveSettingsButton.textContent = original;

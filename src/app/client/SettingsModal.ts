@@ -1,12 +1,15 @@
 import type { AppConfigEnvelope } from '../../common/ConfigEvents';
 import { FRAME_ANCESTORS_ADD_ID } from '../../common/embedderOrigin';
 import { REMOTE_ADMIN_ID } from '../../common/remoteAdmin';
+import { LANGUAGE_SETTING_KEY, t } from '../i18n';
 import { sameOriginUrl } from '../sameOriginUrl';
 import { Modal } from '../ui/Modal';
 import { authClient, type Role } from './AuthClient';
 import { announceAdminAccessLost, announceRemoteAdminChanged } from './adminAccess';
 import { ADMIN_UNREACHABLE_NOTE, adminApiReachable, canSeeSection } from './adminGate';
 import { DEPENDENCY_INSTALLED_EVENT } from './DependencyPanel';
+import { createLanguageSelect } from './LanguageSelect';
+import { settingsService } from './SettingsService';
 import { closeIntent } from './settings/closeIntent';
 import { type BatchResult, runSave } from './settings/SaveRunner';
 import { SettingsSummaryModal } from './settings/SettingsSummaryModal';
@@ -663,13 +666,14 @@ export class SettingsModal extends Modal {
     };
 
     constructor(options?: { initialTab?: string }) {
-        super({ title: 'Settings' });
+        super({ title: t('settings.title') });
         // After super(), never during it: class-field initialisers run as super()
         // returns and would clobber anything assigned earlier (ES2022
         // useDefineForClassFields, the same hazard as `fillBody`). `fillBody` is
         // deferred to a microtask, so it reads this safely.
         this.initialTab = options?.initialTab ?? null;
         this.dialog.classList.add('settings-modal');
+        this.addHeaderButton(createLanguageSelect(settingsService.getGlobalCached()[LANGUAGE_SETTING_KEY]));
         // An install from the Dependencies tab bubbles up to here; the Local
         // HTTPS tab's panel re-checks mkcert so generate enables without a
         // reopen. On the dialog itself, so the listener goes with it.
@@ -880,7 +884,7 @@ export class SettingsModal extends Modal {
         if (canSeeSection(this.role, 'users')) {
             tabs.push({
                 id: 'users',
-                label: 'Users',
+                label: t('settings.tab.users'),
                 build: () => {
                     const el = buildUsersTab(ctx, store);
                     this.usersTabEl = el; // so the constructor can hand it the /api/config envelope
@@ -892,7 +896,7 @@ export class SettingsModal extends Modal {
         if (canSeeSection(this.role, 'embedOrigins')) {
             tabs.push({
                 id: 'embedding',
-                label: 'Embedding',
+                label: t('settings.tab.embedding'),
                 build: () => {
                     const el = buildEmbeddingTab(ctx, store);
                     this.embeddingTabEl = el; // so the container branch can reword its https note
@@ -907,7 +911,7 @@ export class SettingsModal extends Modal {
         if (canSeeSection(this.role, 'updates')) {
             tabs.push({
                 id: 'updates',
-                label: 'Updates',
+                label: t('settings.tab.updates'),
                 build: () => {
                     const el = buildUpdatesTab(ctx, store);
                     this.updatesTabEl = el; // so the constructor can trigger its refresh post-probe
@@ -918,7 +922,7 @@ export class SettingsModal extends Modal {
         if (canSeeSection(this.role, 'service')) {
             tabs.push({
                 id: 'service',
-                label: 'Service',
+                label: t('settings.tab.service'),
                 build: () => {
                     const el = buildServiceTab(ctx, store);
                     this.serviceTabEl = el; // so the constructor can trigger its refresh post-probe
@@ -931,7 +935,7 @@ export class SettingsModal extends Modal {
         if (canSeeSection(this.role, 'dependencies')) {
             tabs.push({
                 id: 'dependencies',
-                label: 'Dependencies',
+                label: t('settings.tab.dependencies'),
                 build: () => {
                     const el = buildDependenciesTab(ctx, store);
                     this.dependenciesTabEl = el; // so the constructor can start it post-probe
@@ -942,7 +946,7 @@ export class SettingsModal extends Modal {
         // Always built (it contains the user-level reset row).
         tabs.push({
             id: 'server',
-            label: 'Server',
+            label: t('settings.tab.server'),
             build: () => {
                 const el = buildServerTab(ctx, store);
                 this.serverTabEl = el; // so the constructor can trigger its refresh
@@ -955,7 +959,7 @@ export class SettingsModal extends Modal {
         if (canSeeSection(this.role, 'localHttps')) {
             tabs.push({
                 id: 'local-https',
-                label: 'Local HTTPS',
+                label: t('settings.tab.localHttps'),
                 build: () => {
                     const el = buildLocalHttpsTab(ctx);
                     this.localHttpsTabEl = el; // so the constructor can decide what it shows

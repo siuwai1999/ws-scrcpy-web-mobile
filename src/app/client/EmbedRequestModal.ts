@@ -1,3 +1,4 @@
+import { t } from '../i18n';
 import { Modal } from '../ui/Modal';
 
 export interface EmbedRequestModalOptions {
@@ -50,7 +51,7 @@ export class EmbedRequestModal extends Modal {
         // another origin permission to frame this app must be an explicit act, and dismissing the
         // dialog by mis-clicking outside it previously reported a denial the user never made.
         // The only exits are the deny and approve buttons, or the request expiring.
-        super({ title: 'allow embedding?', dismissible: false });
+        super({ title: t('embedReq.title'), dismissible: false });
         this.opts = options;
         this.resolveFn = resolve;
         this.deadline = Date.now() + options.expiresInMs;
@@ -66,7 +67,7 @@ export class EmbedRequestModal extends Modal {
     private fillBody(container: HTMLElement): void {
         const intro = document.createElement('p');
         intro.style.cssText = 'margin: 0 0 8px;';
-        intro.textContent = `${this.opts.appName} is asking to display ws-scrcpy-web inside its own page.`;
+        intro.textContent = t('embedReq.intro', { app: this.opts.appName });
         container.appendChild(intro);
 
         const origin = document.createElement('p');
@@ -76,9 +77,7 @@ export class EmbedRequestModal extends Modal {
 
         const warning = document.createElement('p');
         warning.style.cssText = 'margin: 0 0 8px;';
-        warning.textContent =
-            'Approving lets that address show this app in a frame, and saves it to your config. ' +
-            'Only approve if you recognize it and started the request yourself.';
+        warning.textContent = t('embedReq.warning');
         container.appendChild(warning);
 
         this.countdownEl = document.createElement('p');
@@ -128,14 +127,14 @@ export class EmbedRequestModal extends Modal {
         const denyBtn = document.createElement('button');
         denyBtn.type = 'button';
         denyBtn.className = 'modal-button';
-        denyBtn.textContent = 'deny';
+        denyBtn.textContent = t('embedReq.deny');
         denyBtn.addEventListener('click', () => this.resolveAndClose('denied'));
         footer.appendChild(denyBtn);
 
         const approveBtn = document.createElement('button');
         approveBtn.type = 'button';
         approveBtn.className = 'modal-button modal-button-primary';
-        approveBtn.textContent = 'approve';
+        approveBtn.textContent = t('embedReq.approve');
         approveBtn.addEventListener('click', () => this.resolveAndClose('approved'));
         footer.appendChild(approveBtn);
 
@@ -152,8 +151,8 @@ export class EmbedRequestModal extends Modal {
         this.expired = true;
         this.becomeAcknowledgement(
             'expired',
-            `The five-minute window to approve this request has timed out. ${this.opts.appName} was not granted permission to embed this app.`,
-            'Ask again from that app if you still want to allow it.',
+            t('embedReq.expired', { app: this.opts.appName }),
+            t('embedReq.askAgain'),
         );
     }
 
@@ -163,8 +162,8 @@ export class EmbedRequestModal extends Modal {
         this.cancelled = true;
         this.becomeAcknowledgement(
             'cancelled',
-            `${this.opts.appName} withdrew this request, so there is nothing left to decide. It was not granted permission to embed this app.`,
-            'Ask again from that app if you still want to allow it.',
+            t('embedReq.withdrawn', { app: this.opts.appName }),
+            t('embedReq.askAgain'),
         );
     }
 
@@ -192,7 +191,7 @@ export class EmbedRequestModal extends Modal {
             const closeBtn = document.createElement('button');
             closeBtn.type = 'button';
             closeBtn.className = 'modal-button modal-button-primary';
-            closeBtn.textContent = 'close';
+            closeBtn.textContent = t('common.close');
             closeBtn.addEventListener('click', () => this.resolveAndClose(outcome));
             footer.appendChild(closeBtn);
         }

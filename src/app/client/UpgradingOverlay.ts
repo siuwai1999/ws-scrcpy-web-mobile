@@ -1,3 +1,4 @@
+import { t } from '../i18n';
 import { reconnectAfterApply } from './reconnectAfterApply';
 
 type OverlayState = 'applying' | 'reconnecting' | 'timeout';
@@ -44,11 +45,11 @@ export class UpgradingOverlay {
     setState(state: OverlayState, url?: string): void {
         if (!this.msg) return;
         if (state === 'applying') {
-            this.msg.textContent = 'updating — applying the new version…';
+            this.msg.textContent = t('upgrade.applying');
         } else if (state === 'reconnecting') {
-            this.msg.textContent = 'updating — restarting and reconnecting…';
+            this.msg.textContent = t('upgrade.reconnecting');
         } else {
-            this.msg.textContent = `update applied. if this page doesn't return on its own, reopen ${url ?? 'the app url'}.`;
+            this.msg.textContent = t('upgrade.applied', { url: url ?? t('upgrade.appUrl') });
         }
     }
 

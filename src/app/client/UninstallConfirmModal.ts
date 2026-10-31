@@ -1,3 +1,4 @@
+import { t } from '../i18n';
 import { Modal } from '../ui/Modal';
 
 export interface UninstallConfirmResult {
@@ -19,9 +20,7 @@ export interface UninstallConfirmOptions {
  * certificate authority in place on purpose (user decision 2026-10-03), so the
  * dialog says so and says how to remove it.
  */
-export const WINDOWS_CA_KEPT_NOTE =
-    'the local https certificate authority is kept, in %LOCALAPPDATA%\\WsScrcpyWeb-tls, ' +
-    'so devices that already trust it keep trusting a reinstall. delete that folder to remove it.';
+export const WINDOWS_CA_KEPT_NOTE = t('uninstall.caKept');
 
 /**
  * Overlay modal shown when the user clicks "uninstall…" in the App section.
@@ -50,7 +49,7 @@ export class UninstallConfirmModal extends Modal {
     }
 
     private constructor(resolve: (value: UninstallConfirmResult) => void, options: UninstallConfirmOptions) {
-        super({ title: 'uninstall ws-scrcpy-web' });
+        super({ title: t('uninstall.title') });
         this.resolveFn = resolve;
         this.platform = options.platform;
         this.dialog.classList.add('uninstall-confirm-modal');
@@ -63,7 +62,7 @@ export class UninstallConfirmModal extends Modal {
 
     private fillBody(container: HTMLElement): void {
         const description = document.createElement('p');
-        description.textContent = 'this removes the app, its dependencies, and any installed service.';
+        description.textContent = t('uninstall.desc');
         container.appendChild(description);
 
         const keepLabel = document.createElement('label');
@@ -75,7 +74,7 @@ export class UninstallConfirmModal extends Modal {
         this.keepCheckboxEl.checked = true; // default: keep data
 
         keepLabel.appendChild(this.keepCheckboxEl);
-        keepLabel.appendChild(document.createTextNode('keep my settings & logs'));
+        keepLabel.appendChild(document.createTextNode(t('uninstall.keep')));
         container.appendChild(keepLabel);
 
         if (this.platform === 'win32') {
@@ -97,14 +96,14 @@ export class UninstallConfirmModal extends Modal {
         const cancelBtn = document.createElement('button');
         cancelBtn.type = 'button';
         cancelBtn.className = 'settings-btn uninstall-cancel';
-        cancelBtn.textContent = 'cancel';
+        cancelBtn.textContent = t('common.cancel');
         cancelBtn.addEventListener('click', () => this.resolveAndClose(false));
         footer.appendChild(cancelBtn);
 
         const uninstallBtn = document.createElement('button');
         uninstallBtn.type = 'button';
         uninstallBtn.className = 'settings-btn settings-btn-danger-outline uninstall-confirm';
-        uninstallBtn.textContent = 'uninstall';
+        uninstallBtn.textContent = t('uninstall.btn');
         uninstallBtn.addEventListener('click', () => this.resolveAndClose(true));
         footer.appendChild(uninstallBtn);
 

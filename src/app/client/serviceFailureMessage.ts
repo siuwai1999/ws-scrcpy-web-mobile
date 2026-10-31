@@ -1,3 +1,5 @@
+import { t } from '../i18n';
+
 /**
  * The user-facing line for a `ServiceFailureReason` (src/common/ServiceEvents.ts).
  * One copy, so every caller of an endpoint that can raise an elevation prompt
@@ -9,18 +11,18 @@
 export function reasonToUserMessage(reason: string | undefined, fallbackError: string): string {
     switch (reason) {
         case 'unsupported':
-            return 'Service mode is not supported on this platform.';
+            return t('svcFail.unsupported');
         case 'uac-declined':
-            return 'Administrative privileges were declined. Try again and approve the prompt.';
+            return t('svcFail.declined');
         case 'handoff-no-target':
-            return "Couldn't identify a user session to relay the action to.";
+            return t('svcFail.noTarget');
         case 'servy-failure':
-            return `Service install/uninstall failed: ${fallbackError}`;
+            return t('svcFail.servy', { error: fallbackError });
         case 'service-start-failed':
-            return 'The service was installed but did not start, so it was removed. The app is still running locally — check the service logs and try again.';
+            return t('svcFail.startFailed');
         case 'unknown':
         case undefined:
-            return `An unexpected error occurred: ${fallbackError}`;
+            return t('svcFail.unexpected', { error: fallbackError });
         default:
             return fallbackError;
     }

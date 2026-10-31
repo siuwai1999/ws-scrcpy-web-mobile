@@ -1,3 +1,5 @@
+import { t } from '../../i18n';
+
 const TAG = '[ClipboardCopyPrompt]';
 
 /**
@@ -39,19 +41,19 @@ export class ClipboardCopyPrompt {
         element.setAttribute('role', 'status');
 
         const label = document.createElement('span');
-        label.textContent = 'Device clipboard ready —';
+        label.textContent = t('clip.ready');
 
         const copy = document.createElement('button');
         copy.type = 'button';
         copy.className = 'stream-clipboard-prompt-copy';
-        copy.textContent = 'click to copy';
+        copy.textContent = t('clip.copy');
         copy.addEventListener('click', this.onCopyClick);
 
         const dismiss = document.createElement('button');
         dismiss.type = 'button';
         dismiss.className = 'stream-clipboard-prompt-dismiss';
-        dismiss.title = 'dismiss';
-        dismiss.setAttribute('aria-label', 'dismiss');
+        dismiss.title = t('admin.dismissLower');
+        dismiss.setAttribute('aria-label', t('admin.dismissLower'));
         dismiss.textContent = '×';
         dismiss.addEventListener('click', () => this.hide());
 
