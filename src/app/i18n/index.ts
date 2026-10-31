@@ -57,10 +57,13 @@ export function matchLocale(tag: string): LocaleCode | null {
     for (const code of Object.keys(LOCALES) as LocaleCode[]) {
         if (code.toLowerCase() === norm) return code;
     }
+    // Chinese is split by script: Traditional for Taiwan, Hong Kong, Macau and
+    // `Hant`; Simplified for the mainland, Singapore, `Hans` and a bare `zh`.
     if (/^zh-(hant|tw|hk|mo)\b/.test(norm)) return 'zh-TW';
+    if (norm === 'zh' || /^zh-(hans|cn|sg)\b/.test(norm)) return 'zh-CN';
     const lang = norm.split('-')[0];
     for (const code of Object.keys(LOCALES) as LocaleCode[]) {
-        if (code.toLowerCase().split('-')[0] === lang && code.toLowerCase() === lang) return code;
+        if (code.toLowerCase() === lang) return code;
     }
     return null;
 }

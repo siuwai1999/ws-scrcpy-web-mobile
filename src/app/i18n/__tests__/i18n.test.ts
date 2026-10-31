@@ -27,6 +27,9 @@ describe('matchLocale / detectLocale', () => {
             expect(matchLocale(tag), tag).toBe('zh-TW');
         }
     });
+    it('splits Chinese by script and maps bare zh to Simplified', () => {
+        for (const tag of ['zh', 'zh-CN', 'zh_cn', 'zh-Hans', 'zh-SG']) expect(matchLocale(tag), tag).toBe('zh-CN');
+    });
     it('maps English regions to en and rejects unsupported', () => {
         expect(matchLocale('en-GB')).toBe('en');
         expect(matchLocale('fr-FR')).toBeNull();

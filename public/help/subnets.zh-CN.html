@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="../favicon.png">
+<title>子网与 CIDR 速查表 — ws-scrcpy-web</title>
+<script>
+// Apply the theme before paint to avoid a flash. The app keeps its theme in
+// the server's settings, out of this static page's reach, so its links here
+// pass the theme it is showing as ?theme=light|dark (src/app/client/helpLink.ts).
+// Opened any other way, the page follows the OS setting.
+(function() {
+    try {
+        var q = new URLSearchParams(location.search).get('theme');
+        var t = q === 'light' || q === 'dark' ? q : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+    }
+})();
+</script>
+<style>
+:root {
+    --mono: ui-monospace, Consolas, "SF Mono", "Liberation Mono", monospace;
+}
+:root, [data-theme="dark"] {
+    --bg: #2a2a2a;
+    --panel: #1f1f1f;
+    --text: #e0e0e0;
+    --muted: #a8a8a8;
+    --accent: hsl(218, 63%, 70%);
+    --border: #444444;
+}
+[data-theme="light"] {
+    --bg: #ffffff;
+    --panel: #f6f8fa;
+    --text: #212529;
+    --muted: #495057;
+    --accent: #0969da;
+    --border: #d0d7de;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 15px; line-height: 1.6; }
+main { max-width: 780px; margin: 0 auto; padding: 32px 24px 64px; }
+h1 { font-size: 28px; margin: 0 0 8px; }
+h2 { font-size: 20px; margin: 40px 0 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+p { margin: 0 0 12px; }
+code, .mono { font-family: var(--mono); font-size: 0.95em; background: var(--panel); padding: 2px 6px; border-radius: 4px; }
+pre { background: var(--panel); padding: 12px 16px; border-radius: 6px; overflow-x: auto; font-family: var(--mono); font-size: 13px; }
+table { width: 100%; border-collapse: collapse; margin: 12px 0; font-family: var(--mono); font-size: 13px; }
+th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border); }
+th { color: var(--muted); font-weight: 600; }
+.muted { color: var(--muted); }
+.back { display: inline-block; margin-top: 32px; color: var(--accent); text-decoration: none; }
+.back:hover { text-decoration: underline; }
+.footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<main>
+<h1>子网与 CIDR 速查表</h1>
+<p class="muted">用白话说明 ws-scrcpy-web 接受的子网格式。</p>
+
+<h2>什么是子网?</h2>
+<p>IP 地址分成两个部分:一部分识别<em>网络</em>,另一部分识别该网络上的特定<em>主机</em>(设备)。<strong>子网</strong>是一段有名称的地址范围,范围内所有地址的网络部分都相同。</p>
+<p>在家用网络中,你拥有的每台设备 — 手机、笔记本电脑、电视、路由器 — 都在同一个子网上。扫描子网,就是检查该范围内每个可能的主机地址。</p>
+
+<h2>什么是 CIDR 表示法?</h2>
+<p>CIDR(无类别域间路由)把子网写成地址加上斜线与数字,例如 <code>192.168.1.0/24</code>。斜线后的数字是<strong>前缀长度</strong> — 32 位中有多少位属于网络部分。</p>
+<p>前缀越小,子网越大。<code>/24</code> 有 256 个地址(254 个可用);<code>/16</code> 有 65,536 个地址。</p>
+
+<table>
+<thead><tr><th>前缀</th><th>掩码</th><th>总地址数</th><th>可用主机数</th></tr></thead>
+<tbody>
+<tr><td>/16</td><td>255.255.0.0</td><td>65,536</td><td>65,534</td></tr>
+<tr><td>/20</td><td>255.255.240.0</td><td>4,096</td><td>4,094</td></tr>
+<tr><td>/22</td><td>255.255.252.0</td><td>1,024</td><td>1,022</td></tr>
+<tr><td>/23</td><td>255.255.254.0</td><td>512</td><td>510</td></tr>
+<tr><td>/24</td><td>255.255.255.0</td><td>256</td><td>254</td></tr>
+<tr><td>/25</td><td>255.255.255.128</td><td>128</td><td>126</td></tr>
+<tr><td>/28</td><td>255.255.255.240</td><td>16</td><td>14</td></tr>
+<tr><td>/30</td><td>255.255.255.252</td><td>4</td><td>2</td></tr>
+<tr><td>/32</td><td>255.255.255.255</td><td>1</td><td>1</td></tr>
+</tbody>
+</table>
+<p class="muted">对于 /30 及更短的前缀,“可用主机数”不含网络地址(第一个)与广播地址(最后一个)。</p>
+
+<h2>私有 IP 范围(RFC 1918)</h2>
+<p>家庭与办公室网络使用三段保留给私用的 IP 地址范围之一。你的路由器会选一段,并将其中的地址分配给每台设备。</p>
+<ul>
+<li><code>10.0.0.0/8</code> — 16,777,216 个地址。常用于大型组织。</li>
+<li><code>172.16.0.0/12</code> — 1,048,576 个地址。较不常见。</li>
+<li><code>192.168.0.0/16</code> — 65,536 个地址。大多数家用路由器的默认值。</li>
+</ul>
+
+<h2>我的家用路由器用的是哪一段?</h2>
+<p>大多数消费型路由器(Netgear、TP-Link、Linksys、Google Wifi 等)默认使用 <code>192.168.0.0/24</code> 或 <code>192.168.1.0/24</code>。有些 ISP(包括 Xfinity 和 Verizon)使用 <code>192.168.86.0/24</code> 或类似的范围。</p>
+<p>查看你自己的子网:</p>
+<ul>
+<li><strong>Windows:</strong>打开命令提示符,运行 <code>ipconfig</code>。在你的 Wi-Fi 或乙太网络适配器下,找出“IPv4 地址”与“子网掩码”。</li>
+<li><strong>Mac / Linux:</strong>打开终端,运行 <code>ifconfig</code> 或 <code>ip addr</code>。找出显示你的地址与 <code>/N</code> 前缀的 <code>inet</code> 那一行。</li>
+</ul>
+<p>如果你的 IPv4 地址是 <code>192.168.1.42</code>、网络掩码是 <code>255.255.255.0</code>,你就在 <code>192.168.1.0/24</code> 上。</p>
+
+<h2>如何在 ws-scrcpy-web 中输入子网</h2>
+<p>“添加子网”对话框接受三种格式:</p>
+
+<p><strong>1. CIDR 表示法</strong> — 标準写法。范例:</p>
+<pre>192.168.1.0/24
+10.0.0.0/16
+192.168.86.0/24</pre>
+<p>允许的前缀范围是 <code>/16</code> 到 <code>/32</code>。更大的范围(<code>/15</code> 及以下)会被拒绝,因为一次扫描超过 65,534 台主机慢得不切实际。若需要涵盖更多,请添加多个 <code>/16</code>。</p>
+
+<p><strong>2. 单一 IP</strong> — 视为 <code>/32</code>(一台主机)。当你确切知道某台设备的地址时很有用:</p>
+<pre>192.168.1.5</pre>
+
+<p><strong>3. IP 范围</strong> — 单一 <code>/24</code> 内的连续区段。两种写法:</p>
+<pre>192.168.1.10-192.168.1.50
+192.168.1.10-50</pre>
+<p>两者都表示“<code>192.168.1.x</code> 网络上从 <code>.10</code> 到 <code>.50</code> 的地址”— 共 41 台主机。范围必须维持在同一个 <code>/24</code> 内(只有最后一个数字会变)。更大的范围请使用 CIDR。</p>
+
+<h2>扫描实际上做了什么?</h2>
+<p>对于你列出的子网中的每台主机,ws-scrcpy-web 会同时做两件事:</p>
+<ul>
+<li><strong>mDNS 探索</strong> — 询问局域网中有哪些设备广播 ADB 服务。已启用无线侦错的新式 Android 设备通常会在这里出现。</li>
+<li><strong>TCP port 5555 探测</strong> — 尝试对每台主机的 port 5555 建立 TCP 连接。若成功,扫描器会运行 <code>adb connect</code>,确认该主机真的使用 ADB(而不只是别的东西刚好监听该端口),然后干净地断开连接,并将该主机加入你的可用设备清单。</li>
+</ul>
+<p>扫描是唯读的:不会对任何设备写入或更改任何东西。就像检查每个地址有没有门铃,但不会进门。</p>
+
+<a class="back" href="../">&larr; 关闭标签页</a>
+
+<div class="footer">
+参考数据:RFC 1918(私有 IPv4 地址配置)· RFC 4632(CIDR 表示法)。<br>
+为 ws-scrcpy-web 撰写。不含第三方内容。
+</div>
+</main>
+<script>
+// Attach the close-tab handler instead of an inline onclick attribute (avoids
+// the inline event-handler CSP smell; the page already uses an inline script). (#107)
+document.querySelector('.back')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.close();
+});
+</script>
+</body>
+</html>
