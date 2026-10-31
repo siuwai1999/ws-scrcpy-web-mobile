@@ -1,18 +1,14 @@
-/* Dark theme (default) */
+/* Device list: layout tokens come from app.css (--surface-*, --border, --fg-*, --accent). */
 :root,
-[data-theme="dark"] {
-    --device-border-color: #444444;
-    --device-list-default-color: #252525;
-    --device-list-hover-color: hsl(218, 17%, 18%);
-    --section-border-color: #5a5a5a;
-}
-
-/* Light theme */
+[data-theme="dark"],
 [data-theme="light"] {
-    --device-border-color: #c0c6cc;
-    --device-list-default-color: #ffffff;
-    --device-list-hover-color: hsl(218, 67%, 95%);
-    --section-border-color: #8f959d;
+    --device-border-color: var(--border);
+    --device-list-default-color: var(--surface-1);
+    --device-list-hover-color: var(--surface-2);
+    --section-border-color: var(--border);
+    --icon-power: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18.36 6.64a9 9 0 1 1-12.73 0'/%3E%3Cline x1='12' y1='2' x2='12' y2='12'/%3E%3C/svg%3E");
+    --icon-gear: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Cpath d='M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z'/%3E%3C/svg%3E");
+    --icon-disconnect: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='15' y1='9' x2='9' y2='15'/%3E%3Cline x1='9' y1='9' x2='15' y2='15'/%3E%3C/svg%3E");
 }
 
 body.list {
@@ -23,16 +19,17 @@ body.list {
 }
 
 #devices {
-    padding: 20px;
+    padding: var(--space-5);
     width: 100%;
     box-sizing: border-box;
 }
 
 body.list #devices {
-    border: 1.5px solid var(--section-border-color, #5a5a5a);
-    border-radius: 8px;
-    margin-top: 35px;
-    margin-bottom: 35px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface-0);
+    margin-top: var(--space-5);
+    margin-bottom: var(--space-5);
 }
 
 body.stream #devices {
@@ -59,315 +56,341 @@ body.list #device_list_menu {
     z-index: 4;
 }
 
-/* Device list container */
 #devices .device-list {
-    font-family: var(--font-mono);
     font-size: var(--font-size);
 }
 
-#devices .device-list button {
-    font-family: var(--font-mono);
-    font-size: var(--font-size);
-    color: var(--button-text-color);
-}
-
-/* Device card */
+/* ── Device card ── */
 #devices .device-list div.device {
-    border: 1px solid var(--device-border-color);
-    border-radius: 8px;
-    /* Symmetric horizontal padding so the dark-grey content area sits
-       equidistant from the left and right card borders. (The active
-       device's 3px green / not-active 3px red left border is outside
-       this padding and replaces the 1px default left border — that
-       asymmetry is intentional, not part of the content padding.) */
-    padding: 8px 14px;
-    background: var(--device-list-default-color);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    background: var(--surface-1);
+    box-shadow: var(--shadow-1);
     transition:
-        border-color 0.15s,
-        box-shadow 0.15s;
+        border-color var(--duration) var(--ease),
+        box-shadow var(--duration) var(--ease);
 }
 
 #devices .device-list div.device:hover {
-    border-color: var(--device-list-hover-color);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border-color: var(--border-strong);
 }
 
-#devices .device-list div.device.active {
-    border-left: 3px solid var(--success-color);
+/* Status dot, top right. */
+#devices .device-list div.device::before {
+    content: "";
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-4);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--fg-3);
+}
+
+#devices .device-list div.device.active::before {
+    background: var(--success-color);
+    box-shadow: 0 0 0 3px rgba(var(--success-rgb), 0.18);
+}
+
+#devices .device-list div.device.not-active::before {
+    background: var(--danger-color);
 }
 
 #devices .device-list div.device.not-active {
-    border-left: 3px solid var(--danger-color);
-    opacity: 0.7;
+    opacity: 0.75;
+    color: var(--fg-2);
 }
 
 /* Device info table */
 #devices table.device-info {
-    margin-bottom: 0;
+    margin: 0;
     border-collapse: collapse;
-    font-size: 13px;
+    font-size: var(--text-sm);
     width: 100%;
 }
 
 #devices .device-info td {
     padding: 2px 0;
     vertical-align: top;
+    color: var(--fg-1);
 }
 
 #devices .device-info td.device-label {
-    color: var(--text-color-light, #888);
-    padding-right: 24px;
+    color: var(--fg-3);
+    padding-right: var(--space-4);
     white-space: nowrap;
     width: 1%;
 }
 
 #devices .device-info tr:first-child td:last-child {
-    font-size: 15px;
+    font-size: var(--text-lg);
     font-weight: 600;
+    padding-right: var(--space-4);
 }
 
 #devices .device-serial {
     font-family: var(--font-mono);
-    font-size: 12px;
+    font-size: var(--text-xs);
+    color: var(--fg-2);
 }
 
-/* Device action buttons (disconnect + sleep/wake) — sibling row to the
-   device-info table. 2-column grid with outer borders on all four sides;
-   border-top is the row divider shared with the services grid above.
-   Inner vertical divider is drawn as a border-right on the first
-   .action-cell (an element edge → integer pixel → crisp rendering, no
-   sub-pixel AA artifacts). */
-#devices .device-list div.device .device-actions {
+/* ── Actions, ordered by importance ──
+   1. Connect and turn on/off: same size, side by side.
+   2. shell / list files: quiet text buttons.
+   3. disconnect and stream settings: small icon buttons on the right. */
+#devices .device-list div.device .device-primary {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto;
-    gap: 0;
-    border-top: 1px solid var(--device-border-color);
-    border-left: 1px solid var(--device-border-color);
-    border-right: 1px solid var(--device-border-color);
-    border-bottom: 1px solid var(--device-border-color);
+    gap: var(--space-2);
+}
+
+#devices .device-list div.device .device-primary > :only-child {
+    grid-column: 1 / -1;
+}
+
+#devices .device-list div.device .device-primary > .desc-block {
+    display: block;
+    margin: 0;
     padding: 0;
+    border: none;
+    overflow: visible;
 }
 
-/* Each action button lives inside an .action-cell that stretches to
-   fill its grid cell. The cell's right border (first cell only) is
-   the inner vertical divider. */
-#devices .device-list div.device .device-actions > .action-cell {
-    justify-self: stretch;
-    align-self: stretch;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 0 8px;
-    height: 36px;
-    box-sizing: border-box;
-}
-
-#devices .device-list div.device .device-actions > .action-cell:nth-child(1) {
-    border-right: 1px solid var(--device-border-color);
-}
-
-#devices .device-list div.device .device-actions:empty {
-    display: none;
-}
-
-#devices .device-list .disconnect-btn {
-    border: 0.5px solid var(--danger-color);
-    border-radius: 6px;
-    background: transparent;
-    color: var(--danger-color);
-    padding: 2px 8px;
-    font-size: var(--font-size);
-    cursor: pointer;
-    white-space: nowrap;
-    min-width: 95px;
-    text-align: center;
-}
-
-#devices .device-list .disconnect-btn:hover:not(:disabled) {
-    background: var(--danger-hover-bg);
-}
-
-#devices .device-list .disconnect-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* Sleep/wake button */
+#devices .device-list div.device .device-primary > .desc-block a,
 #devices .device-list .sleep-wake-btn {
-    border-radius: 6px;
-    background: transparent;
-    padding: 2px 8px;
-    font-size: var(--font-size);
-    cursor: pointer;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    width: 100%;
+    height: 3rem;
+    min-width: 0;
+    padding: 0 var(--space-4);
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: var(--text-md);
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none;
     white-space: nowrap;
-    min-width: 70px;
-    text-align: center;
+    cursor: pointer;
+    transition:
+        background-color var(--duration-fast) var(--ease),
+        border-color var(--duration-fast) var(--ease),
+        transform var(--duration-fast) var(--ease);
+}
+
+#devices .device-list div.device .device-primary > .desc-block a {
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: var(--accent-on);
+}
+
+#devices .device-list div.device .device-primary > .desc-block a:visited {
+    color: var(--accent-on);
+}
+
+#devices .device-list div.device .device-primary > .desc-block a:hover {
+    background: var(--accent-strong);
+    border-color: var(--accent-strong);
+}
+
+#devices .device-list div.device .device-primary > .desc-block a:active,
+#devices .device-list .sleep-wake-btn:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+#devices .device-list .device-primary a .kind-icon {
+    margin: 0;
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+}
+
+/* Sleep/wake: power icon, tinted by what pressing it does. */
+#devices .device-list .sleep-wake-btn {
+    border: 1px solid var(--border-strong);
+    background: var(--surface-2);
+    color: var(--fg-1);
+}
+
+#devices .device-list .sleep-wake-btn::before {
+    content: "";
+    flex: none;
+    width: 18px;
+    height: 18px;
+    background: currentColor;
+    -webkit-mask: var(--icon-power) center / contain no-repeat;
+    mask: var(--icon-power) center / contain no-repeat;
 }
 
 #devices .device-list .sleep-wake-btn.state-off {
-    border: 0.5px solid var(--success-color);
     color: var(--success-color);
 }
 
 #devices .device-list .sleep-wake-btn.state-on {
-    border: 0.5px solid var(--danger-color);
     color: var(--danger-color);
 }
 
 #devices .device-list .sleep-wake-btn.state-unknown {
-    border: 0.5px solid var(--text-color-light, #888);
-    color: var(--text-color-light, #888);
+    color: var(--fg-3);
 }
 
-#devices .device-list .sleep-wake-btn.state-off:hover:not(:disabled) {
-    background: var(--success-hover-bg);
-}
-
-#devices .device-list .sleep-wake-btn.state-on:hover:not(:disabled) {
-    background: var(--danger-hover-bg);
+#devices .device-list .sleep-wake-btn:hover:not(:disabled) {
+    background: var(--surface-3);
 }
 
 #devices .device-list .sleep-wake-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+#devices .device-list div.device .device-secondary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin: 0 calc(var(--space-2) * -1) calc(var(--space-2) * -1);
+}
+
+#devices .device-list div.device .device-secondary:empty {
+    display: none;
+}
+
+#devices .device-list div.device .device-secondary > .desc-block {
+    display: inline-flex;
+    margin: 0;
+    padding: 0;
+    border: none;
+    overflow: visible;
+}
+
+#devices .device-list div.device .device-secondary > .shell a,
+#devices .device-list div.device .device-secondary > .file-listing a {
+    display: inline-flex;
+    align-items: center;
+    height: 2rem;
+    padding: 0 var(--space-2);
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--fg-2);
+    font-family: inherit;
+    font-size: var(--text-sm);
+    text-decoration: none;
+}
+
+#devices .device-list div.device .device-secondary > .shell a:hover,
+#devices .device-list div.device .device-secondary > .file-listing a:hover {
+    background: var(--surface-2);
+    color: var(--fg-1);
+}
+
+/* Icon buttons: disconnect, stream settings. Text is hidden; the icon is a
+   mask so it follows the theme colour. */
+#devices .device-list div.device .device-secondary .disconnect-btn,
+#devices .device-list div.device .device-secondary .stream .action-button {
+    position: relative;
+    box-sizing: border-box;
+    width: 2rem;
+    height: 2rem;
+    min-width: 0;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--fg-3);
+    font-size: 0;
+    line-height: 0;
+    cursor: pointer;
+    overflow: hidden;
+    transition:
+        background-color var(--duration-fast) var(--ease),
+        color var(--duration-fast) var(--ease);
+}
+
+#devices .device-list div.device .device-secondary .disconnect-btn::before,
+#devices .device-list div.device .device-secondary .stream .action-button::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 18px;
+    height: 18px;
+    background: currentColor;
+}
+
+#devices .device-list div.device .device-secondary .disconnect-btn::before {
+    -webkit-mask: var(--icon-disconnect) center / contain no-repeat;
+    mask: var(--icon-disconnect) center / contain no-repeat;
+}
+
+#devices .device-list div.device .device-secondary .stream .action-button::before {
+    -webkit-mask: var(--icon-gear) center / contain no-repeat;
+    mask: var(--icon-gear) center / contain no-repeat;
+}
+
+#devices .device-list div.device .device-secondary .disconnect-btn:hover:not(:disabled) {
+    background: var(--danger-hover-bg);
+    color: var(--danger-color);
+}
+
+#devices .device-list div.device .device-secondary .stream .action-button:hover {
+    background: var(--surface-2);
+    color: var(--fg-1);
+}
+
+#devices .device-list div.device .device-secondary .disconnect-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
-/* Modal-launch buttons — 2x2 grid filled column-first:
-   left col = [shell][list files], right col = [connect][configure stream].
-   Outer borders on left/right; border-top is the row divider shared with
-   the device-info table above. Inner cross dividers are drawn as
-   border-right / border-bottom on the cells (the .desc-block items
-   themselves stretch to fill their cell). Borders sit at element edges
-   (integer pixels) so they render crisply, unlike 1px grid-track
-   dividers which can land on sub-pixel positions and anti-alias. */
+/* Push the icon buttons to the right edge: the first one takes the free space. */
+#devices .device-list div.device .device-secondary > .icon-first {
+    margin-left: auto;
+}
+
+@media (pointer: coarse) {
+    #devices .device-list div.device .device-secondary .disconnect-btn,
+    #devices .device-list div.device .device-secondary .stream .action-button {
+        width: var(--touch-target);
+        height: var(--touch-target);
+    }
+
+    #devices .device-list div.device .device-secondary > .shell a,
+    #devices .device-list div.device .device-secondary > .file-listing a {
+        height: var(--touch-target);
+        padding: 0 var(--space-3);
+    }
+}
+
+/* Insecure-origin notice. WebCodecs is secure-context-only, so at
+   http://<lan-ip> no player registers and the connect button is absent;
+   this says why. */
 #devices .device-list div.device .services {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto;
-    grid-auto-flow: column;
-    gap: 0;
-    border-top: 1px solid var(--device-border-color);
-    border-left: 1px solid var(--device-border-color);
-    border-right: 1px solid var(--device-border-color);
-    padding: 0;
+    display: block;
 }
 
-/* Each .desc-block (modal-launch cell) stretches to fill its grid cell.
-   Padding gives breathing room around the inner button (which carries
-   the blue border — moved off .desc-block so .desc-block can act as
-   the gray-bordered cell). */
-#devices .device-list div.device .services > .desc-block {
-    justify-self: stretch;
-    align-self: stretch;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 0 8px;
-    margin: 0;
-    border: none;
-    border-radius: 0;
-    overflow: visible;
-    height: 36px;
-    box-sizing: border-box;
+#devices .device-list div.device .services:empty {
+    display: none;
 }
 
-/* Cross dividers via cell borders. With grid-auto-flow: column over 2
-   rows: nth-child(1)=top-left, (2)=bottom-left, (3)=top-right,
-   (4)=bottom-right. Top-left gets right + bottom; bottom-left gets
-   right; top-right gets bottom; bottom-right gets none. For inactive
-   devices (3 buttons, no `connect`), nth-child(3) is `config stream`
-   sitting at top-right with border-bottom — that's fine; the line
-   ends at the cell boundary regardless of whether anything below
-   occupies the empty bottom-right cell. */
-#devices .device-list div.device .services > .desc-block:nth-child(1) {
-    border-right: 1px solid var(--device-border-color);
-    border-bottom: 1px solid var(--device-border-color);
-}
-#devices .device-list div.device .services > .desc-block:nth-child(2) {
-    border-right: 1px solid var(--device-border-color);
-}
-#devices .device-list div.device .services > .desc-block:nth-child(3) {
-    border-bottom: 1px solid var(--device-border-color);
-}
-
-/* Insecure-origin notice — spans both columns beneath the modal-launch grid.
-   WebCodecs is secure-context-only, so at http://<lan-ip> no player registers
-   and the `connect` cell is absent entirely. Without this the card just looked
-   like it had one fewer button, with nothing to explain the missing stream. */
 #devices .device-list div.device .services > .insecure-origin-notice {
-    grid-column: 1 / -1;
-    padding: 8px;
-    border-top: 1px solid var(--device-border-color);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    background: rgba(251, 191, 36, 0.1);
     color: var(--warning-color);
-    font-size: 12px;
+    font-size: var(--text-xs);
     line-height: 1.4;
-    text-align: left;
-}
-
-#devices .device-list div.device .services:last-child {
-    padding-bottom: 0;
-}
-
-#devices .device-list div.device .services:first-of-type {
-    margin-top: 8px;
-}
-
-/* .desc-block default styles for places OUTSIDE the services grid
-   (kept for any other consumer). Inside the services grid, .desc-block
-   acts as a cell; the blue border is moved to the inner button/link. */
-#devices .device-list div.desc-block {
-    margin: 0;
-    display: inline-flex;
-    align-items: center;
-    border-radius: 6px;
-    overflow: hidden;
-    white-space: nowrap;
 }
 
 #devices .device-list div.desc-block.hidden {
     display: none;
-}
-
-/* Inactive device styling */
-#devices .device-list .device.not-active div.desc-block button > svg > path {
-    fill: var(--text-color-light);
-}
-
-#devices .device-list .device.not-active {
-    color: var(--text-color-light);
-}
-
-#devices .device-list .device.not-active a {
-    color: var(--link-color-light);
-}
-
-#devices .device-list .device.not-active a:visited {
-    color: var(--link-color-visited-light);
-}
-
-/* Action buttons and links styled as buttons. Blue border moved here
-   from .desc-block so the parent .desc-block can act as a grid cell
-   (with gray cell borders) without an outer blue border around it. */
-/* biome-ignore-start lint/style/noDescendingSpecificity: intentional source order; reordering would change the cascade */
-#devices .device-list div.desc-block .action-button,
-#devices .device-list div.desc-block a {
-    border: 0.5px solid var(--accent-color);
-    border-radius: 6px;
-    background-color: transparent;
-    color: var(--accent-color);
-    text-decoration: none;
-    padding: 0.15rem 0.5rem;
-    font-family: var(--font-mono);
-    font-size: var(--font-size);
-    cursor: pointer;
-    display: inline-block;
-}
-/* biome-ignore-end lint/style/noDescendingSpecificity: end desc-block action selectors */
-
-#devices .device-list div.desc-block .action-button:hover,
-#devices .device-list div.desc-block a:hover {
-    background-color: var(--device-list-hover-color);
 }
 
 /* Tracker block — inherits grid layout so device cards flow correctly.

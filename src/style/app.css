@@ -2,91 +2,144 @@
 
 :root {
     --font-size: 14px;
-    --font-mono: Consolas, "Segoe UI Mono", "SF Mono", Menlo, "Liberation Mono", "DejaVu Sans Mono", monospace;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI Variable", "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans TC", "PingFang TC", sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace;
+
+    /* Design tokens, theme independent: type scale, 4px spacing, radius, motion. */
+    --text-xs: 0.786rem;
+    --text-sm: 0.857rem;
+    --text-md: 1rem;
+    --text-lg: 1.143rem;
+    --text-xl: 1.357rem;
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 24px;
+    --space-6: 32px;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --duration-fast: 120ms;
+    --duration: 200ms;
+    --ease: cubic-bezier(0.2, 0, 0, 1);
+    --control-height: 2.5rem;
+    --touch-target: 44px;
 }
 
 /* Dark theme (default) */
 :root,
 [data-theme="dark"] {
-    --main-bg-color: #2a2a2a;
-    --stream-bg-color: #333333;
-    --text-shadow-color: hsl(218, 17%, 18%);
-    --header-bg-color: #333333;
-    --controls-bg-color: rgba(45, 55, 65, 0.8);
-    --text-color: #e0e0e0;
-    --text-color-light: #a8a8a8;
+    /* Surfaces, low to high. */
+    --surface-0: #0e1013;
+    --surface-1: #15181d;
+    --surface-2: #1c2026;
+    --surface-3: #252a32;
+    --border: #2a2f38;
+    --border-strong: #3a4049;
+    /* Text, high to low. */
+    --fg-1: #eceef1;
+    --fg-2: #a3abb7;
+    --fg-3: #6f7886;
+    --accent: #8b8dff;
+    --accent-strong: #7173f5;
+    --accent-on: #ffffff;
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-2: 0 8px 24px rgba(0, 0, 0, 0.45);
+
+    --main-bg-color: var(--surface-0);
+    --stream-bg-color: var(--surface-0);
+    --text-shadow-color: var(--surface-1);
+    --header-bg-color: var(--surface-1);
+    --controls-bg-color: rgba(21, 24, 29, 0.85);
+    --text-color: var(--fg-1);
+    --text-color-light: var(--fg-2);
     --success-color: #4ade80;
     --success-hover-bg: rgba(74, 222, 128, 0.1);
-    --danger-color: #f06c75;
-    --danger-hover-bg: rgba(240, 108, 117, 0.1);
-    --warning-color: #fb923c;
+    --danger-color: #f87171;
+    --danger-hover-bg: rgba(248, 113, 113, 0.1);
+    --warning-color: #fbbf24;
     --info-color: #60a5fa;
-    --link-color: hsl(218, 63%, 70%);
-    --link-color-light: hsl(218, 63%, 50%);
-    --link-color-visited: hsl(267, 31%, 47%);
-    --link-color-visited-light: hsl(267, 31%, 27%);
-    --kill-button-hover-color: #f06c75;
-    --url-color: #888888;
-    --button-text-color: hsl(214, 82%, 76%);
-    --button-border-color: #444444;
-    --progress-background-color: rgba(50, 100, 255, 0.2);
-    --progress-background-error-color: rgba(255, 50, 50, 0.2);
-    --accent-color: #5b9aff;
-    --accent-rgb: 91, 154, 255;
-    --danger-rgb: 240, 108, 117;
+    --link-color: var(--accent);
+    --link-color-light: #6366f1;
+    --link-color-visited: #a78bfa;
+    --link-color-visited-light: #6d5bd0;
+    --kill-button-hover-color: #f87171;
+    --url-color: var(--fg-3);
+    --button-text-color: var(--accent);
+    --button-border-color: var(--border);
+    --progress-background-color: rgba(139, 141, 255, 0.2);
+    --progress-background-error-color: rgba(248, 113, 113, 0.2);
+    --accent-color: var(--accent);
+    --accent-rgb: 139, 141, 255;
+    --danger-rgb: 248, 113, 113;
     --success-rgb: 74, 222, 128;
-    --modal-divider: rgba(255, 255, 255, 0.08);
-    --border-muted: rgba(255, 255, 255, 0.2);
+    --modal-divider: rgba(255, 255, 255, 0.07);
+    --border-muted: rgba(255, 255, 255, 0.16);
     /* Settings cards (modal.css .settings-card), the Dependencies card and the
      * Local HTTPS callout inside the dialog: the device list's own card color. */
-    --settings-card-bg: #252525;
+    --settings-card-bg: var(--surface-1);
     /* A list that drops from a Settings control (the certificate subject's
      * address list, modal.css .settings-combo-list). */
-    --settings-popup-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+    --settings-popup-shadow: var(--shadow-2);
 }
 
 /* Light theme */
 [data-theme="light"] {
-    --main-bg-color: #ffffff;
-    --stream-bg-color: #f0f2f5;
-    --text-shadow-color: hsl(218, 67%, 95%);
-    --header-bg-color: #f8f9fa;
-    --controls-bg-color: rgba(248, 249, 250, 0.8);
-    --text-color: #212529;
-    --text-color-light: #495057;
+    --surface-0: #f6f7f9;
+    --surface-1: #ffffff;
+    --surface-2: #f0f2f5;
+    --surface-3: #e6e9ee;
+    --border: #e1e5ea;
+    --border-strong: #c8ced6;
+    --fg-1: #14171c;
+    --fg-2: #4b5563;
+    --fg-3: #818a97;
+    /* Darker than the dark-theme accent so it clears WCAG AA contrast (at least
+     * 4.5:1) as a focus ring / accent text color on the light background. */
+    --accent: #4f46e5;
+    --accent-strong: #4338ca;
+    --accent-on: #ffffff;
+    --shadow-1: 0 1px 2px rgba(16, 24, 40, 0.08);
+    --shadow-2: 0 8px 24px rgba(16, 24, 40, 0.14);
+
+    --main-bg-color: var(--surface-0);
+    --stream-bg-color: var(--surface-2);
+    --text-shadow-color: var(--surface-2);
+    --header-bg-color: var(--surface-1);
+    --controls-bg-color: rgba(255, 255, 255, 0.85);
+    --text-color: var(--fg-1);
+    --text-color-light: var(--fg-2);
     --success-color: #15803d;
     --success-hover-bg: rgba(21, 128, 61, 0.1);
     --danger-color: #b91c1c;
     --danger-hover-bg: rgba(185, 28, 28, 0.1);
     --warning-color: #b45309;
     --info-color: #0969da;
-    --link-color: hsl(218, 85%, 43%);
-    --link-color-light: hsl(218, 85%, 73%);
-    --link-color-visited: hsl(271, 68%, 32%);
-    --link-color-visited-light: hsl(271, 68%, 72%);
-    --kill-button-hover-color: #dc3545;
-    --url-color: #6c757d;
-    --button-text-color: #0d6efd;
-    --button-border-color: #c0c6cc;
-    --progress-background-color: rgba(50, 100, 255, 0.2);
-    --progress-background-error-color: rgba(255, 50, 50, 0.2);
-    /* Darker than the dark-theme accent so it clears WCAG AA contrast (at least
-     * 4.5:1) as a focus ring / accent text color on the light background —
-     * #0969da is ~5.2:1 on white; reuses the light --info-color blue. */
-    --accent-color: #0969da;
-    --accent-rgb: 9, 105, 218;
+    --link-color: var(--accent);
+    --link-color-light: #a5b4fc;
+    --link-color-visited: #6d28d9;
+    --link-color-visited-light: #c4b5fd;
+    --kill-button-hover-color: #dc2626;
+    --url-color: var(--fg-3);
+    --button-text-color: var(--accent);
+    --button-border-color: var(--border-strong);
+    --progress-background-color: rgba(79, 70, 229, 0.15);
+    --progress-background-error-color: rgba(185, 28, 28, 0.15);
+    --accent-color: var(--accent);
+    --accent-rgb: 79, 70, 229;
     --danger-rgb: 185, 28, 28;
     --success-rgb: 21, 128, 61;
-    --modal-divider: rgba(0, 0, 0, 0.08);
-    --border-muted: rgba(0, 0, 0, 0.2);
-    /* A shade above the dialog's light glass. Solid white stood out too much
-     * against it, and a translucent white let the page behind show through. */
-    --settings-card-bg: #e9edf2;
-    --settings-popup-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    --modal-divider: rgba(0, 0, 0, 0.07);
+    --border-muted: rgba(0, 0, 0, 0.18);
+    --settings-card-bg: var(--surface-2);
+    --settings-popup-shadow: var(--shadow-2);
 }
 
 html {
     font-size: var(--font-size);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
 }
 
 /* Respect the OS "reduce motion" preference (WCAG 2.3.3): collapse animations

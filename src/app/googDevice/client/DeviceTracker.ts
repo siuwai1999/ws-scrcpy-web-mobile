@@ -454,6 +454,53 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
                 new ConnectModal(params, player, fitToScreen, videoSettings, label, device.deviceKind);
             });
         });
+
+        DeviceTracker.arrangeCardActions(overlaySection.closest('.device'));
+    }
+
+    /**
+     * Regroup a built card's controls by importance, after every handler is
+     * wired (moving a node keeps its listeners):
+     *   primary   — connect + sleep/wake, equal size, side by side;
+     *   secondary — shell, list files, then the small icon buttons on the right
+     *               (disconnect, stream settings).
+     * `.services` stays behind and only holds the insecure-origin notice.
+     */
+    private static arrangeCardActions(card: Element | null): void {
+        const services = card?.querySelector(':scope > .services');
+        const actions = card?.querySelector(':scope > .device-actions');
+        if (!card || !services || !actions) return;
+
+        const primary = document.createElement('div');
+        primary.className = 'device-primary';
+        const secondary = document.createElement('div');
+        secondary.className = 'device-secondary';
+
+        const connect = services.querySelector(':scope > .desc-block[name]');
+        const sleep = actions.querySelector('.sleep-wake-btn');
+        const shell = services.querySelector(':scope > .shell');
+        const files = services.querySelector(':scope > .file-listing');
+        const disconnect = actions.querySelector('.disconnect-btn');
+        const config = services.querySelector(':scope > .stream');
+
+        if (connect) primary.appendChild(connect);
+        if (sleep) primary.appendChild(sleep);
+        if (shell) secondary.appendChild(shell);
+        if (files) secondary.appendChild(files);
+        if (disconnect) {
+            disconnect.setAttribute('aria-label', 'Disconnect device');
+            disconnect.setAttribute('title', 'Disconnect device');
+            secondary.appendChild(disconnect);
+        }
+        if (config) {
+            config.querySelector('button')?.setAttribute('aria-label', 'Stream settings');
+            config.querySelector('button')?.setAttribute('title', 'Stream settings');
+            secondary.appendChild(config);
+        }
+        (disconnect ?? config)?.classList.add('icon-first');
+
+        actions.remove();
+        services.before(...[primary, secondary].filter((el) => el.childElementCount > 0));
     }
 
     /**
