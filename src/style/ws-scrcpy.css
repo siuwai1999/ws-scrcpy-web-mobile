@@ -22,7 +22,7 @@
 [data-theme="dark"] {
     --control-buttons-bg-color: #15181d;
     --svg-button-fill: #eceef1;
-    --svg-checkbox-bg-color: #10b981;
+    --svg-checkbox-bg-color: #8b8dff;
     /* Overlay tokens: copies of app.css's dark values. */
     --controls-bg-color: rgba(21, 24, 29, 0.85);
     --text-color: #eceef1;
@@ -36,7 +36,7 @@
     :root:not([data-theme="dark"]) {
         --control-buttons-bg-color: #ffffff;
         --svg-button-fill: #4b5563;
-        --svg-checkbox-bg-color: #198754;
+        --svg-checkbox-bg-color: #4f46e5;
         /* Overlay tokens: copies of app.css's light values. */
         --controls-bg-color: rgba(255, 255, 255, 0.85);
         --text-color: #14171c;
@@ -50,7 +50,7 @@
 [data-theme="light"] {
     --control-buttons-bg-color: #ffffff;
     --svg-button-fill: #4b5563;
-    --svg-checkbox-bg-color: #198754;
+    --svg-checkbox-bg-color: #4f46e5;
     /* Overlay tokens: copies of app.css's light values. */
     --controls-bg-color: rgba(255, 255, 255, 0.85);
     --text-color: #14171c;

@@ -146,7 +146,8 @@ body.list #device_list_menu {
    3. disconnect and stream settings: small icon buttons on the right. */
 #devices .device-list div.device .device-primary {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    /* Connect is the main action: wider than turn on/off. */
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
     gap: var(--space-2);
 }
 
@@ -208,6 +209,7 @@ body.list #device_list_menu {
 }
 
 #devices .device-list .device-primary a .kind-icon {
+    order: -1; /* icon before the label, like the power icon on turn on/off */
     margin: 0;
     width: 18px;
     height: 18px;
