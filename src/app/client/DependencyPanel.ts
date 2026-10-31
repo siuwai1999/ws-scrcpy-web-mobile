@@ -61,11 +61,11 @@ export class DependencyPanel {
                 <table class="dep-table">
                     <thead>
                         <tr>
-                            <th>Dependency</th>
-                            <th>Installed</th>
-                            <th>Latest</th>
-                            <th>Status</th>
-                            <th>Action</th>
+                            <th>${t('dep.colName')}</th>
+                            <th>${t('dep.colInstalled')}</th>
+                            <th>${t('dep.colLatest')}</th>
+                            <th>${t('dep.colStatus')}</th>
+                            <th>${t('dep.colAction')}</th>
                         </tr>
                     </thead>
                     <tbody></tbody>

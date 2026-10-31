@@ -26,6 +26,7 @@ import type { Tool } from './client/Tool';
 import { createUpdateButton } from './client/UpdateButton';
 import { WelcomeModal } from './client/WelcomeModal';
 import { StreamClientScrcpy } from './googDevice/client/StreamClientScrcpy';
+import { t } from './i18n';
 import { applyStoredLanguage } from './i18n/boot';
 import { installThemeEmbedListener, notifyThemeReady } from './public/themeEmbed';
 import { onPageTeardown } from './util/onPageTeardown';
@@ -138,7 +139,7 @@ function maybeShowFirstRunModal(): void {
                 // System-wide update offer (P3c-2): a newer home AppImage is running
                 // over an older /opt copy → offer to update the system-wide install.
                 if (offersSystemWideUpdate(status)) {
-                    const banner = showStatusBanner('update the system-wide install?', 'update', () => {
+                    const banner = showStatusBanner(t('boot.updateSystemWide'), t('boot.update'), () => {
                         void fetch('/api/service/install-system-wide', { method: 'POST' })
                             .then(async (r) => {
                                 if (r.ok) {

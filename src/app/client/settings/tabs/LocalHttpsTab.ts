@@ -1302,8 +1302,7 @@ export function buildLocalHttpsContainerNote(): HTMLElement {
     const note = document.createElement('p');
     note.className = 'settings-status';
     note.style.gridColumn = '1 / -1';
-    note.textContent =
-        "local HTTPS doesn't apply in a container. serve HTTPS from a reverse proxy in front of the container — that is the only supported way to add HTTPS to the image.";
+    note.textContent = t('docker.localHttps');
     card.appendChild(buildItem(note));
     // Its own status line, like every tab: the dialog's save reports there
     // when this is the tab on screen.

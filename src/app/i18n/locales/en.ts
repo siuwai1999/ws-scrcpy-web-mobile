@@ -727,6 +727,30 @@ export const en = {
     'srv.notStageable': 'not a stageable setting: {id}',
     'srv.invalidJson': 'Invalid JSON: {error}',
     'srv.noSerial': 'the device on {address} has not reported its serial yet; retry shortly',
+    'docker.service': 'service install not applicable — this instance runs in a container.',
+    'docker.updates': 'app updates not applicable — this instance runs in a container; pull a newer image to update.',
+    'docker.dependencies':
+        'dependency updates not applicable — this instance runs in a container; pull a newer image to update.',
+    'docker.localHttps':
+        "local HTTPS doesn't apply in a container. serve HTTPS from a reverse proxy in front of the container — that is the only supported way to add HTTPS to the image.",
+    'dep.colName': 'Dependency',
+    'dep.colInstalled': 'Installed',
+    'dep.colLatest': 'Latest',
+    'dep.colStatus': 'Status',
+    'dep.colAction': 'Action',
+    'files.deleteFailedWith': 'delete failed: {reason}',
+    'files.moreErrors_one': ' (+{count} more)',
+    'files.moreErrors_other': ' (+{count} more)',
+    'update.networkError': 'network error',
+    'firstRun.retry': 'Retry',
+    'settings.unsavedTitle': 'Unsaved changes',
+    'files.deleteManyQ_one': 'delete {count} item?',
+    'files.deleteManyQ_other': 'delete {count} items?',
+    'boot.updateSystemWide': 'update the system-wide install?',
+    'boot.update': 'update',
+    'boot.reload': 'reload',
+    'boot.staleToken':
+        'this page lost its connection to the server and could not get it back. reload the page to reconnect.',
 } as const;
 
 export type MessageKey = keyof typeof en;

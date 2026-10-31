@@ -111,11 +111,7 @@ function buildDockerNoteSection(
 }
 
 export function buildDockerServiceNote(): HTMLElement {
-    return buildDockerNoteSection(
-        'Service',
-        'service',
-        'service install not applicable — this instance runs in a container.',
-    );
+    return buildDockerNoteSection(t('settings.tab.service'), 'service', t('docker.service'));
 }
 
 /**
@@ -134,11 +130,7 @@ export function buildDockerServiceNote(): HTMLElement {
  * 1.0, which is the property the tag-naming versions could not have.
  */
 export function buildDockerUpdatesNote(): HTMLElement {
-    return buildDockerNoteSection(
-        'Updates',
-        'updates',
-        'app updates not applicable — this instance runs in a container; pull a newer image to update.',
-    );
+    return buildDockerNoteSection(t('settings.tab.updates'), 'updates', t('docker.updates'));
 }
 
 /**
@@ -190,11 +182,7 @@ export function buildAdminUnreachableSection(title: string, tabId: string): HTML
 }
 
 export function buildDockerDependenciesNote(): HTMLElement {
-    const section = buildDockerNoteSection(
-        'Dependencies',
-        'dependencies',
-        'dependency updates not applicable — this instance runs in a container; pull a newer image to update.',
-    );
+    const section = buildDockerNoteSection(t('settings.tab.dependencies'), 'dependencies', t('docker.dependencies'));
     section.dataset['settingsTab'] = 'dependencies';
     return section;
 }
@@ -462,7 +450,7 @@ export class SettingsDirtyCloseModal extends Modal {
     }
 
     private constructor(resolve: (value: DirtyCloseChoice) => void) {
-        super({ title: 'Unsaved changes' });
+        super({ title: t('settings.unsavedTitle') });
         this.resolveFn = resolve;
     }
 

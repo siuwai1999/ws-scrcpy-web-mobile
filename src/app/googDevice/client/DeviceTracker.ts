@@ -122,6 +122,11 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
         }
     }
 
+    // The player's name doubles as its lookup key, so only the label is translated.
+    private static playerLabel(fullName: string): string {
+        return fullName === 'connect' ? t('cfg.connect') : fullName;
+    }
+
     private static iconForKind(kind: 'phone' | 'tablet' | 'tv' | undefined) {
         switch (kind) {
             case 'tv':
@@ -161,7 +166,7 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
                     udid,
                     player: decodeURIComponent(playerCodeName),
                 },
-                decodeURIComponent(playerFullName),
+                DeviceTracker.playerLabel(decodeURIComponent(playerFullName)),
                 this.params,
             );
             item.appendChild(link);

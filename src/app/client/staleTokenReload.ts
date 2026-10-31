@@ -1,3 +1,4 @@
+import { t } from '../i18n';
 import { isStaleTokenRefusal } from './staleToken';
 import { showStatusBanner } from './statusBanner';
 
@@ -117,8 +118,7 @@ export function clearStaleTokenReloadMark(storage: MarkStorage | null = sessionS
 }
 
 /** The text of the notice shown when the retry loop gives up (lowercase, per the app's UI text rule). */
-export const STALE_TOKEN_NOTICE_TEXT =
-    'this page lost its connection to the server and could not get it back. reload the page to reconnect.';
+export const STALE_TOKEN_NOTICE_TEXT = t('boot.staleToken');
 
 /**
  * Tell the user the device list stopped retrying, with a reload action, rather
@@ -128,7 +128,7 @@ export const STALE_TOKEN_NOTICE_TEXT =
 export function showStaleTokenNotice(reload: () => void = () => window.location.reload()): HTMLElement {
     const existing = document.querySelector<HTMLElement>('[data-stale-token-notice]');
     if (existing) return existing;
-    const banner = showStatusBanner(STALE_TOKEN_NOTICE_TEXT, 'reload', reload);
+    const banner = showStatusBanner(STALE_TOKEN_NOTICE_TEXT, t('boot.reload'), reload);
     banner.setAttribute('data-stale-token-notice', '');
     banner.setAttribute('role', 'alert');
     return banner;

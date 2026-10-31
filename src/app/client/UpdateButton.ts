@@ -293,7 +293,7 @@ export function createUpdateButton(): HTMLElement {
             if (applyInFlight) return;
             // Server unreachable — show error state (don't stay hidden) so the
             // user has a retry affordance. Don't blow up unhandled.
-            const msg = err instanceof Error ? err.message : 'network error';
+            const msg = err instanceof Error ? err.message : t('update.networkError');
             // Keep isInstalled-derived hidden behavior if we previously knew
             // it was dev mode; otherwise show the error.
             if (lastStatus && !lastStatus.isInstalled) {

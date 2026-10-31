@@ -1265,7 +1265,7 @@ export class ListFilesModal extends Modal implements DragAndPushListener {
         const paths = Array.from(this.selectedPaths);
         if (paths.length === 0) return;
         const count = paths.length;
-        if (!confirm(`delete ${count} item${count > 1 ? 's' : ''}?`)) return;
+        if (!confirm(t('files.deleteManyQ', { count }))) return;
         this.deleteFiles(paths);
     }
 

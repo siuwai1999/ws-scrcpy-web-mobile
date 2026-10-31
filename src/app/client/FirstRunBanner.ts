@@ -125,7 +125,7 @@ export class FirstRunBanner {
             <div class="first-run-banner-inner">
                 <span class="first-run-banner-icon">⚠</span>
                 <span class="first-run-banner-text"></span>
-                <button class="first-run-banner-retry" type="button">Retry</button>
+                <button class="first-run-banner-retry" type="button">${t('firstRun.retry')}</button>
             </div>
         `;
         // Inject the (server-supplied) dependency names as text, never as markup.

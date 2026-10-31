@@ -1,3 +1,4 @@
+import { t } from '../../i18n';
 /**
  * Turns the answer to `POST /api/devices/files/delete` into the file browser's
  * footer text. The server (DeviceDiscoveryApi) answers in three shapes:
@@ -41,13 +42,13 @@ export function describeDeleteResponse(status: number, ok: boolean, body: unknow
 
     if (result && result.success !== true && Array.isArray(result.errors) && result.errors.length > 0) {
         const details = result.errors.map(describeError);
-        const more = details.length > 1 ? ` (+${details.length - 1} more)` : '';
-        return { message: `delete failed: ${details[0]}${more}`, details };
+        const more = details.length > 1 ? t('files.moreErrors', { count: details.length - 1 }) : '';
+        return { message: t('files.deleteFailedWith', { reason: details[0] ?? '' }) + more, details };
     }
 
     if (!ok) {
         const reason = typeof result?.error === 'string' && result.error ? result.error : `HTTP ${status}`;
-        return { message: `delete failed: ${reason}`, details: [reason] };
+        return { message: t('files.deleteFailedWith', { reason }), details: [reason] };
     }
 
     return null;
